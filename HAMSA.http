@@ -1,0 +1,6 @@
+@HAMSA_HostAddress = http://localhost:5234
+
+GET {{HAMSA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

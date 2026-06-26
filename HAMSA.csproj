@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.28" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="API\" />
+    <Folder Include="Application\" />
+    <Folder Include="Domain\" />
+    <Folder Include="Infrastructure\" />
+    <Folder Include="Src\API\Controllers\" />
+    <Folder Include="Src\API\Extensions\" />
+    <Folder Include="Src\API\Filters\" />
+    <Folder Include="Src\API\Hubs\" />
+    <Folder Include="Src\API\Middleware\" />
+    <Folder Include="Src\Application\Common\Behaviors\" />
+    <Folder Include="Src\Application\Common\Exceptions\" />
+    <Folder Include="Src\Application\Common\Mappings\" />
+    <Folder Include="Src\Application\DTOs\" />
+    <Folder Include="Src\Application\Features\Announcements\" />
+    <Folder Include="Src\Application\Features\Auth\Commands\" />
+    <Folder Include="Src\Application\Features\Buildings\Commands\" />
+    <Folder Include="Src\Application\Features\Buildings\Queries\" />
+    <Folder Include="Src\Application\Features\Charges\Commands\" />
+    <Folder Include="Src\Application\Features\Charges\Queries\" />
+    <Folder Include="Src\Application\Features\Chat\" />
+    <Folder Include="Src\Application\Features\Finance\Queries\" />
+    <Folder Include="Src\Application\Features\GroupChallenge\" />
+    <Folder Include="Src\Application\Features\Listings\" />
+    <Folder Include="Src\Application\Features\Polls\" />
+    <Folder Include="Src\Application\Features\Reports\" />
+    <Folder Include="Src\Application\Features\Reservations\" />
+    <Folder Include="Src\Domain\Entities\" />
+    <Folder Include="Src\Domain\Enums\" />
+    <Folder Include="Src\Domain\Events\" />
+    <Folder Include="Src\Domain\Exceptions\" />
+    <Folder Include="Src\Domain\Interfaces\Repositories\" />
+    <Folder Include="Src\Domain\Interfaces\Services\" />
+    <Folder Include="Src\Domain\ValueObjects\" />
+    <Folder Include="Src\Infrastructure\Caching\" />
+    <Folder Include="Src\Infrastructure\DependencyInjection\" />
+    <Folder Include="Src\Infrastructure\ExternalServices\" />
+    <Folder Include="Src\Infrastructure\Identity\" />
+    <Folder Include="Src\Infrastructure\Messaging\" />
+    <Folder Include="Src\Infrastructure\Persistence\Configurations\" />
+    <Folder Include="Src\Infrastructure\Persistence\Migrations\" />
+    <Folder Include="Src\Infrastructure\Persistence\Repositories\" />
+  </ItemGroup>
+
+</Project>
