@@ -48,6 +48,8 @@ public class AppDbContext : DbContext
 
     public DbSet<GroupBuying> GroupBuyings => Set<GroupBuying>();
     public DbSet<GroupBuyingParticipant> GroupBuyingParticipants => Set<GroupBuyingParticipant>();
+    
+    public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
