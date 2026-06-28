@@ -10,6 +10,10 @@ using HAMSA.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using HAMSA.Application.Features.Buildings.Commands.CreateBuilding;
+using HAMSA.Application.Features.Buildings.Commands.TransferManager;
+using HAMSA.Application.Features.Buildings.Commands.UpdateBuilding;
+using HAMSA.Application.Features.Buildings.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +51,11 @@ builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<SendOtpHandler>();
 builder.Services.AddScoped<VerifyOtpHandler>();
+builder.Services.AddScoped<CreateBuildingHandler>();
+builder.Services.AddScoped<UpdateBuildingHandler>();
+builder.Services.AddScoped<TransferManagerHandler>();
+builder.Services.AddScoped<GetBuildingHandler>();
+builder.Services.AddScoped<GetUserBuildingsHandler>();
 
 var app = builder.Build();
 

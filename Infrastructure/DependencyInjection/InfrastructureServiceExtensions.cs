@@ -1,6 +1,5 @@
 using HAMSA.Domain.Interfaces.Repositories;
 using HAMSA.Infrastructure.Persistence.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HAMSA.Infrastructure.DependencyInjection;
 
@@ -27,6 +26,7 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IResidentEventRepository, ResidentEventRepository>();
         services.AddScoped<ILocalServiceRepository, LocalServiceRepository>();
         services.AddScoped<IGroupBuyingRepository, GroupBuyingRepository>();
+        services.AddScoped<IBuildingManagerHistoryRepository, BuildingManagerHistoryRepository>();
 
         return services;
     }
