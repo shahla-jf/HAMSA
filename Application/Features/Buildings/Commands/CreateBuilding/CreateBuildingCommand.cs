@@ -62,7 +62,7 @@ public class CreateBuildingHandler
         // سازنده رو به عنوان عضو ساختمان (با نقش Manager) اضافه کن
         var membership = BuildingMembership.Create(
             command.ManagerUserId, building.Id,
-            Guid.Empty,  // مدیر لزوماً واحد خاصی نداره
+            null,  // مدیر لزوماً واحد خاصی نداره
             UserRole.Manager, true, DateTime.UtcNow
         );
         await _membershipRepository.AddAsync(membership);

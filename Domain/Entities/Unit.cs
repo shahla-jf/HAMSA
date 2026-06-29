@@ -50,7 +50,7 @@ public class BuildingMembership
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
     public Guid BuildingId { get; private set; }
-    public Guid UnitId { get; private set; }
+    public Guid? UnitId { get; private set; }
     public UserRole Role { get; private set; }
     public bool IsResident { get; private set; }    // ساکن است یا موجر (برای مالک)
     public DateTime StartDate { get; private set; }
@@ -62,12 +62,12 @@ public class BuildingMembership
     // روابط
     public User User { get; private set; } = null!;
     public Building Building { get; private set; } = null!;
-    public Unit Unit { get; private set; } = null!;
+    public Unit? Unit { get; private set; } = null!;
 
     private BuildingMembership() { }
 
     public static BuildingMembership Create(
-        Guid userId, Guid buildingId, Guid unitId,
+        Guid userId, Guid buildingId, Guid? unitId,
         UserRole role, bool isResident, DateTime startDate)
     {
         return new BuildingMembership
