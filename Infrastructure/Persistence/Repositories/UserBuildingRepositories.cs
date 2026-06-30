@@ -78,6 +78,7 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
         // مستاجرین اون واحدها
         return await _dbSet
             .Include(m => m.User)
+            .Include(m => m.Unit)
             .Where(m => ownerUnitIds.Contains(m.UnitId) &&
                         m.Role == Domain.Enums.UserRole.Tenant && m.IsActive)
             .ToListAsync();

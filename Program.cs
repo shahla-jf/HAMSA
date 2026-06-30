@@ -14,6 +14,9 @@ using HAMSA.Application.Features.Buildings.Commands.CreateBuilding;
 using HAMSA.Application.Features.Buildings.Commands.TransferManager;
 using HAMSA.Application.Features.Buildings.Commands.UpdateBuilding;
 using HAMSA.Application.Features.Buildings.Queries;
+using HAMSA.Application.Features.Units.Commands.AddOwner;
+using HAMSA.Application.Features.Units.Commands.AddTenant;
+using HAMSA.Application.Features.Units.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +59,10 @@ builder.Services.AddScoped<UpdateBuildingHandler>();
 builder.Services.AddScoped<TransferManagerHandler>();
 builder.Services.AddScoped<GetBuildingHandler>();
 builder.Services.AddScoped<GetUserBuildingsHandler>();
+builder.Services.AddScoped<AddOwnerHandler>();
+builder.Services.AddScoped<AddTenantHandler>();
+builder.Services.AddScoped<GetUnitsByBuildingHandler>();
+builder.Services.AddScoped<GetMyTenantsHandler>();
 
 var app = builder.Build();
 
