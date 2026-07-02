@@ -42,9 +42,15 @@ public class SendOtpHandler
         var otp = OtpCode.Create(command.PhoneNumber);
         await _otpRepository.AddAsync(otp);
         await _otpRepository.SaveChangesAsync();
-
-        await _smsService.SendOtpAsync(command.PhoneNumber, otp.Code);
-
-        return new SendOtpResult(true, "کد تایید ارسال شد");
+        
+        try
+        {
+            await _smsService.SendOtpAsync(command.PhoneNumber, otp.Code);
+            return new SendOtpResult(true, "کد تایید ارسال شد");
+        }
+        catch (Exception ex)
+        {
+            return new SendOtpResult(false, "ارسال با مشکل مواجه شد");
+        }
     }
 }

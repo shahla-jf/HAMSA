@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  backend:
+    build: .
+    ports:
+      - "10000:10000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:10000
+      - N8N__WebhookUrl=http://n8n:5678/webhook/send-otp
+    depends_on:
+      - n8n
+    restart: always
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - WEBHOOK_URL=https://hamsa-n6o3.onrender.com   # دامنه Render تو
+      - N8N_EDITOR_BASE_URL=https://hamsa-n6o3.onrender.com
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:

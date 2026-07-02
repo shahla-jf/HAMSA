@@ -18,12 +18,15 @@ using HAMSA.Application.Features.Units.Commands.AddOwner;
 using HAMSA.Application.Features.Units.Commands.AddTenant;
 using HAMSA.Application.Features.Units.Queries;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Configuration.AddEnvironmentVariables();
 
 var connectionString =
     Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
@@ -55,6 +58,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<IJwtService, JwtService>();

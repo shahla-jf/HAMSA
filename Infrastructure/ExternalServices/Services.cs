@@ -3,27 +3,63 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 
 namespace HAMSA.Infrastructure.ExternalServices;
 
-// --- SMS Service (موقت - فقط لاگ می‌کنه) ---
-// بعداً اینجا Kavenegar رو وصل می‌کنیم
 public class SmsService : ISmsService
 {
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<SmsService> _logger;
+    private readonly string _webhookUrl;
+    private readonly string _username;
+    private readonly string _password;
 
-    public SmsService(ILogger<SmsService> logger)
+    public SmsService(IHttpClientFactory httpClientFactory, ILogger<SmsService> logger, IConfiguration configuration)
     {
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
+        
+        _webhookUrl = configuration["N8N:WebhookUrl"]!;
+        _username = configuration["N8N:Username"]!;
+        _password = configuration["N8N:Password"]!;
     }
 
-    public Task SendOtpAsync(string phoneNumber, string code)
+    public async Task SendOtpAsync(string phoneNumber, string otpcode)
     {
-        // TODO: بعداً با Kavenegar API key جایگزین می‌شه
-        _logger.LogInformation("OTP for {PhoneNumber}: {Code}", phoneNumber, code);
-        return Task.CompletedTask;
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            
+            var request = new { phoneNumber, code = otpcode };
+
+            var byteArray = Encoding.ASCII.GetBytes($"{_username}:{_password}");
+            client.DefaultRequestHeaders.Authorization = 
+                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+            var response = await client.PostAsJsonAsync(_webhookUrl, request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+
+                _logger.LogWarning(
+                    "n8n returned {StatusCode}: {Error}",
+                    response.StatusCode,
+                    error);
+
+                throw new HttpRequestException(
+                    $"n8n returned {(int)response.StatusCode}");
+            }
+            _logger.LogInformation("OTP sent successfully to {Phone}", phoneNumber);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send OTP via n8n to {Phone}", phoneNumber);
+            throw;
+        }
     }
 }
 
