@@ -13,6 +13,7 @@ public class SmsService : ISmsService
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<SmsService> _logger;
+    private readonly string _baseUrl;
     private readonly string _webhookUrl;
     private readonly string _username;
     private readonly string _password;
@@ -22,7 +23,8 @@ public class SmsService : ISmsService
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         
-        _webhookUrl = configuration["N8N:WebhookUrl"]!;
+        _baseUrl = configuration["N8N:BaseUrl"]!;
+        _webhookUrl = $"{_baseUrl}/webhook/send-otp";
         _username = configuration["N8N:Username"]!;
         _password = configuration["N8N:Password"]!;
     }
