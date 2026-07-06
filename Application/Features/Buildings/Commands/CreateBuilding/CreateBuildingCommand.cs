@@ -33,13 +33,16 @@ public class CreateBuildingHandler
 {
     private readonly IBuildingRepository _buildingRepository;
     private readonly IBuildingMembershipRepository _membershipRepository;
+    private readonly IBuildingManagerHistoryRepository _managerHistoryRepository;
 
     public CreateBuildingHandler(
         IBuildingRepository buildingRepository,
-        IBuildingMembershipRepository membershipRepository)
+        IBuildingMembershipRepository membershipRepository,
+        IBuildingManagerHistoryRepository managerHistoryRepository)
     {
         _buildingRepository = buildingRepository;
         _membershipRepository = membershipRepository;
+        _managerHistoryRepository = managerHistoryRepository;
     }
 
     public async Task<CreateBuildingResult> HandleAsync(CreateBuildingCommand command)
@@ -56,8 +59,8 @@ public class CreateBuildingHandler
 
         // سازنده رو به عنوان مدیر ثبت کن
         var managerHistory = BuildingManagerHistory.Create(building.Id, command.ManagerUserId);
-        // این رو باید از طریق IBuildingManagerHistoryRepository ذخیره کنیم
-        // فعلاً از طریق DbContext مستقیم handle میشه - در ادامه Repository اضافه میشه
+        await _managerHistoryRepository.AddAsync(managerHistory);
+        await _managerHistoryRepository.SaveChangesAsync();
 
         // سازنده رو به عنوان عضو ساختمان (با نقش Manager) اضافه کن
         var membership = BuildingMembership.Create(
