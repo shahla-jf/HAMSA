@@ -12,6 +12,7 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
 
     public async Task<IEnumerable<Announcement>> GetByBuildingIdAsync(Guid buildingId)
         => await _dbSet
+            .Include(a => a.ReadRecords)
             .Where(a => a.BuildingId == buildingId)
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
@@ -19,6 +20,14 @@ public class AnnouncementRepository : Repository<Announcement>, IAnnouncementRep
     public async Task<bool> IsReadByUserAsync(Guid announcementId, Guid userId)
         => await _context.AnnouncementReads
             .AnyAsync(r => r.AnnouncementId == announcementId && r.UserId == userId);
+    
+    public async Task<Announcement?> GetWithReadsAsync(Guid announcementId)
+        => await _dbSet
+            .Include(a => a.ReadRecords)
+            .FirstOrDefaultAsync(a => a.Id == announcementId);
+    
+    public void AddReadRecord(AnnouncementRead readRecord)
+        => _context.AnnouncementReads.Add(readRecord);
 }
 
 public class NotificationRepository : Repository<Notification>, INotificationRepository

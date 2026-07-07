@@ -52,6 +52,15 @@ public class Announcement
             CreatedAt = DateTime.UtcNow
         };
     }
+    
+    public bool MarkAsRead(Guid userId)
+    {
+        if (_readRecords.Any(x => x.UserId == userId))
+            return false;
+
+        _readRecords.Add(AnnouncementRead.Create(Id, userId));
+        return true;
+    }
 }
 
 // وضعیت خوانده شدن اعلان توسط کاربر

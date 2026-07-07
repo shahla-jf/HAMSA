@@ -10,6 +10,10 @@ using HAMSA.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using HAMSA.Application.Features.Announcements.Commands.CreateAnnouncement;
+using HAMSA.Application.Features.Announcements.Commands.DeleteAnnouncement;
+using HAMSA.Application.Features.Announcements.Commands.MarkAnnouncementRead;
+using HAMSA.Application.Features.Announcements.Queries;
 using HAMSA.Application.Features.Buildings.Commands.CreateBuilding;
 using HAMSA.Application.Features.Buildings.Commands.TransferManager;
 using HAMSA.Application.Features.Buildings.Commands.UpdateBuilding;
@@ -38,6 +42,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         connectionString,
         ServerVersion.AutoDetect(connectionString)
     )
+    .LogTo(Console.WriteLine, LogLevel.Information)
+    .EnableSensitiveDataLogging()
 );
 builder.Services.AddInfrastructure();
 
@@ -85,6 +91,10 @@ builder.Services.AddScoped<AddOwnerHandler>();
 builder.Services.AddScoped<AddTenantHandler>();
 builder.Services.AddScoped<GetUnitsByBuildingHandler>();
 builder.Services.AddScoped<GetMyTenantsHandler>();
+builder.Services.AddScoped<CreateAnnouncementHandler>();
+builder.Services.AddScoped<GetAnnouncementsHandler>(); 
+builder.Services.AddScoped<DeleteAnnouncementHandler>();
+builder.Services.AddScoped<MarkAnnouncementReadHandler>();
 
 var app = builder.Build();
 

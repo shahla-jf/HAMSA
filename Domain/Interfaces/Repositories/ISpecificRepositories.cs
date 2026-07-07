@@ -55,6 +55,8 @@ public interface IAnnouncementRepository : IRepository<Announcement>
 {
     Task<IEnumerable<Announcement>> GetByBuildingIdAsync(Guid buildingId);
     Task<bool> IsReadByUserAsync(Guid announcementId, Guid userId);
+    Task<Announcement?> GetWithReadsAsync(Guid announcementId);
+    void AddReadRecord(AnnouncementRead readRecord);
 }
 
 public interface INotificationRepository : IRepository<Notification>
