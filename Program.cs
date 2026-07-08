@@ -18,6 +18,9 @@ using HAMSA.Application.Features.Buildings.Commands.CreateBuilding;
 using HAMSA.Application.Features.Buildings.Commands.TransferManager;
 using HAMSA.Application.Features.Buildings.Commands.UpdateBuilding;
 using HAMSA.Application.Features.Buildings.Queries;
+using HAMSA.Application.Features.Reports.Commands.CreateRepairReport;
+using HAMSA.Application.Features.Reports.Commands.UpdateRepairStatus;
+using HAMSA.Application.Features.Reports.Queries;
 using HAMSA.Application.Features.Units.Commands.AddOwner;
 using HAMSA.Application.Features.Units.Commands.AddTenant;
 using HAMSA.Application.Features.Units.Queries;
@@ -95,6 +98,9 @@ builder.Services.AddScoped<CreateAnnouncementHandler>();
 builder.Services.AddScoped<GetAnnouncementsHandler>(); 
 builder.Services.AddScoped<DeleteAnnouncementHandler>();
 builder.Services.AddScoped<MarkAnnouncementReadHandler>();
+builder.Services.AddScoped<CreateRepairReportHandler>();
+builder.Services.AddScoped<UpdateRepairStatusHandler>();
+builder.Services.AddScoped<GetRepairReportsHandler>();
 
 var app = builder.Build();
 
