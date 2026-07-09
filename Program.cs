@@ -26,6 +26,7 @@ using HAMSA.Application.Features.Reservations.Queries;
 using HAMSA.Application.Features.Units.Commands.AddOwner;
 using HAMSA.Application.Features.Units.Commands.AddTenant;
 using HAMSA.Application.Features.Units.Queries;
+using Scalar.AspNetCore;
 
 DotNetEnv.Env.Load();
 
@@ -109,13 +110,18 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+
+app.MapScalarApiReference(options =>
+{
+    options.WithOpenApiRoutePattern("/swagger/v1/swagger.json");
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
 
 app.UseSwagger();
-app.UseSwaggerUI();
 
 
 using (var scope = app.Services.CreateScope())
