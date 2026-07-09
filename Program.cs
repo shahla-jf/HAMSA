@@ -21,6 +21,8 @@ using HAMSA.Application.Features.Buildings.Queries;
 using HAMSA.Application.Features.Reports.Commands.CreateRepairReport;
 using HAMSA.Application.Features.Reports.Commands.UpdateRepairStatus;
 using HAMSA.Application.Features.Reports.Queries;
+using HAMSA.Application.Features.Reservations.Commands.CreateReservation;
+using HAMSA.Application.Features.Reservations.Queries;
 using HAMSA.Application.Features.Units.Commands.AddOwner;
 using HAMSA.Application.Features.Units.Commands.AddTenant;
 using HAMSA.Application.Features.Units.Queries;
@@ -45,8 +47,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         connectionString,
         ServerVersion.AutoDetect(connectionString)
     )
-    .LogTo(Console.WriteLine, LogLevel.Information)
-    .EnableSensitiveDataLogging()
 );
 builder.Services.AddInfrastructure();
 
@@ -101,6 +101,9 @@ builder.Services.AddScoped<MarkAnnouncementReadHandler>();
 builder.Services.AddScoped<CreateRepairReportHandler>();
 builder.Services.AddScoped<UpdateRepairStatusHandler>();
 builder.Services.AddScoped<GetRepairReportsHandler>();
+builder.Services.AddScoped<CreateReservationHandler>();
+builder.Services.AddScoped<GetReservedDatesHandler>();
+builder.Services.AddScoped<GetMyReservationsHandler>();
 
 var app = builder.Build();
 
