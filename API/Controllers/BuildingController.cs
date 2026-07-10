@@ -74,11 +74,14 @@ public class BuildingController : ControllerBase
                 request.Image.FileName,
                 request.Image.ContentType);
         }
+        var facilitiesPhone = "11111111111";
+        var managementPhone = "22222222222";
+        var lobbyPhone =  "33333333333";
         var result = await _createHandler.HandleAsync(new CreateBuildingCommand(
             userId, request.Name, request.BlockCount, request.FloorCount, request.UnitCount,
             request.PostalCode, request.Address, request.Latitude, request.Longitude,
             request.HasGym, request.HasPool, request.HasMeetingHall, request.HasRoofGarden,
-            request.FacilitiesPhone, request.ManagementPhone, request.LobbyPhone, imageUrl
+            facilitiesPhone, managementPhone, lobbyPhone, imageUrl
         ));
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -98,12 +101,18 @@ public class BuildingController : ControllerBase
                 request.Image.FileName,
                 request.Image.ContentType);
         }
+        
+        var facilitiesPhone = "11111111111";
+        var managementPhone = "22222222222";
+        var lobbyPhone =  "33333333333";
+        
         var result = await _updateHandler.HandleAsync(new UpdateBuildingCommand(
             buildingId, userId, request.Name, request.BlockCount, request.FloorCount,
             request.UnitCount, request.PostalCode, request.Address, request.Latitude,
             request.Longitude, request.HasGym, request.HasPool, request.HasMeetingHall,
-            request.HasRoofGarden, request.FacilitiesPhone, request.ManagementPhone,
-            request.LobbyPhone, imageUrl
+            request.HasRoofGarden,
+            facilitiesPhone, managementPhone, lobbyPhone,
+            imageUrl
         ));
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -129,14 +138,14 @@ public record CreateBuildingRequest(
     string Name, int BlockCount, int FloorCount, int UnitCount,
     string PostalCode, string Address, double Latitude, double Longitude,
     bool HasGym, bool HasPool, bool HasMeetingHall, bool HasRoofGarden,
-    string FacilitiesPhone, string ManagementPhone, string LobbyPhone,
+    //string FacilitiesPhone, string ManagementPhone, string LobbyPhone,
     IFormFile? Image = null);
 
 public record UpdateBuildingRequest(
     string Name, int BlockCount, int FloorCount, int UnitCount,
     string PostalCode, string Address, double Latitude, double Longitude,
     bool HasGym, bool HasPool, bool HasMeetingHall, bool HasRoofGarden,
-    string FacilitiesPhone, string ManagementPhone, string LobbyPhone,
+    //string FacilitiesPhone, string ManagementPhone, string LobbyPhone,
     IFormFile? Image = null);
 
 public record TransferManagerRequest(Guid NewManagerUserId);
