@@ -5,6 +5,7 @@ using HAMSA.Application.Features.Buildings.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using HAMSA.Infrastructure.ExternalServices;
 
 namespace HAMSA.API.Controllers;
 
@@ -18,19 +19,22 @@ public class BuildingController : ControllerBase
     private readonly TransferManagerHandler _transferHandler;
     private readonly GetBuildingHandler _getBuildingHandler;
     private readonly GetUserBuildingsHandler _getUserBuildingsHandler;
+    private readonly FileStorageService _fileStorageService;
 
     public BuildingController(
         CreateBuildingHandler createHandler,
         UpdateBuildingHandler updateHandler,
         TransferManagerHandler transferHandler,
         GetBuildingHandler getBuildingHandler,
-        GetUserBuildingsHandler getUserBuildingsHandler)
+        GetUserBuildingsHandler getUserBuildingsHandler,
+        FileStorageService fileStorageService)
     {
         _createHandler = createHandler;
         _updateHandler = updateHandler;
         _transferHandler = transferHandler;
         _getBuildingHandler = getBuildingHandler;
         _getUserBuildingsHandler = getUserBuildingsHandler;
+        _fileStorageService = fileStorageService;
     }
 
     /// <summary>
@@ -59,14 +63,22 @@ public class BuildingController : ControllerBase
     /// ایجاد ساختمان جدید
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> CreateBuilding([FromBody] CreateBuildingRequest request)
+    public async Task<IActionResult> CreateBuilding([FromForm] CreateBuildingRequest request)
     {
         var userId = GetUserId();
+        string? imageUrl = null;
+        if(request.Image is not null)
+        {
+            imageUrl = await _fileStorageService.UploadImageAsync(
+                request.Image.OpenReadStream(),
+                request.Image.FileName,
+                request.Image.ContentType);
+        }
         var result = await _createHandler.HandleAsync(new CreateBuildingCommand(
             userId, request.Name, request.BlockCount, request.FloorCount, request.UnitCount,
             request.PostalCode, request.Address, request.Latitude, request.Longitude,
             request.HasGym, request.HasPool, request.HasMeetingHall, request.HasRoofGarden,
-            request.FacilitiesPhone, request.ManagementPhone, request.LobbyPhone, request.ImageUrl
+            request.FacilitiesPhone, request.ManagementPhone, request.LobbyPhone, imageUrl
         ));
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -78,12 +90,20 @@ public class BuildingController : ControllerBase
     public async Task<IActionResult> UpdateBuilding(Guid buildingId, [FromBody] UpdateBuildingRequest request)
     {
         var userId = GetUserId();
+        string? imageUrl = null;
+        if(request.Image is not null)
+        {
+            imageUrl = await _fileStorageService.UploadImageAsync(
+                request.Image.OpenReadStream(),
+                request.Image.FileName,
+                request.Image.ContentType);
+        }
         var result = await _updateHandler.HandleAsync(new UpdateBuildingCommand(
             buildingId, userId, request.Name, request.BlockCount, request.FloorCount,
             request.UnitCount, request.PostalCode, request.Address, request.Latitude,
             request.Longitude, request.HasGym, request.HasPool, request.HasMeetingHall,
             request.HasRoofGarden, request.FacilitiesPhone, request.ManagementPhone,
-            request.LobbyPhone, request.ImageUrl
+            request.LobbyPhone, imageUrl
         ));
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -110,13 +130,13 @@ public record CreateBuildingRequest(
     string PostalCode, string Address, double Latitude, double Longitude,
     bool HasGym, bool HasPool, bool HasMeetingHall, bool HasRoofGarden,
     string FacilitiesPhone, string ManagementPhone, string LobbyPhone,
-    string? ImageUrl = null);
+    IFormFile? Image = null);
 
 public record UpdateBuildingRequest(
     string Name, int BlockCount, int FloorCount, int UnitCount,
     string PostalCode, string Address, double Latitude, double Longitude,
     bool HasGym, bool HasPool, bool HasMeetingHall, bool HasRoofGarden,
     string FacilitiesPhone, string ManagementPhone, string LobbyPhone,
-    string? ImageUrl = null);
+    IFormFile? Image = null);
 
 public record TransferManagerRequest(Guid NewManagerUserId);

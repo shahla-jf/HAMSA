@@ -87,6 +87,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<SendOtpHandler>();
 builder.Services.AddScoped<VerifyOtpHandler>();
 builder.Services.AddScoped<CreateBuildingHandler>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<UpdateBuildingHandler>();
 builder.Services.AddScoped<TransferManagerHandler>();
 builder.Services.AddScoped<GetBuildingHandler>();
