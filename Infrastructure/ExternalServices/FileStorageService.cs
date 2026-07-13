@@ -49,10 +49,11 @@ public class FileStorageService : IFileStorageService
         
         using var content = new MultipartFormDataContent();
 
-        content.Add(
-            new StreamContent(stream),
-            "data",
-            fileName);
+        var fileContent = new StreamContent(stream);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+
+        content.Add(fileContent, "data", fileName);
+        
         
         //content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
         
