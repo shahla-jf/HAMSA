@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using HAMSA.Infrastructure.ExternalServices;
+using HAMSA.Domain.Interfaces.Services;
 
 namespace HAMSA.API.Controllers;
 
@@ -19,7 +20,7 @@ public class BuildingController : ControllerBase
     private readonly TransferManagerHandler _transferHandler;
     private readonly GetBuildingHandler _getBuildingHandler;
     private readonly GetUserBuildingsHandler _getUserBuildingsHandler;
-    private readonly FileStorageService _fileStorageService;
+    private readonly IFileStorageService _fileStorageService;
 
     public BuildingController(
         CreateBuildingHandler createHandler,
@@ -27,7 +28,7 @@ public class BuildingController : ControllerBase
         TransferManagerHandler transferHandler,
         GetBuildingHandler getBuildingHandler,
         GetUserBuildingsHandler getUserBuildingsHandler,
-        FileStorageService fileStorageService)
+        IFileStorageService fileStorageService)
     {
         _createHandler = createHandler;
         _updateHandler = updateHandler;
