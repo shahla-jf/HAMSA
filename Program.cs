@@ -106,6 +106,7 @@ builder.Services.AddScoped<GetRepairReportsHandler>();
 builder.Services.AddScoped<CreateReservationHandler>();
 builder.Services.AddScoped<GetReservedDatesHandler>();
 builder.Services.AddScoped<GetMyReservationsHandler>();
+builder.Services.AddScoped<GetMyRoleInBuildingHandler>();
 
 var app = builder.Build();
 

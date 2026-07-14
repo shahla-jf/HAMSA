@@ -21,6 +21,7 @@ public class BuildingController : ControllerBase
     private readonly GetBuildingHandler _getBuildingHandler;
     private readonly GetUserBuildingsHandler _getUserBuildingsHandler;
     private readonly IFileStorageService _fileStorageService;
+    private readonly GetMyRoleInBuildingHandler _getMyRoleHandler;
 
     public BuildingController(
         CreateBuildingHandler createHandler,
@@ -28,7 +29,8 @@ public class BuildingController : ControllerBase
         TransferManagerHandler transferHandler,
         GetBuildingHandler getBuildingHandler,
         GetUserBuildingsHandler getUserBuildingsHandler,
-        IFileStorageService fileStorageService)
+        IFileStorageService fileStorageService,
+        GetMyRoleInBuildingHandler getMyRoleHandler)
     {
         _createHandler = createHandler;
         _updateHandler = updateHandler;
@@ -36,6 +38,7 @@ public class BuildingController : ControllerBase
         _getBuildingHandler = getBuildingHandler;
         _getUserBuildingsHandler = getUserBuildingsHandler;
         _fileStorageService = fileStorageService;
+        _getMyRoleHandler = getMyRoleHandler;
     }
 
     /// <summary>
@@ -129,6 +132,20 @@ public class BuildingController : ControllerBase
             new TransferManagerCommand(buildingId, userId, request.NewManagerUserId));
         return result.Success ? Ok(result) : BadRequest(result);
     }
+    
+    [HttpGet("{buildingId}/my-role")]
+    public async Task<IActionResult> GetMyRole(Guid buildingId)
+    {
+        var result = await _getMyRoleHandler.HandleAsync(
+            new GetMyRoleInBuildingQuery(
+                GetUserId(),
+                buildingId));
+
+        return result.Success
+            ? Ok(result)
+            : BadRequest(result);
+    }
+    
 
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
