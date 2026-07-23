@@ -80,6 +80,8 @@ public interface IPollRepository : IRepository<Poll>
     Task<IEnumerable<Poll>> GetInactiveByBuildingIdAsync(Guid buildingId);
     Task<Poll?> GetWithOptionsAndVotesAsync(Guid pollId);
     Task<PollVote?> GetUserVoteAsync(Guid pollId, Guid userId);
+    Task AddVoteAsync(PollVote vote);
+    void RemoveVote(PollVote vote);
 }
 
 public interface IReservationRepository : IRepository<Reservation>

@@ -40,8 +40,7 @@ public enum PollAudience
 {
     All,
     Owners,
-    Tenants,
-    Custom
+    Tenants
 }
 
 public enum FacilityType

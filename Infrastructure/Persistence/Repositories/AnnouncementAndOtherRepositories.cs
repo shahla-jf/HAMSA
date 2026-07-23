@@ -73,12 +73,16 @@ public class PollRepository : Repository<Poll>, IPollRepository
 
     public async Task<IEnumerable<Poll>> GetActiveByBuildingIdAsync(Guid buildingId)
         => await _dbSet
+            .Include(p => p.Options)
+            .ThenInclude(o => o.Votes)
             .Where(p => p.BuildingId == buildingId && p.Deadline >= DateTime.UtcNow)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
-
+    
     public async Task<IEnumerable<Poll>> GetInactiveByBuildingIdAsync(Guid buildingId)
         => await _dbSet
+            .Include(p => p.Options)
+            .ThenInclude(o => o.Votes)
             .Where(p => p.BuildingId == buildingId && p.Deadline < DateTime.UtcNow)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
@@ -92,6 +96,16 @@ public class PollRepository : Repository<Poll>, IPollRepository
         => await _context.PollVotes
             .Include(v => v.PollOption)
             .FirstOrDefaultAsync(v => v.PollOption.PollId == pollId && v.UserId == userId);
+    
+    public async Task AddVoteAsync(PollVote vote)
+    {
+        await _context.PollVotes.AddAsync(vote);
+    }
+
+    public void RemoveVote(PollVote vote)
+    {
+        _context.PollVotes.Remove(vote);
+    }
 }
 
 public class ReservationRepository : Repository<Reservation>, IReservationRepository

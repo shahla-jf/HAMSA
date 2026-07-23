@@ -18,6 +18,7 @@ using HAMSA.Application.Features.Buildings.Commands.CreateBuilding;
 using HAMSA.Application.Features.Buildings.Commands.TransferManager;
 using HAMSA.Application.Features.Buildings.Commands.UpdateBuilding;
 using HAMSA.Application.Features.Buildings.Queries;
+using HAMSA.Application.Features.Polls.Commands.VotePoll;
 using HAMSA.Application.Features.Reports.Commands.CreateRepairReport;
 using HAMSA.Application.Features.Reports.Commands.UpdateRepairStatus;
 using HAMSA.Application.Features.Reports.Queries;
@@ -107,6 +108,10 @@ builder.Services.AddScoped<CreateReservationHandler>();
 builder.Services.AddScoped<GetReservedDatesHandler>();
 builder.Services.AddScoped<GetMyReservationsHandler>();
 builder.Services.AddScoped<GetMyRoleInBuildingHandler>();
+builder.Services.AddScoped<CreatePollHandler>();
+builder.Services.AddScoped<VotePollHandler>();
+builder.Services.AddScoped<GetActivePollsHandler>();
+builder.Services.AddScoped<GetInActivePollsHandler>();
 
 var app = builder.Build();
 

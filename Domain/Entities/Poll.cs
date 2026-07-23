@@ -39,6 +39,11 @@ public class Poll
             CreatedAt = DateTime.UtcNow
         };
     }
+    public void AddOption(string text)
+    {
+        _options.Add(
+            PollOption.Create(Id, text));
+    }
 }
 
 // گزینه‌های رای‌گیری
