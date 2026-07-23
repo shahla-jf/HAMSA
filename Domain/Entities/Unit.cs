@@ -58,6 +58,7 @@ public class BuildingMembership
     public bool IsActive { get; private set; }
     public string? InviteCode { get; private set; } // کد دعوت مستاجر
     public DateTime CreatedAt { get; private set; }
+    public DateTime? LastSelectedAt { get; private set; }
 
     // روابط
     public User User { get; private set; } = null!;
@@ -100,6 +101,11 @@ public class BuildingMembership
     {
         IsActive = false;
         EndDate = DateTime.UtcNow;
+    }
+    
+    public void MarkAsLastSelected()
+    {
+        LastSelectedAt = DateTime.UtcNow;
     }
 }
 

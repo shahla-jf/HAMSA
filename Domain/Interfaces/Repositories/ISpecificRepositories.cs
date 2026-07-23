@@ -28,6 +28,8 @@ public interface IBuildingMembershipRepository : IRepository<BuildingMembership>
     Task<IEnumerable<BuildingMembership>> GetByUnitIdAsync(Guid unitId);
     Task<IEnumerable<BuildingMembership>> GetTenantsByOwnerAsync(Guid ownerUserId, Guid buildingId);
     Task<Guid?> GetCurrentManagerIdAsync(Guid buildingId);
+    Task<IEnumerable<BuildingMembership>> GetByUserAsync(Guid userId);
+    Task<BuildingMembership?> GetLastSelectedAsync(Guid userId);
 }
 
 public interface IChargeRepository : IRepository<Charge>

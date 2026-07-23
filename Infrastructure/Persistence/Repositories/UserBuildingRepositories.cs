@@ -91,4 +91,22 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
             .FirstOrDefaultAsync();
         return history?.UserId;
     }
+    
+    public async Task<IEnumerable<BuildingMembership>> GetByUserAsync(Guid userId)
+    {
+        return await _dbSet
+            .Where(x => x.UserId == userId && x.IsActive)
+            .ToListAsync();
+    }
+    
+    public async Task<BuildingMembership?> GetLastSelectedAsync(Guid userId)
+    {
+        return await _dbSet
+            .Include(x => x.Building)
+            .Where(x => x.UserId == userId &&
+                        x.IsActive &&
+                        x.LastSelectedAt != null)
+            .OrderByDescending(x => x.LastSelectedAt)
+            .FirstOrDefaultAsync();
+    }
 }

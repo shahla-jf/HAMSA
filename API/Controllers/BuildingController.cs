@@ -5,6 +5,7 @@ using HAMSA.Application.Features.Buildings.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using HAMSA.Application.Features.Buildings.Commands.SelectCurrentBuilding;
 using HAMSA.Infrastructure.ExternalServices;
 using HAMSA.Domain.Interfaces.Services;
 
@@ -22,6 +23,8 @@ public class BuildingController : ControllerBase
     private readonly GetUserBuildingsHandler _getUserBuildingsHandler;
     private readonly IFileStorageService _fileStorageService;
     private readonly GetMyRoleInBuildingHandler _getMyRoleHandler;
+    private readonly SelectCurrentBuildingHandler _selectCurrentBuildingHandler;
+    private readonly GetLastSelectedBuildingHandler _getLastSelectedBuildingHandler;
 
     public BuildingController(
         CreateBuildingHandler createHandler,
@@ -30,7 +33,9 @@ public class BuildingController : ControllerBase
         GetBuildingHandler getBuildingHandler,
         GetUserBuildingsHandler getUserBuildingsHandler,
         IFileStorageService fileStorageService,
-        GetMyRoleInBuildingHandler getMyRoleHandler)
+        GetMyRoleInBuildingHandler getMyRoleHandler,
+        SelectCurrentBuildingHandler selectCurrentBuildingHandler,
+        GetLastSelectedBuildingHandler getLastSelectedBuildingHandler)
     {
         _createHandler = createHandler;
         _updateHandler = updateHandler;
@@ -39,6 +44,8 @@ public class BuildingController : ControllerBase
         _getUserBuildingsHandler = getUserBuildingsHandler;
         _fileStorageService = fileStorageService;
         _getMyRoleHandler = getMyRoleHandler;
+        _selectCurrentBuildingHandler = selectCurrentBuildingHandler;
+        _getLastSelectedBuildingHandler = getLastSelectedBuildingHandler;
     }
 
     /// <summary>
@@ -146,6 +153,29 @@ public class BuildingController : ControllerBase
             : BadRequest(result);
     }
     
+    [HttpPost("current-building")]
+    public async Task<IActionResult> SelectCurrentBuilding(
+        [FromBody] SelectCurrentBuildingRequest request)
+    {
+        var result = await _selectCurrentBuildingHandler.HandleAsync(
+            new SelectCurrentBuildingCommand(
+                GetUserId(),
+                request.BuildingId));
+
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+    
+    [HttpGet("current-building")]
+    public async Task<IActionResult> GetCurrentBuilding()
+    {
+        var result = await _getLastSelectedBuildingHandler.HandleAsync(
+            new GetLastSelectedBuildingQuery(GetUserId()));
+
+        if (result is null)
+            return NotFound();
+
+        return Ok(result);
+    }
 
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -167,3 +197,5 @@ public record UpdateBuildingRequest(
     IFormFile? Image = null);
 
 public record TransferManagerRequest(Guid NewManagerUserId);
+
+public record SelectCurrentBuildingRequest(Guid BuildingId);
