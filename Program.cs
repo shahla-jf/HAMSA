@@ -112,6 +112,7 @@ builder.Services.AddScoped<CreatePollHandler>();
 builder.Services.AddScoped<VotePollHandler>();
 builder.Services.AddScoped<GetActivePollsHandler>();
 builder.Services.AddScoped<GetInActivePollsHandler>();
+builder.Services.AddScoped<GetMyPollVoteHandler>();
 
 var app = builder.Build();
 

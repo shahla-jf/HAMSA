@@ -16,17 +16,20 @@ public class PollController : ControllerBase
     private readonly GetActivePollsHandler _getActivePollsHandler;
     private readonly GetInActivePollsHandler _getInActivePollsHandler;
     private readonly VotePollHandler _votePollHandler;
+    private readonly GetMyPollVoteHandler _getMyPollVoteHandler;
     
     public PollController(
         CreatePollHandler createPollHandler,
         GetActivePollsHandler getActivePollsHandler,
         GetInActivePollsHandler getInActivePollsHandler,
-        VotePollHandler votePollHandler)
+        VotePollHandler votePollHandler,
+        GetMyPollVoteHandler getMyPollVoteHandler)
     {
         _createPollHandler = createPollHandler;
         _getActivePollsHandler = getActivePollsHandler;
         _getInActivePollsHandler =  getInActivePollsHandler;
         _votePollHandler = votePollHandler;
+        _getMyPollVoteHandler = getMyPollVoteHandler;
     }
 
     [HttpPost]
@@ -67,6 +70,16 @@ public class PollController : ControllerBase
         return result.Success ? Ok(result) : BadRequest(result);
     }
     
+    [HttpGet("{pollId}/my-vote")]
+    public async Task<IActionResult> GetMyVote(Guid pollId)
+    {
+        var result = await _getMyPollVoteHandler.HandleAsync(
+            new GetMyPollVoteQuery(
+                pollId,
+                GetUserId()));
+
+        return Ok(result);
+    }
     
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

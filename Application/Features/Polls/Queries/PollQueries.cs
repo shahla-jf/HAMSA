@@ -102,3 +102,53 @@ public class GetInActivePollsHandler
                 .ToList()));
     }
 }
+
+
+
+
+public record GetMyPollVoteQuery(
+    Guid PollId,
+    Guid UserId);
+    
+public record GetMyPollVoteResult(
+    bool HasVoted,
+    Guid? OptionId);
+
+public class GetMyPollVoteHandler
+{
+    private readonly IPollRepository _pollRepository;
+    private readonly IBuildingMembershipRepository _membershipRepository;
+
+    public GetMyPollVoteHandler(
+        IPollRepository pollRepository,
+        IBuildingMembershipRepository membershipRepository)
+    {
+        _pollRepository = pollRepository;
+        _membershipRepository = membershipRepository;
+    }
+
+    public async Task<GetMyPollVoteResult> HandleAsync(GetMyPollVoteQuery query)
+    {
+        var poll = await _pollRepository
+            .GetByIdAsync(query.PollId);
+
+        if (poll is null)
+            return new(false, null);
+
+        var membership = await _membershipRepository
+            .GetActiveAsync(query.UserId, poll.BuildingId);
+
+        if (membership is null)
+            return new(false, null);
+
+        var vote = await _pollRepository
+            .GetUserVoteAsync(query.PollId, query.UserId);
+
+        if (vote is null)
+            return new(false, null);
+
+        return new(
+            true,
+            vote.PollOptionId);
+    }
+}
