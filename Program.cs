@@ -30,8 +30,6 @@ using HAMSA.Application.Features.Units.Commands.RemoveOneOwner;
 using HAMSA.Application.Features.Units.Commands.RemoveOneTenant;
 using HAMSA.Application.Features.Units.Commands.RemoveOwner;
 using HAMSA.Application.Features.Units.Commands.RemoveTenant;
-using HAMSA.Application.Features.Units.Commands.TransferOwnership;
-using HAMSA.Application.Features.Units.Commands.TransferTenancy;
 using HAMSA.Application.Features.Units.Queries;
 using Scalar.AspNetCore;
 
@@ -105,8 +103,6 @@ builder.Services.AddScoped<RemoveOneOwnerHandler>();
 builder.Services.AddScoped<RemoveOneTenantHandler>();
 builder.Services.AddScoped<RemoveOwnerHandler>();
 builder.Services.AddScoped<RemoveTenantHandler>();
-builder.Services.AddScoped<TransferOwnershipHandler>();
-builder.Services.AddScoped<TransferTenancyHandler>();
 builder.Services.AddScoped<GetUnitsByBuildingHandler>();
 builder.Services.AddScoped<GetMyTenantsHandler>();
 builder.Services.AddScoped<CreateAnnouncementHandler>();
