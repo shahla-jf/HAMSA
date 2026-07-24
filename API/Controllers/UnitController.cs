@@ -4,6 +4,8 @@ using HAMSA.Application.Features.Units.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using HAMSA.Application.Features.Units.Commands.RemoveOwner;
+using HAMSA.Application.Features.Units.Commands.RemoveTenant;
 
 namespace HAMSA.API.Controllers;
 
@@ -16,17 +18,23 @@ public class UnitController : ControllerBase
     private readonly AddTenantHandler _addTenantHandler;
     private readonly GetUnitsByBuildingHandler _getUnitsHandler;
     private readonly GetMyTenantsHandler _getMyTenantsHandler;
+    private readonly RemoveOwnerHandler _removeOwnerHandler;
+    private readonly RemoveTenantHandler _removeTenantHandler;
 
     public UnitController(
         AddOwnerHandler addOwnerHandler,
         AddTenantHandler addTenantHandler,
         GetUnitsByBuildingHandler getUnitsHandler,
-        GetMyTenantsHandler getMyTenantsHandler)
+        GetMyTenantsHandler getMyTenantsHandler,
+        RemoveOwnerHandler removeOwnerHandler,
+        RemoveTenantHandler removeTenantHandler)
     {
         _addOwnerHandler = addOwnerHandler;
         _addTenantHandler = addTenantHandler;
         _getUnitsHandler = getUnitsHandler;
         _getMyTenantsHandler = getMyTenantsHandler;
+        _removeOwnerHandler =  removeOwnerHandler;
+        _removeTenantHandler = removeTenantHandler;
     }
 
     /// <summary>
@@ -80,6 +88,32 @@ public class UnitController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// حذف مالک از ساختمان (فقط مدیر)
+    /// </summary>
+    [HttpDelete("remove-owner")]
+    public async Task<IActionResult> RemoveOwner([FromBody]  RemoveOwnerRequest request)
+    {
+        var userId = GetUserId();
+        var result = await _removeOwnerHandler.HandleAsync(new RemoveOwnerCommand(
+            request.BuildingId, userId, request.Block, request.Floor, request.UnitNumber));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+
+    /// <summary>
+    /// حذف مستاجر از ساختمان (توسط مالک همان واحد)
+    /// </summary>
+    [HttpDelete("remove-tenant")]
+    public async Task<IActionResult> RemoveTenant([FromBody] RemoveTenantRequest request)
+    {
+        var userId = GetUserId();
+        var result = await _removeTenantHandler.HandleAsync(new RemoveTenantCommand(
+            request.BuildingId, userId, request.Block, request.Floor, request.UnitNumber));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+    
+
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
@@ -90,3 +124,12 @@ public record AddOwnerRequest(
 
 public record AddTenantRequest(
     string TenantPhoneNumber, int Block, int Floor, int UnitNumber, DateTime StartDate);
+
+public record RemoveOwnerRequest(
+    Guid BuildingId,
+    int Block, int Floor, int UnitNumber
+    );
+
+public record RemoveTenantRequest(
+    Guid BuildingId,
+    int Block, int Floor, int UnitNumber);
