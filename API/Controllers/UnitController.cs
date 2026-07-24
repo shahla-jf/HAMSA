@@ -31,7 +31,9 @@ public class UnitController : ControllerBase
         GetUnitsByBuildingHandler getUnitsHandler,
         GetMyTenantsHandler getMyTenantsHandler,
         RemoveOwnerHandler removeOwnerHandler,
-        RemoveTenantHandler removeTenantHandler)
+        RemoveTenantHandler removeTenantHandler,
+        RemoveOneOwnerHandler removeOneOwnerHandler,
+        RemoveOneTenantHandler removeOneTenantHandler)
     {
         _addOwnerHandler = addOwnerHandler;
         _addTenantHandler = addTenantHandler;
@@ -39,6 +41,8 @@ public class UnitController : ControllerBase
         _getMyTenantsHandler = getMyTenantsHandler;
         _removeOwnerHandler =  removeOwnerHandler;
         _removeTenantHandler = removeTenantHandler;
+        _removeOneOwnerHandler = removeOneOwnerHandler;
+        _removeOneTenantHandler = removeOneTenantHandler;
     }
 
     /// <summary>

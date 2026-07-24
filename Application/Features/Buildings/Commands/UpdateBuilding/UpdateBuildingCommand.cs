@@ -21,7 +21,7 @@ public record UpdateBuildingCommand(
     string FacilitiesPhone,
     string ManagementPhone,
     string LobbyPhone,
-    string ImageUrl = null
+    string ImageUrl = ""
 );
 
 // ------- Result -------
