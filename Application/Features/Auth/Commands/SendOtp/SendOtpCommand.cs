@@ -32,7 +32,7 @@ public class SendOtpHandler
         var userExists = await _userRepository.ExistsAsync(command.PhoneNumber);
         if (!userExists)
         {
-            var newUser = User.Create(command.PhoneNumber);
+            var newUser = HAMSA.Domain.Entities.User.Create(command.PhoneNumber);
             await _userRepository.AddAsync(newUser);
             await _userRepository.SaveChangesAsync();
         }
@@ -48,7 +48,7 @@ public class SendOtpHandler
             await _smsService.SendOtpAsync(command.PhoneNumber, otp.Code);
             return new SendOtpResult(true, "کد تایید ارسال شد");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return new SendOtpResult(false, "ارسال با مشکل مواجه شد");
         }

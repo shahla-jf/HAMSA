@@ -18,10 +18,10 @@ public record UpdateBuildingCommand(
     bool HasPool,
     bool HasMeetingHall,
     bool HasRoofGarden,
-    string? FacilitiesPhone,
-    string? ManagementPhone,
-    string? LobbyPhone,
-    string? ImageUrl = null
+    string FacilitiesPhone,
+    string ManagementPhone,
+    string LobbyPhone,
+    string ImageUrl = null
 );
 
 // ------- Result -------

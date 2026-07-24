@@ -31,6 +31,8 @@ using HAMSA.Application.Features.Units.Commands.RemoveOneTenant;
 using HAMSA.Application.Features.Units.Commands.RemoveOwner;
 using HAMSA.Application.Features.Units.Commands.RemoveTenant;
 using HAMSA.Application.Features.Units.Queries;
+using HAMSA.Application.Features.User.Commands.UpdateProfile;
+using HAMSA.Application.Features.User.Queries;
 using Scalar.AspNetCore;
 
 DotNetEnv.Env.Load();
@@ -91,6 +93,8 @@ builder.Services.AddScoped<ISmsService, SmsService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<SendOtpHandler>();
 builder.Services.AddScoped<VerifyOtpHandler>();
+builder.Services.AddScoped<UpdateProfileHandler>();
+builder.Services.AddScoped<GetProfileHandler>();
 builder.Services.AddScoped<CreateBuildingHandler>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<UpdateBuildingHandler>();
