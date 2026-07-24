@@ -43,9 +43,10 @@ public class AddTenantHandler
         if (unit is null)
             return new AddTenantResult(false, "واحد مورد نظر یافت نشد");
 
+        var unitMemberships = await _membershipRepository.GetByUnitIdAsync(unit.Id);
+
         // بررسی مالک بودن درخواست‌دهنده برای این واحد
-        var ownerMemberships = await _membershipRepository.GetByUnitIdAsync(unit.Id);
-        var isOwner = ownerMemberships.Any(m =>
+        var isOwner = unitMemberships.Any(m =>
             m.UserId == command.RequestingOwnerId &&
             m.Role == UserRole.Owner &&
             m.IsActive);
@@ -58,20 +59,20 @@ public class AddTenantHandler
         if (tenant is null)
             return new AddTenantResult(false, "کاربری با این شماره موبایل یافت نشد. لطفاً ابتدا در سیستم ثبت‌نام کند");
 
-        // مستاجر قبلی رو deactivate کن
-        foreach (var m in ownerMemberships.Where(m => m.Role == UserRole.Tenant && m.IsActive))
-        {
-            m.Deactivate();
-            _membershipRepository.Update(m);
-        }
-        await _membershipRepository.SaveChangesAsync();
+        // چک اینکه همین کاربر از قبل مستاجر فعال همین واحد نباشه (جلوگیری از duplicate)
+        var alreadyTenant = unitMemberships.Any(m =>
+            m.UserId == tenant.Id &&
+            m.Role == UserRole.Tenant &&
+            m.IsActive);
 
-        // membership جدید برای مستاجر بساز
+        if (alreadyTenant)
+            return new AddTenantResult(false, "این کاربر از قبل مستاجر فعال این واحد است");
+
+        // membership جدید برای مستاجر بساز — بدون دست‌زدن به مستاجرین قبلی
         var membership = BuildingMembership.Create(
             tenant.Id, command.BuildingId, unit.Id,
             UserRole.Tenant, true, command.StartDate);
 
-        // کد دعوت بساز
         membership.GenerateInviteCode();
 
         await _membershipRepository.AddAsync(membership);

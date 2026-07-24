@@ -12,7 +12,7 @@ public record AddOwnerCommand(
     int Block,
     int Floor,
     int UnitNumber,
-    bool IsResident   // ساکنه یا موجر
+    bool IsResident
 );
 
 // ------- Result -------
@@ -47,30 +47,28 @@ public class AddOwnerHandler
         if (owner is null)
             return new AddOwnerResult(false, "کاربری با این شماره موبایل یافت نشد. لطفاً ابتدا در سیستم ثبت‌نام کند");
 
-        // چک کردن وجود واحد
+        // چک کردن وجود واحد - اگه نبود بسازش
         var unit = await _unitRepository.GetByBlockFloorUnitAsync(
             command.BuildingId, command.Block, command.Floor, command.UnitNumber);
 
         if (unit is null)
         {
-            // واحد جدید بساز
             unit = Unit.Create(command.BuildingId, command.Block, command.Floor, command.UnitNumber);
             await _unitRepository.AddAsync(unit);
             await _unitRepository.SaveChangesAsync();
         }
         else
         {
-            // membership قبلی مالک رو deactivate کن
+            // فقط چک می‌کنیم همین کاربر از قبل عضو فعال همین واحد نباشه (جلوگیری از duplicate)
             var existingMemberships = await _membershipRepository.GetByUnitIdAsync(unit.Id);
-            foreach (var m in existingMemberships.Where(m => m.Role == UserRole.Owner && m.IsActive))
-            {
-                m.Deactivate();
-                _membershipRepository.Update(m);
-            }
-            await _membershipRepository.SaveChangesAsync();
+            var alreadyMember = existingMemberships.Any(m =>
+                m.UserId == owner.Id && m.IsActive);
+
+            if (alreadyMember)
+                return new AddOwnerResult(false, "این کاربر از قبل عضو فعال این واحد است");
         }
 
-        // membership جدید برای مالک بساز
+        // membership جدید بساز — بدون دست‌زدن به مالک‌های قبلی
         var membership = BuildingMembership.Create(
             owner.Id, command.BuildingId, unit.Id,
             UserRole.Owner, command.IsResident, DateTime.UtcNow);
