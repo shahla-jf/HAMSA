@@ -15,6 +15,7 @@ using HAMSA.Application.Features.Announcements.Commands.DeleteAnnouncement;
 using HAMSA.Application.Features.Announcements.Commands.MarkAnnouncementRead;
 using HAMSA.Application.Features.Announcements.Queries;
 using HAMSA.Application.Features.Buildings.Commands.CreateBuilding;
+using HAMSA.Application.Features.Buildings.Commands.SelectCurrentBuilding;
 using HAMSA.Application.Features.Buildings.Commands.TransferManager;
 using HAMSA.Application.Features.Buildings.Commands.UpdateBuilding;
 using HAMSA.Application.Features.Buildings.Queries;
@@ -125,6 +126,8 @@ builder.Services.AddScoped<VotePollHandler>();
 builder.Services.AddScoped<GetActivePollsHandler>();
 builder.Services.AddScoped<GetInActivePollsHandler>();
 builder.Services.AddScoped<GetMyPollVoteHandler>();
+builder.Services.AddScoped<SelectCurrentBuildingHandler>();
+builder.Services.AddScoped<GetLastSelectedBuildingHandler>();
 
 var app = builder.Build();
 
