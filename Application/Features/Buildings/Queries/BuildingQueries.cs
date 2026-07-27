@@ -106,45 +106,45 @@ public class GetUserBuildingsHandler
 // ======================================================
 // GetMyRoleInBuilding
 // ======================================================
-public record GetMyRoleInBuildingQuery(
-    Guid UserId,
-    Guid BuildingId);
+// ------- Query -------
+public record GetMyRoleInBuildingQuery(Guid UserId, Guid BuildingId);
 
+// ------- Result -------
 public record GetMyRoleInBuildingResult(
     bool Success,
     string Message,
-    UserRole? Role);
-    
+    bool IsManager,
+    UserRole? Role   // نقش عضویتی (Owner/Tenant) - مستقل از IsManager
+);
 
-
+// ------- Handler -------
 public class GetMyRoleInBuildingHandler
 {
     private readonly IBuildingMembershipRepository _membershipRepository;
 
-    public GetMyRoleInBuildingHandler(
-        IBuildingMembershipRepository membershipRepository)
+    public GetMyRoleInBuildingHandler(IBuildingMembershipRepository membershipRepository)
     {
         _membershipRepository = membershipRepository;
     }
 
-    public async Task<GetMyRoleInBuildingResult> HandleAsync(
-        GetMyRoleInBuildingQuery query)
+    public async Task<GetMyRoleInBuildingResult> HandleAsync(GetMyRoleInBuildingQuery query)
     {
-        var membership = await _membershipRepository
-            .GetActiveAsync(query.UserId, query.BuildingId);
+        // بررسی مدیر بودن (جدا از membership چک می‌شه)
+        var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
+        var isManager = managerId == query.UserId;
 
-        if (membership is null)
+        var membership = await _membershipRepository.GetActiveAsync(query.UserId, query.BuildingId);
+
+        if (membership is null && !isManager)
         {
-            return new(
-                false,
-                "کاربر عضو این ساختمان نیست.",
-                null);
+            return new(false, "کاربر عضو این ساختمان نیست.", false, null);
         }
 
         return new(
             true,
             "عملیات موفق بود.",
-            membership.Role);
+            isManager,
+            membership?.Role);
     }
 }
 
