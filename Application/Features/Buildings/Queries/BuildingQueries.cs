@@ -133,9 +133,19 @@ public class GetMyRoleInBuildingHandler
         var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
         var isManager = managerId == query.UserId;
 
+        if (isManager)
+        {
+            return new GetMyRoleInBuildingResult(
+                true,
+                "عملیات موفق بود.",
+                true,
+                UserRole.Manager
+            );
+        }
+
         var membership = await _membershipRepository.GetActiveAsync(query.UserId, query.BuildingId);
 
-        if (membership is null && !isManager)
+        if (membership is null)
         {
             return new(false, "کاربر عضو این ساختمان نیست.", false, null);
         }
@@ -143,7 +153,7 @@ public class GetMyRoleInBuildingHandler
         return new(
             true,
             "عملیات موفق بود.",
-            isManager,
+            false,
             membership?.Role);
     }
 }
