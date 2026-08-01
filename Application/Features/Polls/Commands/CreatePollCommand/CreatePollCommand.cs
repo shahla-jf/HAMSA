@@ -35,9 +35,11 @@ public class CreatePollHandler
         var manager = await _membershipRepository
             .GetActiveAsync(command.UserId, command.BuildingId);
 
-        if (manager is null || manager.Role != UserRole.Manager)
-            return new(false, "فقط مدیر ساختمان می‌تواند رأی‌گیری ایجاد کند.");
-
+        var buildingManagerId = await _membershipRepository.GetCurrentManagerIdAsync(command.BuildingId);
+        
+        if (currentManagerId != command.CurrentManagerId)
+            return new TransferManagerResult(false, "شما مدیر این ساختمان نیستید");
+        
         if (command.Options.Count < 2)
             return new(false, "حداقل دو گزینه لازم است.");
 
