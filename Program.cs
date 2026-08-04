@@ -14,6 +14,7 @@ using HAMSA.Application.Features.Announcements.Commands.CreateAnnouncement;
 using HAMSA.Application.Features.Announcements.Commands.DeleteAnnouncement;
 using HAMSA.Application.Features.Announcements.Commands.MarkAnnouncementRead;
 using HAMSA.Application.Features.Announcements.Queries;
+using HAMSA.Application.Features.Auth.Commands.Logout;
 using HAMSA.Application.Features.Buildings.Commands.CreateBuilding;
 using HAMSA.Application.Features.Buildings.Commands.SelectCurrentBuilding;
 using HAMSA.Application.Features.Buildings.Commands.TransferManager;
@@ -62,6 +63,21 @@ builder.Services.AddInfrastructure();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var jti = context.Principal?.FindFirst("jti")?.Value;
+                var revokedTokenRepo = context.HttpContext.RequestServices
+                    .GetRequiredService<IRevokedTokenRepository>();
+
+                if (jti != null && await revokedTokenRepo.IsRevokedAsync(jti))
+                {
+                    context.Fail("توکن باطل شده است");
+                }
+            }
+        };
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
@@ -128,6 +144,8 @@ builder.Services.AddScoped<GetInActivePollsHandler>();
 builder.Services.AddScoped<GetMyPollVoteHandler>();
 builder.Services.AddScoped<SelectCurrentBuildingHandler>();
 builder.Services.AddScoped<GetLastSelectedBuildingHandler>();
+builder.Services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
+builder.Services.AddScoped<LogoutHandler>();
 
 var app = builder.Build();
 

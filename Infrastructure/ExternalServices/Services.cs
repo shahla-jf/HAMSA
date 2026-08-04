@@ -87,7 +87,9 @@ public class JwtService : IJwtService
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-            new Claim(ClaimTypes.MobilePhone, phoneNumber)
+            new Claim(ClaimTypes.MobilePhone, phoneNumber),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString())
         };
 
         var token = new JwtSecurityToken(

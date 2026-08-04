@@ -1,6 +1,5 @@
 using HAMSA.Domain.Entities;
 using HAMSA.Domain.Interfaces.Repositories;
-using HAMSA.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace HAMSA.Infrastructure.Persistence.Repositories;
@@ -26,5 +25,17 @@ public class OtpRepository : Repository<OtpCode>, IOtpRepository
             otp.MarkAsUsed();
 
         await _context.SaveChangesAsync();
+    }
+}
+
+
+
+public class RevokedTokenRepository : Repository<RevokedToken>, IRevokedTokenRepository
+{
+    public RevokedTokenRepository(AppDbContext context) : base(context) { }
+
+    public async Task<bool> IsRevokedAsync(string jti)
+    {
+        return await _dbSet.AnyAsync(t => t.Jti == jti);
     }
 }

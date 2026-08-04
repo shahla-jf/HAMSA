@@ -50,6 +50,7 @@ public class AppDbContext : DbContext
     public DbSet<GroupBuyingParticipant> GroupBuyingParticipants => Set<GroupBuyingParticipant>();
     
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
+    public DbSet<RevokedToken> RevokedTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
