@@ -54,6 +54,9 @@ public class BuildingMembershipConfiguration : IEntityTypeConfiguration<Building
             .HasForeignKey(m => m.UnitId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.Property(m => m.IsPrimary)
+            .IsRequired();
     }
 }
 

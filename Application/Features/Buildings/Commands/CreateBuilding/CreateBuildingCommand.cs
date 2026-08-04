@@ -66,7 +66,7 @@ public class CreateBuildingHandler
         var membership = BuildingMembership.Create(
             command.ManagerUserId, building.Id,
             null,  // مدیر لزوماً واحد خاصی نداره
-            UserRole.Manager, true, DateTime.UtcNow
+            UserRole.Manager, true, DateTime.UtcNow, true
         );
         await _membershipRepository.AddAsync(membership);
         await _membershipRepository.SaveChangesAsync();

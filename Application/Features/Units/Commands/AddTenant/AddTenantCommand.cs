@@ -7,7 +7,7 @@ namespace HAMSA.Application.Features.Units.Commands.AddTenant;
 // ------- Command -------
 public record AddTenantCommand(
     Guid BuildingId,
-    Guid RequestingOwnerId,
+    Guid RequestingUserId, // می‌تونه مالک واحد باشه یا یه مستاجر فعال همون واحد
     string TenantPhoneNumber,
     int Block,
     int Floor,
@@ -37,7 +37,6 @@ public class AddTenantHandler
 
     public async Task<AddTenantResult> HandleAsync(AddTenantCommand command)
     {
-        // پیدا کردن واحد
         var unit = await _unitRepository.GetByBlockFloorUnitAsync(
             command.BuildingId, command.Block, command.Floor, command.UnitNumber);
         if (unit is null)
@@ -45,21 +44,23 @@ public class AddTenantHandler
 
         var unitMemberships = await _membershipRepository.GetByUnitIdAsync(unit.Id);
 
-        // بررسی مالک بودن درخواست‌دهنده برای این واحد
-        var isOwner = unitMemberships.Any(m =>
-            m.UserId == command.RequestingOwnerId &&
+        var isOwnerRequester = unitMemberships.Any(m =>
+            m.UserId == command.RequestingUserId &&
             m.Role == UserRole.Owner &&
             m.IsActive);
 
-        if (!isOwner)
-            return new AddTenantResult(false, "شما مالک این واحد نیستید");
+        var isTenantRequester = unitMemberships.Any(m =>
+            m.UserId == command.RequestingUserId &&
+            m.Role == UserRole.Tenant &&
+            m.IsActive);
 
-        // پیدا کردن مستاجر با شماره موبایل
+        if (!isOwnerRequester && !isTenantRequester)
+            return new AddTenantResult(false, "شما مالک یا مستاجر این واحد نیستید");
+
         var tenant = await _userRepository.GetByPhoneNumberAsync(command.TenantPhoneNumber);
         if (tenant is null)
             return new AddTenantResult(false, "کاربری با این شماره موبایل یافت نشد. لطفاً ابتدا در سیستم ثبت‌نام کند");
 
-        // چک اینکه همین کاربر از قبل مستاجر فعال همین واحد نباشه (جلوگیری از duplicate)
         var alreadyTenant = unitMemberships.Any(m =>
             m.UserId == tenant.Id &&
             m.Role == UserRole.Tenant &&
@@ -68,10 +69,12 @@ public class AddTenantHandler
         if (alreadyTenant)
             return new AddTenantResult(false, "این کاربر از قبل مستاجر فعال این واحد است");
 
-        // membership جدید برای مستاجر بساز — بدون دست‌زدن به مستاجرین قبلی
+        // مستاجری که توسط مالک اضافه بشه اصلی است، مستاجری که توسط مستاجر دیگه اضافه بشه فرعی است
+        var isPrimary = isOwnerRequester;
+
         var membership = BuildingMembership.Create(
             tenant.Id, command.BuildingId, unit.Id,
-            UserRole.Tenant, true, command.StartDate);
+            UserRole.Tenant, true, command.StartDate, isPrimary);
 
         membership.GenerateInviteCode();
 

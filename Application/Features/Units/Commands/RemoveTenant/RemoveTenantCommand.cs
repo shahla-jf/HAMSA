@@ -45,10 +45,10 @@ public class RemoveTenantHandler
         var isOwnerOfUnit = memberships.Any(m =>
             m.UserId == command.RequestingOwnerId &&
             m.Role == UserRole.Owner &&
-            m.IsActive);
+            m.IsActive && m.IsPrimary);
 
         if (!isOwnerOfUnit)
-            return new RemoveTenantResult(false, "شما مالک این واحد نیستید و اجازه حذف مستاجر آن را ندارید");
+            return new RemoveTenantResult(false, "شما اجازه حذف مستاجر این واحد را ندارید");
 
         // فقط مستاجرین همین واحد
         var activeTenants = memberships

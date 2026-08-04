@@ -6,7 +6,7 @@ namespace HAMSA.Application.Features.Units.Commands.RemoveOneTenant;
 // ------- Command -------
 public record RemoveOneTenantCommand(
     Guid BuildingId,
-    Guid RequestingOwnerId,
+    Guid RequestingUserId, // مالک واحد یا مستاجر اصلی همین واحد
     string TenantPhoneNumber,
     int Block,
     int Floor,
@@ -35,7 +35,6 @@ public class RemoveOneTenantHandler
 
     public async Task<RemoveOneTenantResult> HandleAsync(RemoveOneTenantCommand command)
     {
-        // پیدا کردن واحد
         var unit = await _unitRepository.GetByBlockFloorUnitAsync(
             command.BuildingId, command.Block, command.Floor, command.UnitNumber);
         if (unit is null)
@@ -43,21 +42,25 @@ public class RemoveOneTenantHandler
 
         var unitMemberships = await _membershipRepository.GetByUnitIdAsync(unit.Id);
 
-        // بررسی مالک بودن درخواست‌دهنده برای همین واحد
-        var isOwner = unitMemberships.Any(m =>
-            m.UserId == command.RequestingOwnerId &&
+        var isOwnerRequester = unitMemberships.Any(m =>
+            m.UserId == command.RequestingUserId &&
             m.Role == UserRole.Owner &&
             m.IsActive);
 
-        if (!isOwner)
-            return new RemoveOneTenantResult(false, "شما مالک این واحد نیستید و اجازه حذف مستاجر آن را ندارید");
+        var requestingTenantMembership = unitMemberships.FirstOrDefault(m =>
+            m.UserId == command.RequestingUserId &&
+            m.Role == UserRole.Tenant &&
+            m.IsActive);
 
-        // پیدا کردن کاربر مستاجر با شماره موبایل
+        var isPrimaryTenantRequester = requestingTenantMembership is { IsPrimary: true };
+
+        if (!isOwnerRequester && !isPrimaryTenantRequester)
+            return new RemoveOneTenantResult(false, "شما اجازه حذف مستاجر این واحد را ندارید");
+
         var tenant = await _userRepository.GetByPhoneNumberAsync(command.TenantPhoneNumber);
         if (tenant is null)
             return new RemoveOneTenantResult(false, "کاربری با این شماره موبایل یافت نشد");
 
-        // پیدا کردن عضویت فعال همین کاربر به عنوان مستاجر همین واحد
         var targetMembership = unitMemberships.FirstOrDefault(m =>
             m.UserId == tenant.Id &&
             m.Role == UserRole.Tenant &&
@@ -65,6 +68,11 @@ public class RemoveOneTenantHandler
 
         if (targetMembership is null)
             return new RemoveOneTenantResult(false, "این کاربر مستاجر فعال این واحد نیست");
+
+        // اگه درخواست‌دهنده مالک نیست (یعنی خودش مستاجر اصلی است)،
+        // فقط اجازه داره مستاجر فرعی رو حذف کنه، نه مستاجر اصلی
+        if (!isOwnerRequester && targetMembership.IsPrimary)
+            return new RemoveOneTenantResult(false, "مستاجر اصلی فقط توسط مالک واحد قابل حذف است");
 
         targetMembership.Deactivate();
         _membershipRepository.Update(targetMembership);

@@ -35,11 +35,13 @@ public class CreatePollHandler
         var manager = await _membershipRepository
             .GetActiveAsync(command.UserId, command.BuildingId);
 
-        if (manager is null || manager.Role != UserRole.Manager)
-            return new(false, "فقط مدیر ساختمان می‌تواند رأی‌گیری ایجاد کند.");
-
+        var buildingManagerId = await _membershipRepository.GetCurrentManagerIdAsync(command.BuildingId);
+        
+        if (buildingManagerId != command.UserId)
+            return new CreatePollResult(false, "شما مدیر این ساختمان نیستید");
+        
         if (command.Options.Count < 2)
-            return new(false, "حداقل دو گزینه لازم است.");
+            return new CreatePollResult(false, "حداقل دو گزینه لازم است.");
 
         var poll = Poll.Create(
             command.BuildingId,
@@ -57,6 +59,6 @@ public class CreatePollHandler
         await _pollRepository.AddAsync(poll);
         await _pollRepository.SaveChangesAsync();
 
-        return new(true, "رأی‌گیری ایجاد شد.", poll.Id);
+        return new CreatePollResult(true, "رأی‌گیری ایجاد شد.", poll.Id);
     }
 }
