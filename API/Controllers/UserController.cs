@@ -23,7 +23,7 @@ public class UserController : ControllerBase
         _updateProfileHandler = updateProfileHandler;
     }
 
-    [HttpPost("profile")]
+    [HttpPut("profile")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
         var userId = GetUserId();
@@ -44,4 +44,4 @@ public class UserController : ControllerBase
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
 
-public record UpdateProfileRequest(string FirstName, string LastName);
+public record UpdateProfileRequest(string? FirstName, string? LastName);

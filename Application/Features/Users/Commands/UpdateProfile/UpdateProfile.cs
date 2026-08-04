@@ -28,16 +28,24 @@ public class UpdateProfileHandler
         if (user is null)
             return new UpdateProfileResult(false, "کاربری با این مشخصات یافت نشد");
 
-        if (string.IsNullOrWhiteSpace(command.FirstName))
+        // اگه فرستاده نشده یا خالیه، مقدار فعلی دیتابیس رو نگه می‌داریم
+        var newFirstName = string.IsNullOrWhiteSpace(command.FirstName)
+            ? user.FirstName
+            : command.FirstName.Trim();
+
+        var newLastName = string.IsNullOrWhiteSpace(command.LastName)
+            ? user.LastName
+            : command.LastName.Trim();
+
+        if (string.IsNullOrWhiteSpace(newFirstName))
             return new UpdateProfileResult(false, "نام نمی‌تواند خالی باشد");
 
-        if (string.IsNullOrWhiteSpace(command.LastName))
+        if (string.IsNullOrWhiteSpace(newLastName))
             return new UpdateProfileResult(false, "نام خانوادگی نمی‌تواند خالی باشد");
-
-        // شماره موبایل و عکس پروفایل رو دست‌نخورده نگه می‌داریم، فقط اسم/فامیل آپدیت می‌شه
+        
         user.UpdateProfile(
-            command.FirstName.Trim(),
-            command.LastName.Trim(),
+            newFirstName,
+            newLastName,
             user.PhoneNumber,
             user.ProfileImageUrl);
 
