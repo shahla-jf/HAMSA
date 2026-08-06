@@ -32,6 +32,8 @@ using HAMSA.Application.Features.Units.Commands.RemoveOneOwner;
 using HAMSA.Application.Features.Units.Commands.RemoveOneTenant;
 using HAMSA.Application.Features.Units.Commands.RemoveOwner;
 using HAMSA.Application.Features.Units.Commands.RemoveTenant;
+using HAMSA.Application.Features.Units.Commands.UpdateOwner;
+using HAMSA.Application.Features.Units.Commands.UpdateTenant;
 using HAMSA.Application.Features.Units.Queries;
 using HAMSA.Application.Features.User.Commands.UpdateProfile;
 using HAMSA.Application.Features.User.Queries;
@@ -146,6 +148,8 @@ builder.Services.AddScoped<SelectCurrentBuildingHandler>();
 builder.Services.AddScoped<GetLastSelectedBuildingHandler>();
 builder.Services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
 builder.Services.AddScoped<LogoutHandler>();
+builder.Services.AddScoped<EditOwnerDatesHandler>();
+builder.Services.AddScoped<EditTenantDatesHandler>();
 
 var app = builder.Build();
 
