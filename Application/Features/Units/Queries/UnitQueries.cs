@@ -87,3 +87,64 @@ public class GetMyTenantsHandler
         ));
     }
 }
+
+
+// ======================================================
+// GetPrimaryOwners — لیست مالکین اصلی ساختمان و سابقه مدیریت آن‌ها
+// ======================================================
+public record GetPrimaryOwnersQuery(Guid BuildingId, Guid ManagerId);
+
+public record PrimaryOwnerInfo(
+    string FullName, 
+    string PhoneNumber, 
+    int Block, 
+    int Floor, 
+    int UnitNumber, 
+    int ManagementTermsCount);
+
+public record PrimaryOwnersResult(bool Success, string Message , IEnumerable<PrimaryOwnerInfo>? PrimaryOwners);
+
+public class GetPrimaryOwnersHandler
+{
+    private readonly IBuildingMembershipRepository _membershipRepository;
+    private readonly IBuildingManagerHistoryRepository _managerHistoryRepository;
+
+    public GetPrimaryOwnersHandler(
+        IBuildingMembershipRepository membershipRepository,
+        IBuildingManagerHistoryRepository managerHistoryRepository)
+    {
+        _membershipRepository = membershipRepository;
+        _managerHistoryRepository = managerHistoryRepository;
+    }
+
+    public async Task<PrimaryOwnersResult> HandleAsync(GetPrimaryOwnersQuery query)
+    {
+        var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
+        if (managerId != query.ManagerId)
+            return new PrimaryOwnersResult(false, "فقط مدیر ساختمان می‌تواند لیست را مشاهده کند", null);
+
+        
+        // ۱. دریافت مالکین اصلی (Primary Owners)
+        var primaryOwners = await _membershipRepository.GetPrimaryOwnersByBuildingAsync(query.BuildingId);
+        
+        // ۲. دریافت سابقه مدیریت‌ها برای شمارش دفعات مدیریت هر کاربر در این ساختمان
+        var managerHistory = await _managerHistoryRepository.GetHistoryAsync(query.BuildingId);
+        
+        // گروه‌بندی بر اساس UserId و شمارش تعداد دفعات (بهینه‌تر از Count گرفتن در حلقه)
+        var managementCounts = managerHistory
+            .GroupBy(h => h.UserId)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        // ۳. ترکیب اطلاعات و ساخت خروجی نهایی
+        var listOwners = primaryOwners.Select(membership => new PrimaryOwnerInfo(
+            FullName: $"{membership.User.FirstName} {membership.User.LastName}",
+            PhoneNumber: membership.User.PhoneNumber ?? string.Empty,
+            Block: membership.Unit?.Block ?? 0,
+            Floor: membership.Unit?.Floor ?? 0,
+            UnitNumber: membership.Unit?.UnitNumber ?? 0,
+            ManagementTermsCount: managementCounts.GetValueOrDefault(membership.UserId, 0)
+        )).ToList();
+        
+        return new PrimaryOwnersResult(true, "لیست افراد با موفقیت پیدا شد",  listOwners);
+    }
+}

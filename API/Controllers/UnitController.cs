@@ -28,6 +28,7 @@ public class UnitController : ControllerBase
     private readonly RemoveOneTenantHandler _removeOneTenantHandler;
     private readonly EditOwnerDatesHandler _editOwnerDatesHandler;
     private readonly EditTenantDatesHandler _editTenantDatesHandler;
+    private readonly GetPrimaryOwnersHandler _getPrimaryOwnersHandler;
 
     public UnitController(
         AddOwnerHandler addOwnerHandler,
@@ -39,7 +40,8 @@ public class UnitController : ControllerBase
         RemoveOneOwnerHandler removeOneOwnerHandler,
         RemoveOneTenantHandler removeOneTenantHandler,
         EditOwnerDatesHandler editOwnerDatesHandler,
-        EditTenantDatesHandler editTenantDatesHandler)
+        EditTenantDatesHandler editTenantDatesHandler,
+        GetPrimaryOwnersHandler getPrimaryOwnersHandler)
     {
         _addOwnerHandler = addOwnerHandler;
         _addTenantHandler = addTenantHandler;
@@ -51,6 +53,7 @@ public class UnitController : ControllerBase
         _removeOneTenantHandler = removeOneTenantHandler;
         _editOwnerDatesHandler = editOwnerDatesHandler;
         _editTenantDatesHandler = editTenantDatesHandler;
+        _getPrimaryOwnersHandler = getPrimaryOwnersHandler;
     }
 
     /// <summary>
@@ -176,6 +179,13 @@ public class UnitController : ControllerBase
         return result.Success? Ok(result) : BadRequest(result);
     }
 
+    [HttpGet("{buildingId}/active-primary-owners")]
+    public async Task<IActionResult> GetActivePrimaryOwners(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getPrimaryOwnersHandler.HandleAsync(new GetPrimaryOwnersQuery(buildingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
 
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);

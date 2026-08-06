@@ -1,4 +1,5 @@
 using HAMSA.Domain.Entities;
+using HAMSA.Domain.Enums;
 using HAMSA.Domain.Interfaces.Repositories;
 using HAMSA.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +72,16 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
             .Include(m => m.User)
             .Where(m => m.UnitId == unitId)
             .ToListAsync();
+    
+    
+    public async Task<IEnumerable<BuildingMembership>> GetPrimaryOwnersByBuildingAsync(Guid buildingId)
+    {
+        return await _context.BuildingMemberships
+            .Include(m => m.User)
+            .Include(m => m.Unit)
+            .Where(m => m.BuildingId == buildingId && m.Role == UserRole.Owner && m.IsPrimary)
+            .ToListAsync();
+    }
     
     public async Task<IEnumerable<BuildingMembership>> GetTenantsByOwnerAsync(Guid ownerUserId, Guid buildingId)
     {

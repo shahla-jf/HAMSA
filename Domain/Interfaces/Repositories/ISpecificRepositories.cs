@@ -1,5 +1,6 @@
 using HAMSA.Domain.Entities;
 using HAMSA.Domain.Enums;
+using HAMSA.Domain.Interfaces.Repositories;
 
 namespace HAMSA.Domain.Interfaces.Repositories;
 
@@ -31,6 +32,7 @@ public interface IBuildingMembershipRepository : IRepository<BuildingMembership>
     Task<Guid?> GetCurrentManagerIdAsync(Guid buildingId);
     Task<IEnumerable<BuildingMembership>> GetByUserAsync(Guid userId);
     Task<BuildingMembership?> GetLastSelectedAsync(Guid userId);
+    Task<IEnumerable<BuildingMembership>> GetPrimaryOwnersByBuildingAsync(Guid buildingId);
 }
 
 public interface IChargeRepository : IRepository<Charge>
