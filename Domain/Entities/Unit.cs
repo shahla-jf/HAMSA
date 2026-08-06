@@ -71,7 +71,7 @@ public class BuildingMembership
     public static BuildingMembership Create(
         Guid userId, Guid buildingId, Guid? unitId,
         UserRole role, bool isResident,
-        DateTime startDate, bool isPrimary)
+        DateTime startDate, bool isPrimary, DateTime? endDate)
     {
         return new BuildingMembership
         {
@@ -83,6 +83,7 @@ public class BuildingMembership
             IsResident = isResident,
             IsPrimary = isPrimary,
             StartDate = startDate,
+            EndDate = endDate,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };

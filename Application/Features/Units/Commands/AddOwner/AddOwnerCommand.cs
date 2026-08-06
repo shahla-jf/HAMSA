@@ -91,7 +91,7 @@ public class AddOwnerHandler
 
         var membership = BuildingMembership.Create(
             owner.Id, command.BuildingId, unit.Id,
-            UserRole.Owner, command.IsResident, DateTime.UtcNow, isPrimary);
+            UserRole.Owner, command.IsResident, DateTime.UtcNow, isPrimary, null);
 
         await _membershipRepository.AddAsync(membership);
         await _membershipRepository.SaveChangesAsync();
