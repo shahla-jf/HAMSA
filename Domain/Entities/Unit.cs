@@ -94,11 +94,15 @@ public class BuildingMembership
         InviteCode = Guid.NewGuid().ToString("N")[..8].ToUpper();
     }
 
+    public void UpdateStartDate(DateTime startDate)
+    {
+        StartDate = startDate;
+    }
+
     public void SetEndDate(DateTime endDate)
     {
         EndDate = endDate;
-        if (endDate <= DateTime.UtcNow)
-            IsActive = false;
+        IsActive = endDate > DateTime.UtcNow ? true : false;
     }
 
     public void Deactivate()

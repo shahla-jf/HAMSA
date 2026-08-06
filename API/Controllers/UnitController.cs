@@ -8,6 +8,8 @@ using HAMSA.Application.Features.Units.Commands.RemoveOneOwner;
 using HAMSA.Application.Features.Units.Commands.RemoveOneTenant;
 using HAMSA.Application.Features.Units.Commands.RemoveOwner;
 using HAMSA.Application.Features.Units.Commands.RemoveTenant;
+using HAMSA.Application.Features.Units.Commands.UpdateOwner;
+using HAMSA.Application.Features.Units.Commands.UpdateTenant;
 
 namespace HAMSA.API.Controllers;
 
@@ -24,6 +26,8 @@ public class UnitController : ControllerBase
     private readonly RemoveTenantHandler _removeTenantHandler;
     private readonly RemoveOneOwnerHandler _removeOneOwnerHandler;
     private readonly RemoveOneTenantHandler _removeOneTenantHandler;
+    private readonly EditOwnerDatesHandler _editOwnerDatesHandler;
+    private readonly EditTenantDatesHandler _editTenantDatesHandler;
 
     public UnitController(
         AddOwnerHandler addOwnerHandler,
@@ -33,7 +37,9 @@ public class UnitController : ControllerBase
         RemoveOwnerHandler removeOwnerHandler,
         RemoveTenantHandler removeTenantHandler,
         RemoveOneOwnerHandler removeOneOwnerHandler,
-        RemoveOneTenantHandler removeOneTenantHandler)
+        RemoveOneTenantHandler removeOneTenantHandler,
+        EditOwnerDatesHandler editOwnerDatesHandler,
+        EditTenantDatesHandler editTenantDatesHandler)
     {
         _addOwnerHandler = addOwnerHandler;
         _addTenantHandler = addTenantHandler;
@@ -43,6 +49,8 @@ public class UnitController : ControllerBase
         _removeTenantHandler = removeTenantHandler;
         _removeOneOwnerHandler = removeOneOwnerHandler;
         _removeOneTenantHandler = removeOneTenantHandler;
+        _editOwnerDatesHandler = editOwnerDatesHandler;
+        _editTenantDatesHandler = editTenantDatesHandler;
     }
 
     /// <summary>
@@ -148,6 +156,27 @@ public class UnitController : ControllerBase
     }
 
 
+    [HttpPut("edit-owner-dates")]
+    public async Task<IActionResult> UpdateOwnerDate([FromBody] UpdateOwnerDatesRequest request)
+    {
+        var userId = GetUserId();
+        var result = await _editOwnerDatesHandler.HandleAsync(new EditOwnerDatesCommand(
+            request.BuildingId, userId, request.Block, request.Floor, request.UnitNumber,
+            request.StartDate,  request.EndDate));
+        return result.Success? Ok(result) : BadRequest(result);
+    }
+    
+    [HttpPut("edit-tenant-dates")]
+    public async Task<IActionResult> UpdateTenantDate([FromBody] UpdateTenantDatesRequest request)
+    {
+        var userId = GetUserId();
+        var result = await _editTenantDatesHandler.HandleAsync(new EditTenantDatesCommand(
+            request.BuildingId, userId, request.Block, request.Floor, request.UnitNumber,
+            request.StartDate,  request.EndDate));
+        return result.Success? Ok(result) : BadRequest(result);
+    }
+
+
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
@@ -177,3 +206,15 @@ public record  RemoveOneTenantRequest(
     string TenantPhoneNumber,
     Guid BuildingId,
     int Block, int Floor, int UnitNumber);
+    
+public record UpdateOwnerDatesRequest(
+    Guid BuildingId,
+    int Block, int Floor, int UnitNumber,
+    DateTime StartDate,
+    DateTime EndDate);
+    
+public record UpdateTenantDatesRequest(
+    Guid BuildingId,
+    int Block, int Floor, int UnitNumber,
+    DateTime StartDate,
+    DateTime EndDate);
