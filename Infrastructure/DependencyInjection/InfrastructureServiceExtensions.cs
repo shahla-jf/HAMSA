@@ -27,6 +27,7 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<ILocalServiceRepository, LocalServiceRepository>();
         services.AddScoped<IGroupBuyingRepository, GroupBuyingRepository>();
         services.AddScoped<IBuildingManagerHistoryRepository, BuildingManagerHistoryRepository>();
+        services.AddScoped<IMonthlyChargeRateRepository,  MonthlyChargeRateRepository>();
 
         return services;
     }
