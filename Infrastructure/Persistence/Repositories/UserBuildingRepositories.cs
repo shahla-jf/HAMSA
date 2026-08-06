@@ -66,6 +66,12 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
             .Where(m => m.UnitId == unitId && m.IsActive)
             .ToListAsync();
 
+    public async Task<IEnumerable<BuildingMembership>> GetAllByUnitIdAsync(Guid unitId)
+        => await _dbSet
+            .Include(m => m.User)
+            .Where(m => m.UnitId == unitId)
+            .ToListAsync();
+    
     public async Task<IEnumerable<BuildingMembership>> GetTenantsByOwnerAsync(Guid ownerUserId, Guid buildingId)
     {
         // واحدهایی که این کاربر مالکشه

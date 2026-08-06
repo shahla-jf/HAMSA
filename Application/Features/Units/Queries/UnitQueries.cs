@@ -35,7 +35,7 @@ public class GetUnitsByBuildingHandler
         var result = new List<UnitDetail>();
         foreach (var unit in units)
         {
-            var memberships = await _membershipRepository.GetByUnitIdAsync(unit.Id);
+            var memberships = await _membershipRepository.GetAllByUnitIdAsync(unit.Id);
             var members = memberships.Select(m => new UnitMemberInfo(
                 $"{m.User.FirstName} {m.User.LastName}",
                 m.User.PhoneNumber,

@@ -26,6 +26,7 @@ public interface IBuildingMembershipRepository : IRepository<BuildingMembership>
     Task<BuildingMembership?> GetByInviteCodeAsync(string inviteCode);
     Task<BuildingMembership?> GetActiveAsync(Guid userId, Guid buildingId);
     Task<IEnumerable<BuildingMembership>> GetByUnitIdAsync(Guid unitId);
+    Task<IEnumerable<BuildingMembership>> GetAllByUnitIdAsync(Guid buildingId);
     Task<IEnumerable<BuildingMembership>> GetTenantsByOwnerAsync(Guid ownerUserId, Guid buildingId);
     Task<Guid?> GetCurrentManagerIdAsync(Guid buildingId);
     Task<IEnumerable<BuildingMembership>> GetByUserAsync(Guid userId);
