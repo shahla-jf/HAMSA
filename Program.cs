@@ -20,6 +20,8 @@ using HAMSA.Application.Features.Buildings.Commands.SelectCurrentBuilding;
 using HAMSA.Application.Features.Buildings.Commands.TransferManager;
 using HAMSA.Application.Features.Buildings.Commands.UpdateBuilding;
 using HAMSA.Application.Features.Buildings.Queries;
+using HAMSA.Application.Features.Charges.Commands.SetMonthlyChargeAmount;
+using HAMSA.Application.Features.Charges.Queries;
 using HAMSA.Application.Features.Polls.Commands.VotePoll;
 using HAMSA.Application.Features.Reports.Commands.CreateRepairReport;
 using HAMSA.Application.Features.Reports.Commands.UpdateRepairStatus;
@@ -150,6 +152,8 @@ builder.Services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
 builder.Services.AddScoped<LogoutHandler>();
 builder.Services.AddScoped<EditOwnerDatesHandler>();
 builder.Services.AddScoped<EditTenantDatesHandler>();
+builder.Services.AddScoped<SetMonthlyChargeAmountHandler>();
+builder.Services.AddScoped<GetChargeRatesHandler>();
 
 var app = builder.Build();
 

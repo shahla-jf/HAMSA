@@ -20,13 +20,19 @@ public class SetMonthlyChargeAmountHandler
 {
     private readonly IBuildingMembershipRepository _membershipRepository;
     private readonly IMonthlyChargeRateRepository _rateRepository;
+    private readonly IChargeRepository _chargeRepository;
+    private readonly IUnitRepository _unitRepository;
 
     public SetMonthlyChargeAmountHandler(
         IBuildingMembershipRepository membershipRepository,
-        IMonthlyChargeRateRepository rateRepository)
+        IMonthlyChargeRateRepository rateRepository,
+        IChargeRepository chargeRepository,
+        IUnitRepository unitRepository)
     {
         _membershipRepository = membershipRepository;
         _rateRepository = rateRepository;
+        _chargeRepository = chargeRepository;
+        _unitRepository = unitRepository;
     }
 
     public async Task<SetMonthlyChargeAmountResult> HandleAsync(SetMonthlyChargeAmountCommand command)
@@ -41,17 +47,32 @@ public class SetMonthlyChargeAmountHandler
         {
             var rate = MonthlyChargeRate.Create(command.BuildingId, command.Year, command.Month, command.Amount);
             await _rateRepository.AddAsync(rate);
+            
+            var units = await _unitRepository.GetByBuildingIdAsync(command.BuildingId);
+            var dueDate = new DateTime(command.Year, command.Month, 1).AddMonths(1).AddDays(-1); // آخر همون ماه
+
+            int count = 0;
+            foreach (var unit in units)
+            {
+                var existingCharge = await _chargeRepository.GetByUnitAndMonthAsync(unit.Id, command.Year, command.Month);
+                if (existingCharge is not null) continue; // قبلاً صادر شده
+
+                var charge = Charge.Create(unit.Id, command.BuildingId, command.Year, command.Month, rate.Amount, dueDate);
+                await _chargeRepository.AddAsync(charge);
+                count++;
+            }
+            
+            await _chargeRepository.SaveChangesAsync();
+
+            rate.MarkAsIssued();
+            _rateRepository.Update(rate);
+            await _rateRepository.SaveChangesAsync();
+
+            return new SetMonthlyChargeAmountResult(true, $"شارژ برای {count} واحد صادر شد");
         }
         else
         {
-            if (existing.IsIssued)
-                return new SetMonthlyChargeAmountResult(false, "شارژ این ماه قبلاً صادر شده و قابل ویرایش نیست");
-
-            existing.UpdateAmount(command.Amount);
-            _rateRepository.Update(existing);
+            return new SetMonthlyChargeAmountResult(false, "شارژ این ماه قبلاً صادر شده و قابل ویرایش نیست");
         }
-
-        await _rateRepository.SaveChangesAsync();
-        return new SetMonthlyChargeAmountResult(true, "مبلغ شارژ با موفقیت ثبت شد");
     }
 }

@@ -1,5 +1,3 @@
-using HAMSA.Application.Features.Charges.Commands.IssueMonthlyCharges;
-using HAMSA.Application.Features.Charges.Commands.MarkChargeAsPaid;
 using HAMSA.Application.Features.Charges.Commands.RequestPayment;
 using HAMSA.Application.Features.Charges.Commands.SetMonthlyChargeAmount;
 using HAMSA.Application.Features.Charges.Commands.UpdateSharedCosts;
@@ -17,8 +15,6 @@ namespace HAMSA.API.Controllers;
 public class ChargeController : ControllerBase
 {
     private readonly SetMonthlyChargeAmountHandler _setRateHandler;
-    private readonly IssueMonthlyChargesHandler _issueHandler;
-    private readonly MarkChargeAsPaidHandler _markPaidHandler;
     private readonly RequestPaymentHandler _requestPaymentHandler;
     private readonly VerifyPaymentHandler _verifyPaymentHandler;
     private readonly UpdateSharedCostsHandler _updateSharedCostsHandler;
@@ -30,8 +26,6 @@ public class ChargeController : ControllerBase
 
     public ChargeController(
         SetMonthlyChargeAmountHandler setRateHandler,
-        IssueMonthlyChargesHandler issueHandler,
-        MarkChargeAsPaidHandler markPaidHandler,
         RequestPaymentHandler requestPaymentHandler,
         VerifyPaymentHandler verifyPaymentHandler,
         UpdateSharedCostsHandler updateSharedCostsHandler,
@@ -42,8 +36,6 @@ public class ChargeController : ControllerBase
         GetMyTransactionsHandler getTransactionsHandler)
     {
         _setRateHandler = setRateHandler;
-        _issueHandler = issueHandler;
-        _markPaidHandler = markPaidHandler;
         _requestPaymentHandler = requestPaymentHandler;
         _verifyPaymentHandler = verifyPaymentHandler;
         _updateSharedCostsHandler = updateSharedCostsHandler;
@@ -74,29 +66,6 @@ public class ChargeController : ControllerBase
         var userId = GetUserId();
         var result = await _setRateHandler.HandleAsync(new Application.Features.Charges.Commands.SetMonthlyChargeAmount.SetMonthlyChargeAmountCommand(
             buildingId, userId, request.Year, request.Month, request.Amount));
-        return result.Success ? Ok(result) : BadRequest(result);
-    }
-
-    /// <summary>
-    /// صدور شارژ برای همه واحدها (فقط مدیر)
-    /// </summary>
-    [HttpPost("{buildingId}/issue")]
-    public async Task<IActionResult> IssueCharges(Guid buildingId, [FromBody] IssueChargesRequest request)
-    {
-        var userId = GetUserId();
-        var result = await _issueHandler.HandleAsync(
-            new IssueMonthlyChargesCommand(buildingId, userId, request.Year, request.Month));
-        return result.Success ? Ok(result) : BadRequest(result);
-    }
-
-    /// <summary>
-    /// علامت‌گذاری دستی شارژ به‌عنوان پرداخت‌شده (فقط مدیر)
-    /// </summary>
-    [HttpPost("{chargeId}/mark-paid")]
-    public async Task<IActionResult> MarkAsPaid(Guid chargeId)
-    {
-        var userId = GetUserId();
-        var result = await _markPaidHandler.HandleAsync(new MarkChargeAsPaidCommand(chargeId, userId));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
