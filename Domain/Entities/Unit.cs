@@ -94,6 +94,11 @@ public class BuildingMembership
         InviteCode = Guid.NewGuid().ToString("N")[..8].ToUpper();
     }
 
+    public void SetUnitId(Guid newUnitId)
+    {
+        UnitId = newUnitId;
+    }
+
     public void UpdateStartDate(DateTime startDate)
     {
         StartDate = startDate;

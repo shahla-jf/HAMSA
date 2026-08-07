@@ -26,8 +26,8 @@ public class UnitController : ControllerBase
     private readonly RemoveTenantHandler _removeTenantHandler;
     private readonly RemoveOneOwnerHandler _removeOneOwnerHandler;
     private readonly RemoveOneTenantHandler _removeOneTenantHandler;
-    private readonly EditOwnerDatesHandler _editOwnerDatesHandler;
-    private readonly EditTenantDatesHandler _editTenantDatesHandler;
+    private readonly EditOwnerHandler _editOwnerHandler;
+    private readonly EditTenantHandler _editTenantHandler;
     private readonly GetPrimaryOwnersHandler _getPrimaryOwnersHandler;
     private readonly GetCoMembersHandler _getCoMembersHandler;
 
@@ -40,8 +40,8 @@ public class UnitController : ControllerBase
         RemoveTenantHandler removeTenantHandler,
         RemoveOneOwnerHandler removeOneOwnerHandler,
         RemoveOneTenantHandler removeOneTenantHandler,
-        EditOwnerDatesHandler editOwnerDatesHandler,
-        EditTenantDatesHandler editTenantDatesHandler,
+        EditOwnerHandler editOwnerHandler,
+        EditTenantHandler editTenantHandler,
         GetPrimaryOwnersHandler getPrimaryOwnersHandler,
         GetCoMembersHandler getCoMembersHandler)
     {
@@ -53,8 +53,8 @@ public class UnitController : ControllerBase
         _removeTenantHandler = removeTenantHandler;
         _removeOneOwnerHandler = removeOneOwnerHandler;
         _removeOneTenantHandler = removeOneTenantHandler;
-        _editOwnerDatesHandler = editOwnerDatesHandler;
-        _editTenantDatesHandler = editTenantDatesHandler;
+        _editOwnerHandler = editOwnerHandler;
+        _editTenantHandler = editTenantHandler;
         _getPrimaryOwnersHandler = getPrimaryOwnersHandler;
         _getCoMembersHandler = getCoMembersHandler;
     }
@@ -162,23 +162,25 @@ public class UnitController : ControllerBase
     }
 
 
-    [HttpPut("edit-owner-dates")]
-    public async Task<IActionResult> UpdateOwnerDate([FromBody] UpdateOwnerDatesRequest request)
+    [HttpPut("edit-owner")]
+    public async Task<IActionResult> UpdateOwnerDate([FromBody] UpdateOwnerRequest request)
     {
         var userId = GetUserId();
-        var result = await _editOwnerDatesHandler.HandleAsync(new EditOwnerDatesCommand(
+        var result = await _editOwnerHandler.HandleAsync(new EditOwnerCommand(
             request.BuildingId, userId, request.Block, request.Floor, request.UnitNumber,
-            request.StartDate,  request.EndDate));
+            request.StartDate,  request.EndDate, request.NewBlock, request.NewFloor,
+            request.NewUnitNumber, request.TargetUserId));
         return result.Success? Ok(result) : BadRequest(result);
     }
     
-    [HttpPut("edit-tenant-dates")]
-    public async Task<IActionResult> UpdateTenantDate([FromBody] UpdateTenantDatesRequest request)
+    [HttpPut("edit-tenant")]
+    public async Task<IActionResult> UpdateTenantDate([FromBody] UpdateTenantRequest request)
     {
         var userId = GetUserId();
-        var result = await _editTenantDatesHandler.HandleAsync(new EditTenantDatesCommand(
+        var result = await _editTenantHandler.HandleAsync(new EditTenantCommand(
             request.BuildingId, userId, request.Block, request.Floor, request.UnitNumber,
-            request.StartDate,  request.EndDate));
+            request.StartDate,  request.EndDate, request.NewBlock, request.NewFloor,
+            request.NewUnitNumber, request.TargetUserId));
         return result.Success? Ok(result) : BadRequest(result);
     }
 
@@ -228,14 +230,18 @@ public record  RemoveOneTenantRequest(
     Guid BuildingId,
     int Block, int Floor, int UnitNumber);
     
-public record UpdateOwnerDatesRequest(
+public record UpdateOwnerRequest(
     Guid BuildingId,
     int Block, int Floor, int UnitNumber,
-    DateTime StartDate,
-    DateTime EndDate);
+    DateTime? StartDate,
+    DateTime? EndDate,
+    int? NewBlock, int? NewFloor, int? NewUnitNumber,
+    Guid? TargetUserId);
     
-public record UpdateTenantDatesRequest(
+public record UpdateTenantRequest(
     Guid BuildingId,
     int Block, int Floor, int UnitNumber,
-    DateTime StartDate,
-    DateTime EndDate);
+    DateTime? StartDate,
+    DateTime? EndDate,
+    int? NewBlock, int? NewFloor, int? NewUnitNumber,
+    Guid? TargetUserId);
