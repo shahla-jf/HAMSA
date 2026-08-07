@@ -148,3 +148,44 @@ public class GetPrimaryOwnersHandler
         return new PrimaryOwnersResult(true, "لیست افراد با موفقیت پیدا شد",  listOwners);
     }
 }
+
+
+// ======================================================
+// GetCoMembers — لیست اعضای واحدهای مشترک یک فرد در یک ساختمان
+// ======================================================
+public record GetCoMembersQuery(Guid BuildingId, Guid UserId);
+
+public record CoMemberInfo(
+    string FullName,
+    string PhoneNumber,
+    int Block,
+    int Floor,
+    int UnitNumber);
+
+public record CoMembersResult(bool Success, string Message , IEnumerable<CoMemberInfo>? CoMemberInfos);
+
+public class GetCoMembersHandler
+{
+    private readonly IBuildingMembershipRepository _membershipRepository;
+
+    public GetCoMembersHandler(IBuildingMembershipRepository membershipRepository)
+    {
+        _membershipRepository = membershipRepository;
+    }
+
+    public async Task<CoMembersResult> HandleAsync(GetCoMembersQuery query)
+    {
+        var coMembers = await _membershipRepository.GetCoMembersByUserInBuildingAsync(
+            query.UserId, query.BuildingId);
+
+        var result = coMembers.Select(m => new CoMemberInfo(
+            FullName: $"{m.User.FirstName} {m.User.LastName}",
+            PhoneNumber: m.User.PhoneNumber ?? string.Empty,
+            Block: m.Unit?.Block ?? 0,
+            Floor: m.Unit?.Floor ?? 0,
+            UnitNumber: m.Unit?.UnitNumber ?? 0
+        ));
+        
+        return new CoMembersResult(true, "لیست با موفقیت پیدا شد",  result);
+    }
+}

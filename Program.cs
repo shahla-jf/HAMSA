@@ -155,6 +155,7 @@ builder.Services.AddScoped<EditTenantDatesHandler>();
 builder.Services.AddScoped<SetMonthlyChargeAmountHandler>();
 builder.Services.AddScoped<GetChargeRatesHandler>();
 builder.Services.AddScoped<GetPrimaryOwnersHandler>();
+builder.Services.AddScoped<GetCoMembersHandler>();
 
 var app = builder.Build();
 

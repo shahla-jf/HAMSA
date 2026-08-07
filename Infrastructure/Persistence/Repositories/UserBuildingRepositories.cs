@@ -126,4 +126,22 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
             .OrderByDescending(x => x.LastSelectedAt)
             .FirstOrDefaultAsync();
     }
+    
+    public async Task<IEnumerable<BuildingMembership>> GetCoMembersByUserInBuildingAsync(Guid userId, Guid buildingId)
+    {
+        // ۱. شناسایی واحدهایی که این کاربر در ساختمان عضو آن‌هاست
+        var userUnitIds = await _dbSet
+            .Where(m => m.UserId == userId && m.BuildingId == buildingId)
+            .Select(m => m.UnitId)
+            .ToListAsync();
+
+        // ۲. دریافت تمام اعضای فعال این واحدها (به‌جز خود کاربر درخواست‌دهنده)
+        return await _dbSet
+            .Include(m => m.User)
+            .Include(m => m.Unit)
+            .Where(m => userUnitIds.Contains(m.UnitId) &&
+                        m.UserId != userId &&
+                        m.IsActive)
+            .ToListAsync();
+    }
 }

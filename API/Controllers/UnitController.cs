@@ -29,6 +29,7 @@ public class UnitController : ControllerBase
     private readonly EditOwnerDatesHandler _editOwnerDatesHandler;
     private readonly EditTenantDatesHandler _editTenantDatesHandler;
     private readonly GetPrimaryOwnersHandler _getPrimaryOwnersHandler;
+    private readonly GetCoMembersHandler _getCoMembersHandler;
 
     public UnitController(
         AddOwnerHandler addOwnerHandler,
@@ -41,7 +42,8 @@ public class UnitController : ControllerBase
         RemoveOneTenantHandler removeOneTenantHandler,
         EditOwnerDatesHandler editOwnerDatesHandler,
         EditTenantDatesHandler editTenantDatesHandler,
-        GetPrimaryOwnersHandler getPrimaryOwnersHandler)
+        GetPrimaryOwnersHandler getPrimaryOwnersHandler,
+        GetCoMembersHandler getCoMembersHandler)
     {
         _addOwnerHandler = addOwnerHandler;
         _addTenantHandler = addTenantHandler;
@@ -54,6 +56,7 @@ public class UnitController : ControllerBase
         _editOwnerDatesHandler = editOwnerDatesHandler;
         _editTenantDatesHandler = editTenantDatesHandler;
         _getPrimaryOwnersHandler = getPrimaryOwnersHandler;
+        _getCoMembersHandler = getCoMembersHandler;
     }
 
     /// <summary>
@@ -184,6 +187,14 @@ public class UnitController : ControllerBase
     {
         var userId = GetUserId();
         var result = await _getPrimaryOwnersHandler.HandleAsync(new GetPrimaryOwnersQuery(buildingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("{buildingId}/comembers")]
+    public async Task<IActionResult> GetComMembers(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getCoMembersHandler.HandleAsync(new GetCoMembersQuery(buildingId, userId));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
