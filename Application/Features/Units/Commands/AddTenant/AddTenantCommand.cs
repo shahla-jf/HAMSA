@@ -73,7 +73,7 @@ public class AddTenantHandler
 
         var membership = BuildingMembership.Create(
             tenant.Id, command.BuildingId, unit.Id,
-            UserRole.Tenant, true, DateTime.UtcNow, isPrimary, DateTime.UtcNow.AddYears(1));
+            UserRole.Tenant, DateTime.UtcNow, isPrimary, DateTime.UtcNow.AddYears(1));
 
         membership.GenerateInviteCode();
 

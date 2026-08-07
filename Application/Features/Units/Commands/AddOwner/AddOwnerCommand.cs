@@ -11,8 +11,7 @@ public record AddOwnerCommand(
     string OwnerPhoneNumber,
     int Block,
     int Floor,
-    int UnitNumber,
-    bool IsResident
+    int UnitNumber
 );
 
 // ------- Result -------
@@ -91,7 +90,7 @@ public class AddOwnerHandler
 
         var membership = BuildingMembership.Create(
             owner.Id, command.BuildingId, unit.Id,
-            UserRole.Owner, command.IsResident, DateTime.UtcNow, isPrimary, null);
+            UserRole.Owner, DateTime.UtcNow, isPrimary, null);
 
         await _membershipRepository.AddAsync(membership);
         await _membershipRepository.SaveChangesAsync();

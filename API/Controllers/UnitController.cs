@@ -69,7 +69,7 @@ public class UnitController : ControllerBase
         var userId = GetUserId();
         var result = await _addOwnerHandler.HandleAsync(new AddOwnerCommand(
             buildingId, userId, request.OwnerPhoneNumber,
-            request.Block, request.Floor, request.UnitNumber, request.IsResident
+            request.Block, request.Floor, request.UnitNumber
         ));
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -206,7 +206,7 @@ public class UnitController : ControllerBase
 
 // --- Request Models ---
 public record AddOwnerRequest(
-    string OwnerPhoneNumber, int Block, int Floor, int UnitNumber, bool IsResident);
+    string OwnerPhoneNumber, int Block, int Floor, int UnitNumber);
 
 public record AddTenantRequest(
     string TenantPhoneNumber, int Block, int Floor, int UnitNumber);

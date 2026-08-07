@@ -105,14 +105,14 @@ public class EditTenantHandler
 
         // ۳. فیلتر کردن مستاجران برای ویرایش
         var membersToUpdate = sourceMemberships
-            .Where(m => m.Role == UserRole.Tenant && m.IsActive && m.IsResident)
+            .Where(m => m.Role == UserRole.Tenant && m.IsActive)
             .ToList();
 
         if (command.TargetUserId.HasValue)
             membersToUpdate = membersToUpdate.Where(m => m.UserId == command.TargetUserId.Value).ToList();
 
         if (!membersToUpdate.Any())
-            return new EditTenantResult(false, "مستاجر ساکن و فعالی برای ویرایش در این واحد یافت نشد");
+            return new EditTenantResult(false, "مستاجر فعالی برای ویرایش در این واحد یافت نشد");
 
         // ۴. اعمال تغییرات
         foreach (var tenant in membersToUpdate)

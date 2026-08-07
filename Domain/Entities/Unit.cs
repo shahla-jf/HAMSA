@@ -52,7 +52,6 @@ public class BuildingMembership
     public Guid BuildingId { get; private set; }
     public Guid? UnitId { get; private set; }
     public UserRole Role { get; private set; }
-    public bool IsResident { get; private set; }    // ساکن است یا موجر (برای مالک)
     public bool IsPrimary { get; private set; }      // اصلی یا فرعی بودن عضویت
     public DateTime StartDate { get; private set; }
     public DateTime? EndDate { get; private set; }
@@ -70,8 +69,8 @@ public class BuildingMembership
 
     public static BuildingMembership Create(
         Guid userId, Guid buildingId, Guid? unitId,
-        UserRole role, bool isResident,
-        DateTime startDate, bool isPrimary, DateTime? endDate)
+        UserRole role, DateTime startDate,
+        bool isPrimary, DateTime? endDate)
     {
         return new BuildingMembership
         {
@@ -80,7 +79,6 @@ public class BuildingMembership
             BuildingId = buildingId,
             UnitId = unitId,
             Role = role,
-            IsResident = isResident,
             IsPrimary = isPrimary,
             StartDate = startDate,
             EndDate = endDate,
