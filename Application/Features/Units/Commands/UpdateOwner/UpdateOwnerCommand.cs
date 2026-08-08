@@ -37,7 +37,9 @@ public class EditOwnerHandler
     }
 
     public async Task<EditOwnerResult> HandleAsync(EditOwnerCommand command)
-    {
+    { 
+        Console.WriteLine($"[DEBUG] Command Received -> BuildingId: {command.BuildingId}, Block: {command.Block}, Floor: {command.Floor}, UnitNumber: {command.UnitNumber}");
+    
         var sourceUnit = await _unitRepository.GetByBlockFloorUnitAsync(
             command.BuildingId, command.Block, command.Floor, command.UnitNumber);
 

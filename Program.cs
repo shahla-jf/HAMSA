@@ -61,8 +61,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         connectionString,
         ServerVersion.AutoDetect(connectionString)
     )
-    .EnableSensitiveDataLogging()
-    .LogTo(Console.WriteLine, LogLevel.Information)
 );
 builder.Services.AddInfrastructure();
 
