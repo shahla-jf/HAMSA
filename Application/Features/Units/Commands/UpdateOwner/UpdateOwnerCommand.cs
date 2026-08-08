@@ -7,7 +7,7 @@ namespace HAMSA.Application.Features.Units.Commands.UpdateOwner;
 // ------- Command -------
 public record EditOwnerCommand(
     Guid BuildingId,
-    Guid RequestingUserId, // تغییر نام برای پوشش مدیر و مالک اصلی
+    Guid RequestingUserId, 
     int Block,
     int Floor,
     int UnitNumber,
@@ -16,7 +16,7 @@ public record EditOwnerCommand(
     int? NewBlock = null,
     int? NewFloor = null,
     int? NewUnitNumber = null,
-    Guid? TargetUserId = null // اگر نال باشد، روی همه مالکان فعال واحد اعمال می‌شود
+    Guid? TargetUserId = null 
 );
 
 // ------- Result -------
@@ -64,17 +64,28 @@ public class EditOwnerHandler
                                (command.NewBlock != command.Block || command.NewFloor != command.Floor || command.NewUnitNumber != command.UnitNumber);
 
         Unit? targetUnit = null;
+        bool isNewUnitCreated = false;
+
         if (isChangingUnit)
         {
             targetUnit = await _unitRepository.GetByBlockFloorUnitAsync(
                 command.BuildingId, command.NewBlock.Value, command.NewFloor.Value, command.NewUnitNumber.Value);
 
-            if (targetUnit is null)
-                return new EditOwnerResult(false, "واحد مقصد با این مشخصات یافت نشد");
+            if (targetUnit is null && isManager)
+            {
+                targetUnit = Unit.Create(command.BuildingId, command.NewBlock.Value, command.NewFloor.Value, command.NewUnitNumber.Value);
+                await _unitRepository.AddAsync(targetUnit);
+                isNewUnitCreated = true;
+            }
 
-            // شرط شما: اگر مدیر نیست، باید مالک واحد مقصد هم باشد
+            // اگر مدیر نیست، باید مالک واحد مقصد هم باشد
             if (!isManager)
             {
+                if (isNewUnitCreated)
+                {
+                    return new EditOwnerResult(false, "واحد مقصد وجود ندارد و شما به عنوان مالک عادی اجازه ساخت واحد جدید را ندارید.");
+                }
+
                 var targetMemberships = await _membershipRepository.GetByUnitIdAsync(targetUnit.Id);
                 var isOwnerOfTarget = targetMemberships.Any(m =>
                     m.UserId == command.RequestingUserId &&
