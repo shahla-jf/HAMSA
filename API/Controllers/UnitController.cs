@@ -163,7 +163,7 @@ public class UnitController : ControllerBase
 
 
     [HttpPut("edit-owner")]
-    public async Task<IActionResult> UpdateOwnerDate([FromBody] UpdateOwnerRequest request)
+    public async Task<IActionResult> UpdateOwner([FromBody] UpdateOwnerRequest request)
     {
         var userId = GetUserId();
         var result = await _editOwnerHandler.HandleAsync(new EditOwnerCommand(
@@ -174,7 +174,7 @@ public class UnitController : ControllerBase
     }
     
     [HttpPut("edit-tenant")]
-    public async Task<IActionResult> UpdateTenantDate([FromBody] UpdateTenantRequest request)
+    public async Task<IActionResult> UpdateTenant([FromBody] UpdateTenantRequest request)
     {
         var userId = GetUserId();
         var result = await _editTenantHandler.HandleAsync(new EditTenantCommand(
