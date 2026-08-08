@@ -79,7 +79,7 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
         return await _context.BuildingMemberships
             .Include(m => m.User)
             .Include(m => m.Unit)
-            .Where(m => m.BuildingId == buildingId && m.Role == UserRole.Owner && m.IsPrimary)
+            .Where(m => m.BuildingId == buildingId && m.Role == UserRole.Owner && m.IsPrimary && m.IsActive)
             .ToListAsync();
     }
     
