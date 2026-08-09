@@ -23,6 +23,7 @@ public class ChargeController : ControllerBase
     private readonly GetUnitChargeHistoryHandler _getHistoryHandler;
     private readonly GetUnpaidChargesHandler _getUnpaidHandler;
     private readonly GetMyTransactionsHandler _getTransactionsHandler;
+    private readonly GetSharedCostsHandler _getSharedCostsHandler;
 
     public ChargeController(
         SetMonthlyChargeAmountHandler setRateHandler,
@@ -33,7 +34,8 @@ public class ChargeController : ControllerBase
         GetMyCurrentChargeHandler getMyCurrentChargeHandler,
         GetUnitChargeHistoryHandler getHistoryHandler,
         GetUnpaidChargesHandler getUnpaidHandler,
-        GetMyTransactionsHandler getTransactionsHandler)
+        GetMyTransactionsHandler getTransactionsHandler,
+        GetSharedCostsHandler getSharedCostsHandler)
     {
         _setRateHandler = setRateHandler;
         _requestPaymentHandler = requestPaymentHandler;
@@ -44,6 +46,7 @@ public class ChargeController : ControllerBase
         _getHistoryHandler = getHistoryHandler;
         _getUnpaidHandler = getUnpaidHandler;
         _getTransactionsHandler = getTransactionsHandler;
+        _getSharedCostsHandler = getSharedCostsHandler;
     }
 
     /// <summary>
@@ -64,7 +67,7 @@ public class ChargeController : ControllerBase
     public async Task<IActionResult> SetRate(Guid buildingId, [FromBody] SetRateRequest request)
     {
         var userId = GetUserId();
-        var result = await _setRateHandler.HandleAsync(new Application.Features.Charges.Commands.SetMonthlyChargeAmount.SetMonthlyChargeAmountCommand(
+        var result = await _setRateHandler.HandleAsync(new SetMonthlyChargeAmountCommand(
             buildingId, userId, request.Year, request.Month, request.Amount));
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -100,11 +103,23 @@ public class ChargeController : ControllerBase
     public async Task<IActionResult> UpdateSharedCosts(Guid buildingId, [FromBody] UpdateSharedCostsRequest request)
     {
         var userId = GetUserId();
-        var result = await _updateSharedCostsHandler.HandleAsync(new Application.Features.Charges.Commands.UpdateSharedCosts.UpdateSharedCostsCommand(
+        var result = await _updateSharedCostsHandler.HandleAsync(new UpdateSharedCostsCommand(
             buildingId, userId, request.Electricity, request.Water, request.Cleaning, request.Elevator));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
+    ///
+    /// مشاهده هزینه های مشاعات
+    /// 
+    [HttpGet("{buildingId}/shared-costs")]
+    public async Task<IActionResult> GetSharedCosts(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getSharedCostsHandler.HandleAsync(new GetBuildingSharedCostsQuery(buildingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+    
+    
     /// <summary>
     /// شارژ ماه جاری یک واحد
     /// </summary>

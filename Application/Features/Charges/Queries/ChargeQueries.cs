@@ -183,3 +183,50 @@ public class GetMyTransactionsHandler
             t.Id, t.Amount, t.Status, t.TrackingCode, t.CreatedAt));
     }
 }
+
+
+// ======================================================
+// GetSharedCosts - مشاهده هزینه های مشاعات
+// ======================================================
+public record GetBuildingSharedCostsQuery(Guid BuildingId, Guid UserId);
+
+public record SharedCosts(
+    bool Success,
+    String Message,
+    Guid BuildingId,
+    decimal Electricity,
+    decimal Water,
+    decimal Cleaning,
+    decimal Elevator
+);
+
+public class GetSharedCostsHandler
+{
+    private readonly IBuildingRepository _buildingRepository;
+    private readonly IBuildingMembershipRepository _buildingMembershipRepository;
+    public GetSharedCostsHandler(IBuildingRepository buildingRepository, IBuildingMembershipRepository buildingMembershipRepository)
+    {
+        _buildingRepository = buildingRepository;
+        _buildingMembershipRepository = buildingMembershipRepository;
+    }
+    
+    public async Task<SharedCosts> HandleAsync(GetBuildingSharedCostsQuery query)
+    {
+        var building = await _buildingRepository.GetByIdAsync(query.BuildingId);
+        if (building == null)
+            return new SharedCosts(false, "ساختمان یافت نشد", query.BuildingId, 0, 0, 0, 0);
+
+        var user = await _buildingMembershipRepository.GetActiveAsync(query.UserId,  query.BuildingId);
+        if (user == null)
+            return new SharedCosts(false, "شما عضو این ساختمان نیسیتید", query.BuildingId, 0, 0, 0, 0);
+        
+        return new SharedCosts(
+            true,
+            "مقادیر با موفقیت یافت شد",
+            building.Id,
+            building.SharedElectricityCost,
+            building.SharedWaterCost,
+            building.CleaningCost,
+            building.ElevatorCost);
+    }
+}
