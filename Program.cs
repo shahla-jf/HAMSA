@@ -163,6 +163,9 @@ builder.Services.AddScoped<RequestPaymentHandler>();
 builder.Services.AddScoped<VerifyPaymentHandler>();
 builder.Services.AddScoped<UpdateSharedCostsHandler>();
 builder.Services.AddScoped<GetSharedCostsHandler>();
+builder.Services.AddScoped<GetUnitChargeHistoryHandler>();
+builder.Services.AddScoped<GetUnpaidChargesHandler>();
+builder.Services.AddScoped<GetMyTransactionsHandler>();
 builder.Services.AddScoped<GetPrimaryOwnersHandler>();
 builder.Services.AddScoped<GetCoMembersHandler>();
 
