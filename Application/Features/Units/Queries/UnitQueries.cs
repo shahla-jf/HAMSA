@@ -156,14 +156,16 @@ public class GetUserUnitsHandler(IBuildingMembershipRepository membershipReposit
     {
         var memberships = await membershipRepository.GetUserUnitsInBuildingAsync(query.UserId, query.BuildingId);
 
-        var unitList = memberships.Select(m => new UserUnitDetail(
-            UnitId: m.Unit!.Id,
-            Block: m.Unit.Block,
-            Floor: m.Unit.Floor,
-            UnitNumber: m.Unit.UnitNumber,
-            Role: m.Role,
-            IsPrimary: m.IsPrimary
-        )).ToList();
+        var unitList = memberships
+            .Where(m => m.Unit != null)
+            .Select(m => new UserUnitDetail(
+                UnitId: m.Unit!.Id,
+                Block: m.Unit.Block,
+                Floor: m.Unit.Floor,
+                UnitNumber: m.Unit.UnitNumber,
+                Role: m.Role,
+                IsPrimary: m.IsPrimary
+            )).ToList();
         
         return new UserUnitResult(true, $"تعداد {unitList.Count} واحد یافت شد", unitList);
     }

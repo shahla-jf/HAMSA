@@ -154,7 +154,7 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
             .Include(m => m.Unit)
             .Where(m => m.UserId == userId && 
                         m.BuildingId == buildingId && 
-                        m.IsActive)
+                        m.IsActive && m.Unit != null)
             .ToListAsync();
     }
 }
