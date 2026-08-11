@@ -168,5 +168,4 @@ public class ChargeController : ControllerBase
 
 // --- Request Models ---
 public record SetRateRequest(int Year, int Month, decimal Amount);
-public record IssueChargesRequest(int Year, int Month);
 public record UpdateSharedCostsRequest(decimal Electricity, decimal Water, decimal Cleaning, decimal Elevator);

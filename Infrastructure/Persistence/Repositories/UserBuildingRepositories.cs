@@ -146,4 +146,15 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
             .Distinct()
             .ToListAsync();
     }
+    
+    
+    public async Task<IEnumerable<BuildingMembership>> GetUserUnitsInBuildingAsync(Guid userId, Guid buildingId)
+    {
+        return await _dbSet
+            .Include(m => m.Unit)
+            .Where(m => m.UserId == userId && 
+                        m.BuildingId == buildingId && 
+                        m.IsActive)
+            .ToListAsync();
+    }
 }

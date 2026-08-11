@@ -168,6 +168,7 @@ builder.Services.AddScoped<GetUnpaidChargesHandler>();
 builder.Services.AddScoped<GetMyTransactionsHandler>();
 builder.Services.AddScoped<GetPrimaryOwnersHandler>();
 builder.Services.AddScoped<GetCoMembersHandler>();
+builder.Services.AddScoped<GetUserUnitsHandler>();
 
 var app = builder.Build();
 
