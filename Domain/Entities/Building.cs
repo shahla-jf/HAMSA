@@ -22,10 +22,17 @@ public class Building
 
     // هزینه‌های مشاعات ماهانه
     public decimal SharedElectricityCost { get; private set; }
+    public bool IsElectricityPaid { get; private set; }
+    
     public decimal SharedWaterCost { get; private set; }
-    public decimal CleaningCost { get; private set; }
-    public decimal ElevatorCost { get; private set; }
+    public bool IsWaterPaid { get; private set; }
 
+    public decimal CleaningCost { get; private set; }
+    public bool IsCleaningPaid { get; private set; }
+    
+    public decimal ElevatorCost { get; private set; }
+    public bool IsElevatorPaid { get; private set; }
+    
     // تنظیمات مالی
     public decimal LatePenaltyPercent { get; private set; }   // درصد جریمه تاخیر
 
@@ -108,12 +115,23 @@ public class Building
     }
 
     public void UpdateSharedCosts(
-        decimal electricity, decimal water, decimal cleaning, decimal elevator)
+        decimal electricity, bool isElectricityPaid, 
+        decimal water, bool isWaterPaid, 
+        decimal cleaning, bool isCleaningPaid, 
+        decimal elevator, bool isElevatorPaid)
     {
         SharedElectricityCost = electricity;
+        IsElectricityPaid = isElectricityPaid;
+        
         SharedWaterCost = water;
+        IsWaterPaid = isWaterPaid;
+        
         CleaningCost = cleaning;
+        IsCleaningPaid = isCleaningPaid;
+        
         ElevatorCost = elevator;
+        IsElevatorPaid = isElevatorPaid;
+        
         UpdatedAt = DateTime.UtcNow;
     }
 

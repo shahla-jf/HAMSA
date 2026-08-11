@@ -192,18 +192,23 @@ public record GetBuildingSharedCostsQuery(Guid BuildingId, Guid UserId);
 
 public record SharedCosts(
     bool Success,
-    String Message,
+    string Message,
     Guid BuildingId,
     decimal Electricity,
+    bool IsElectricityPaid,
     decimal Water,
+    bool IsWaterPaid,
     decimal Cleaning,
-    decimal Elevator
+    bool IsCleaningPaid,
+    decimal Elevator,
+    bool IsElevatorPaid
 );
 
 public class GetSharedCostsHandler
 {
     private readonly IBuildingRepository _buildingRepository;
     private readonly IBuildingMembershipRepository _buildingMembershipRepository;
+    
     public GetSharedCostsHandler(IBuildingRepository buildingRepository, IBuildingMembershipRepository buildingMembershipRepository)
     {
         _buildingRepository = buildingRepository;
@@ -214,19 +219,23 @@ public class GetSharedCostsHandler
     {
         var building = await _buildingRepository.GetByIdAsync(query.BuildingId);
         if (building == null)
-            return new SharedCosts(false, "ساختمان یافت نشد", query.BuildingId, 0, 0, 0, 0);
+            return new SharedCosts(false, "ساختمان یافت نشد", query.BuildingId, 0, false, 0, false, 0, false, 0, false);
 
-        var user = await _buildingMembershipRepository.GetActiveAsync(query.UserId,  query.BuildingId);
+        var user = await _buildingMembershipRepository.GetActiveAsync(query.UserId, query.BuildingId);
         if (user == null)
-            return new SharedCosts(false, "شما عضو این ساختمان نیسیتید", query.BuildingId, 0, 0, 0, 0);
+            return new SharedCosts(false, "شما عضو این ساختمان نیسیتید", query.BuildingId, 0, false, 0, false, 0, false, 0, false);
         
         return new SharedCosts(
             true,
             "مقادیر با موفقیت یافت شد",
             building.Id,
             building.SharedElectricityCost,
+            building.IsElectricityPaid,
             building.SharedWaterCost,
+            building.IsWaterPaid,
             building.CleaningCost,
-            building.ElevatorCost);
+            building.IsCleaningPaid,
+            building.ElevatorCost,
+            building.IsElevatorPaid);
     }
 }

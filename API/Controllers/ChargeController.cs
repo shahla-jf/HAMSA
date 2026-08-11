@@ -104,7 +104,11 @@ public class ChargeController : ControllerBase
     {
         var userId = GetUserId();
         var result = await _updateSharedCostsHandler.HandleAsync(new UpdateSharedCostsCommand(
-            buildingId, userId, request.Electricity, request.Water, request.Cleaning, request.Elevator));
+            buildingId, userId,
+            request.Electricity, request.IsElectricityPaid,
+            request.Water, request.IsWaterPaid,
+            request.Cleaning, request.IsCleaningPaid,
+            request.Elevator, request.IsElevatorPaid));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
@@ -168,4 +172,8 @@ public class ChargeController : ControllerBase
 
 // --- Request Models ---
 public record SetRateRequest(int Year, int Month, decimal Amount);
-public record UpdateSharedCostsRequest(decimal Electricity, decimal Water, decimal Cleaning, decimal Elevator);
+public record UpdateSharedCostsRequest(
+    decimal Electricity, bool IsElectricityPaid,
+    decimal Water, bool IsWaterPaid,
+    decimal Cleaning, bool IsCleaningPaid,
+    decimal Elevator, bool IsElevatorPaid);

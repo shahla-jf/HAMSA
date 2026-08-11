@@ -7,9 +7,13 @@ public record UpdateSharedCostsCommand(
     Guid BuildingId,
     Guid RequestingManagerId,
     decimal Electricity,
+    bool IsElectricityPaid,
     decimal Water,
+    bool IsWaterPaid,
     decimal Cleaning,
-    decimal Elevator
+    bool IsCleaningPaid,
+    decimal Elevator,
+    bool IsElevatorPaid
 );
 
 // ------- Result -------
@@ -39,7 +43,13 @@ public class UpdateSharedCostsHandler
         if (building is null)
             return new UpdateSharedCostsResult(false, "ساختمان یافت نشد");
 
-        building.UpdateSharedCosts(command.Electricity, command.Water, command.Cleaning, command.Elevator);
+        building.UpdateSharedCosts(
+            command.Electricity, command.IsElectricityPaid,
+            command.Water, command.IsWaterPaid,
+            command.Cleaning, command.IsCleaningPaid,
+            command.Elevator, command.IsElevatorPaid
+        );
+        
         _buildingRepository.Update(building);
         await _buildingRepository.SaveChangesAsync();
 
