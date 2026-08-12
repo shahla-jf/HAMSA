@@ -20,9 +20,7 @@ public class ChargeController : ControllerBase
     private readonly UpdateSharedCostsHandler _updateSharedCostsHandler;
     private readonly GetChargeRatesHandler _getRatesHandler;
     private readonly GetMyCurrentChargeHandler _getMyCurrentChargeHandler;
-    private readonly GetUnitChargeHistoryHandler _getHistoryHandler;
-    private readonly GetUnpaidChargesHandler _getUnpaidHandler;
-    private readonly GetMyTransactionsHandler _getTransactionsHandler;
+    private readonly GetPaidChargesHandler _getPaidHandler;
     private readonly GetSharedCostsHandler _getSharedCostsHandler;
 
     public ChargeController(
@@ -32,9 +30,7 @@ public class ChargeController : ControllerBase
         UpdateSharedCostsHandler updateSharedCostsHandler,
         GetChargeRatesHandler getRatesHandler,
         GetMyCurrentChargeHandler getMyCurrentChargeHandler,
-        GetUnitChargeHistoryHandler getHistoryHandler,
-        GetUnpaidChargesHandler getUnpaidHandler,
-        GetMyTransactionsHandler getTransactionsHandler,
+        GetPaidChargesHandler getPaidHandler,
         GetSharedCostsHandler getSharedCostsHandler)
     {
         _setRateHandler = setRateHandler;
@@ -43,9 +39,7 @@ public class ChargeController : ControllerBase
         _updateSharedCostsHandler = updateSharedCostsHandler;
         _getRatesHandler = getRatesHandler;
         _getMyCurrentChargeHandler = getMyCurrentChargeHandler;
-        _getHistoryHandler = getHistoryHandler;
-        _getUnpaidHandler = getUnpaidHandler;
-        _getTransactionsHandler = getTransactionsHandler;
+        _getPaidHandler = getPaidHandler;
         _getSharedCostsHandler = getSharedCostsHandler;
     }
 
@@ -135,34 +129,13 @@ public class ChargeController : ControllerBase
     }
 
     /// <summary>
-    /// تاریخچه شارژهای یک واحد
+    /// شارژهای پرداخت شده ساختمان (فقط مدیر)
     /// </summary>
-    [HttpGet("unit/{unitId}/history")]
-    public async Task<IActionResult> GetHistory(Guid unitId)
-    {
-        var result = await _getHistoryHandler.HandleAsync(new GetUnitChargeHistoryQuery(unitId));
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// شارژهای پرداخت‌نشده ساختمان (فقط مدیر)
-    /// </summary>
-    [HttpGet("{buildingId}/unpaid")]
+    [HttpGet("{buildingId}/paid")]
     public async Task<IActionResult> GetUnpaid(Guid buildingId)
     {
         var userId = GetUserId();
-        var result = await _getUnpaidHandler.HandleAsync(new GetUnpaidChargesQuery(buildingId, userId));
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// تراکنش‌های من
-    /// </summary>
-    [HttpGet("my-transactions")]
-    public async Task<IActionResult> GetMyTransactions([FromQuery] DateTime? from, [FromQuery] DateTime? to)
-    {
-        var userId = GetUserId();
-        var result = await _getTransactionsHandler.HandleAsync(new GetMyTransactionsQuery(userId, from, to));
+        var result = await _getPaidHandler.HandleAsync(new GetPaidChargesQuery(buildingId, userId));
         return Ok(result);
     }
 

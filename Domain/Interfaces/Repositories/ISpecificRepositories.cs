@@ -41,7 +41,7 @@ public interface IChargeRepository : IRepository<Charge>
 {
     Task<IEnumerable<Charge>> GetByUnitIdAsync(Guid unitId);
     Task<Charge?> GetByUnitAndMonthAsync(Guid unitId, int year, int month);
-    Task<IEnumerable<Charge>> GetUnpaidByBuildingAsync(Guid buildingId);
+    Task<IEnumerable<Charge>> GetPaidByBuildingAsync(Guid buildingId);
     Task<decimal> GetTotalIncomeAsync(Guid buildingId, int year, int month);
 }
 

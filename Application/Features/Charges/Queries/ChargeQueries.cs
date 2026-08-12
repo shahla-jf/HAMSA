@@ -94,46 +94,20 @@ public class GetMyCurrentChargeHandler
 }
 
 // ======================================================
-// GetUnitChargeHistory — تاریخچه شارژهای یک واحد
+// GetUnpaidCharges — برای مدیر: لیست شارژهای پرداخت‌شده
 // ======================================================
-public record GetUnitChargeHistoryQuery(Guid UnitId);
+public record GetPaidChargesQuery(Guid BuildingId, Guid RequestingManagerId);
 
-public record ChargeHistoryItem(
-    Guid ChargeId, int Year, int Month, decimal Amount,
-    decimal PenaltyAmount, bool IsPaid, DateTime? PaidAt);
-
-public class GetUnitChargeHistoryHandler
-{
-    private readonly IChargeRepository _chargeRepository;
-
-    public GetUnitChargeHistoryHandler(IChargeRepository chargeRepository)
-    {
-        _chargeRepository = chargeRepository;
-    }
-
-    public async Task<IEnumerable<ChargeHistoryItem>> HandleAsync(GetUnitChargeHistoryQuery query)
-    {
-        var charges = await _chargeRepository.GetByUnitIdAsync(query.UnitId);
-        return charges.Select(c => new ChargeHistoryItem(
-            c.Id, c.Year, c.Month, c.Amount, c.PenaltyAmount, c.IsPaid, c.PaidAt));
-    }
-}
-
-// ======================================================
-// GetUnpaidCharges — برای مدیر: لیست شارژهای پرداخت‌نشده
-// ======================================================
-public record GetUnpaidChargesQuery(Guid BuildingId, Guid RequestingManagerId);
-
-public record UnpaidChargeItem(
+public record PaidChargeItem(
     Guid ChargeId, int Block, int Floor, int UnitNumber,
     int Year, int Month, decimal Amount, decimal PenaltyAmount, DateTime DueDate);
 
-public class GetUnpaidChargesHandler
+public class GetPaidChargesHandler
 {
     private readonly IBuildingMembershipRepository _membershipRepository;
     private readonly IChargeRepository _chargeRepository;
 
-    public GetUnpaidChargesHandler(
+    public GetPaidChargesHandler(
         IBuildingMembershipRepository membershipRepository,
         IChargeRepository chargeRepository)
     {
@@ -141,46 +115,17 @@ public class GetUnpaidChargesHandler
         _chargeRepository = chargeRepository;
     }
 
-    public async Task<IEnumerable<UnpaidChargeItem>> HandleAsync(GetUnpaidChargesQuery query)
+    public async Task<IEnumerable<PaidChargeItem>> HandleAsync(GetPaidChargesQuery query)
     {
         var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
         if (managerId != query.RequestingManagerId)
-            return Enumerable.Empty<UnpaidChargeItem>();
+            return Enumerable.Empty<PaidChargeItem>();
 
-        var charges = await _chargeRepository.GetUnpaidByBuildingAsync(query.BuildingId);
+        var charges = await _chargeRepository.GetPaidByBuildingAsync(query.BuildingId);
 
-        return charges.Select(c => new UnpaidChargeItem(
+        return charges.Select(c => new PaidChargeItem(
             c.Id, c.Unit.Block, c.Unit.Floor, c.Unit.UnitNumber,
             c.Year, c.Month, c.Amount, c.PenaltyAmount, c.DueDate));
-    }
-}
-
-// ======================================================
-// GetMyTransactions — تراکنش‌های کاربر (با فیلتر بازه زمانی اختیاری)
-// ======================================================
-public record GetMyTransactionsQuery(Guid UserId, DateTime? From = null, DateTime? To = null);
-
-public record TransactionItem(
-    Guid TransactionId, decimal Amount, TransactionStatus Status,
-    string? TrackingCode, DateTime CreatedAt);
-
-public class GetMyTransactionsHandler
-{
-    private readonly ITransactionRepository _transactionRepository;
-
-    public GetMyTransactionsHandler(ITransactionRepository transactionRepository)
-    {
-        _transactionRepository = transactionRepository;
-    }
-
-    public async Task<IEnumerable<TransactionItem>> HandleAsync(GetMyTransactionsQuery query)
-    {
-        var transactions = query.From.HasValue && query.To.HasValue
-            ? await _transactionRepository.GetByUserIdAndDateRangeAsync(query.UserId, query.From.Value, query.To.Value)
-            : await _transactionRepository.GetByUserIdAsync(query.UserId);
-
-        return transactions.Select(t => new TransactionItem(
-            t.Id, t.Amount, t.Status, t.TrackingCode, t.CreatedAt));
     }
 }
 
