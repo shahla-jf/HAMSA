@@ -54,6 +54,18 @@ public class BuildingExpenseRepository : Repository<BuildingExpense>, IBuildingE
 {
     public BuildingExpenseRepository(AppDbContext context) : base(context) { }
 
+    public async Task<IEnumerable<BuildingExpense>> GetByBuildingIdAsync(Guid buildingId)
+        => await _dbSet
+            .Include(e => e.CreatedByUser)
+            .Where(e => e.BuildingId == buildingId)
+            .OrderByDescending(e => e.CreatedAt)
+            .ToListAsync();
+
+    public async Task<BuildingExpense?> GetByIdAsync(Guid id)
+        => await _dbSet
+            .Include(e => e.CreatedByUser)
+            .FirstOrDefaultAsync(e => e.Id == id);
+    
     public async Task<IEnumerable<BuildingExpense>> GetByBuildingAndMonthAsync(
         Guid buildingId, int year, int month)
         => await _dbSet

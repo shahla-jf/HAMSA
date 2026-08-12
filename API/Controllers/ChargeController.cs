@@ -6,6 +6,11 @@ using HAMSA.Application.Features.Charges.Queries;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using HAMSA.Application.Features.Expenses.Commands.CreateBuildingExpense;
+using HAMSA.Application.Features.Expenses.Commands.DeleteBuildingExpense;
+using HAMSA.Application.Features.Expenses.Commands.UpdateBuildingExpense;
+using HAMSA.Application.Features.Expenses.Queries;
+using HAMSA.Domain.Enums;
 
 namespace HAMSA.API.Controllers;
 
@@ -22,6 +27,11 @@ public class ChargeController : ControllerBase
     private readonly GetMyCurrentChargeHandler _getMyCurrentChargeHandler;
     private readonly GetPaidChargesHandler _getPaidHandler;
     private readonly GetSharedCostsHandler _getSharedCostsHandler;
+    private readonly CreateBuildingExpenseHandler _createBuildingExpenseHandler;
+    private readonly DeleteBuildingExpenseHandler _deleteBuildingExpenseHandler;
+    private readonly UpdateBuildingExpenseHandler _updateBuildingExpenseHandler;
+    private readonly GetBuildingExpensesHandler _getBuildingExpensesHandler;
+    private readonly GetMonthlyExpenseSummaryHandler  _getMonthlyExpenseSummaryHandler;
 
     public ChargeController(
         SetMonthlyChargeAmountHandler setRateHandler,
@@ -31,7 +41,12 @@ public class ChargeController : ControllerBase
         GetChargeRatesHandler getRatesHandler,
         GetMyCurrentChargeHandler getMyCurrentChargeHandler,
         GetPaidChargesHandler getPaidHandler,
-        GetSharedCostsHandler getSharedCostsHandler)
+        GetSharedCostsHandler getSharedCostsHandler,
+        CreateBuildingExpenseHandler createBuildingExpenseHandler,
+        DeleteBuildingExpenseHandler deleteBuildingExpenseHandler,
+        UpdateBuildingExpenseHandler updateBuildingExpenseHandler,
+        GetBuildingExpensesHandler getBuildingExpensesHandler,
+        GetMonthlyExpenseSummaryHandler getMonthlyExpenseSummaryHandler)
     {
         _setRateHandler = setRateHandler;
         _requestPaymentHandler = requestPaymentHandler;
@@ -41,6 +56,11 @@ public class ChargeController : ControllerBase
         _getMyCurrentChargeHandler = getMyCurrentChargeHandler;
         _getPaidHandler = getPaidHandler;
         _getSharedCostsHandler = getSharedCostsHandler;
+        _createBuildingExpenseHandler = createBuildingExpenseHandler;
+        _deleteBuildingExpenseHandler = deleteBuildingExpenseHandler;
+        _updateBuildingExpenseHandler = updateBuildingExpenseHandler;
+        _getBuildingExpensesHandler = getBuildingExpensesHandler;
+        _getMonthlyExpenseSummaryHandler = getMonthlyExpenseSummaryHandler;
     }
 
     /// <summary>
@@ -139,6 +159,71 @@ public class ChargeController : ControllerBase
         return Ok(result);
     }
 
+
+    /// <summary>
+    /// ایحاد هزینه جدید
+    /// </summary>
+    [HttpPost("create-expense")]
+    public async Task<IActionResult> CreateExpense([FromBody] CreateBuildingExpenseRequest request)
+    {
+        var userId = GetUserId();
+        var result = await _createBuildingExpenseHandler.HandleAsync(new CreateBuildingExpenseCommand(
+            request.BuildingId, userId, request.Category, request.Title, request.Amount));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+
+    /// <summary>
+    /// لیست هزینه ها
+    /// </summary>
+    [HttpGet("{buildingId}/expense")]
+    public async Task<IActionResult> GetExpense(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getBuildingExpensesHandler.HandleAsync(
+            new GetBuildingExpensesQuery(buildingId, userId));
+        return Ok(result);
+    }
+    
+
+    /// <summary>
+    /// ویرایش هزینه
+    /// </summary>
+    [HttpPut("update-expense")]
+    public async Task<IActionResult> UpdateExpense([FromBody] UpdateBuildingExpenseRequest request)
+    {
+        var userId = GetUserId();
+        var result = await _updateBuildingExpenseHandler.HandleAsync(new UpdateBuildingExpenseCommand(
+            request.BuildingId, userId, request.ExpenseId, request.Category, request.Title, request.Amount));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+    
+
+    /// <summary>
+    ///    حذف هزینه
+    /// </summary>
+    [HttpDelete("{buildingId}/delete-expense/{expenseId}")]
+    public async Task<IActionResult> DeleteExpense(Guid buildingId, Guid expenseId)
+    {
+        var userId = GetUserId();
+        var result = await _deleteBuildingExpenseHandler.HandleAsync(
+            new DeleteBuildingExpenseCommand(buildingId, userId, expenseId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// مجموع هزینه های ماه و پرخرج ترین هزینه
+    /// </summary>
+    [HttpGet("{buildingId}/expense-summary")]
+    public async Task<IActionResult> GetExpenseSummary(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getMonthlyExpenseSummaryHandler.HandleAsync(
+            new GetMonthlyExpenseSummaryQuery(buildingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+    
+
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
@@ -150,3 +235,16 @@ public record UpdateSharedCostsRequest(
     decimal Water, bool IsWaterPaid,
     decimal Cleaning, bool IsCleaningPaid,
     decimal Elevator, bool IsElevatorPaid);
+
+public record CreateBuildingExpenseRequest(
+    Guid BuildingId,
+    ExpenseCategory Category,
+    string Title,
+    decimal Amount);
+    
+public record UpdateBuildingExpenseRequest(
+    Guid BuildingId,
+    Guid ExpenseId,
+    ExpenseCategory Category,
+    string Title,
+    decimal Amount);

@@ -53,12 +53,11 @@ public enum FacilityType
 
 public enum ExpenseCategory
 {
-    Elevator,       // آسانسور
-    Cleaning,       // نظافت
-    Electricity,    // برق مشاعات
-    Water,          // آب مشاعات
-    Repairs,        // تعمیرات
-    Other
+    Maintenance, // تعمیرات و نگهداری
+    Security,    // نگهبانی و امنیت
+    Utilities,   // قبوض
+    Management,  // هزینه‌های مدیریتی
+    Other        // سایر
 }
 
 public enum TransactionStatus

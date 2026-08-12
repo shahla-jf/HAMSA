@@ -25,6 +25,10 @@ using HAMSA.Application.Features.Charges.Commands.SetMonthlyChargeAmount;
 using HAMSA.Application.Features.Charges.Commands.UpdateSharedCosts;
 using HAMSA.Application.Features.Charges.Commands.VerifyPayment;
 using HAMSA.Application.Features.Charges.Queries;
+using HAMSA.Application.Features.Expenses.Commands.CreateBuildingExpense;
+using HAMSA.Application.Features.Expenses.Commands.DeleteBuildingExpense;
+using HAMSA.Application.Features.Expenses.Commands.UpdateBuildingExpense;
+using HAMSA.Application.Features.Expenses.Queries;
 using HAMSA.Application.Features.Polls.Commands.VotePoll;
 using HAMSA.Application.Features.Reports.Commands.CreateRepairReport;
 using HAMSA.Application.Features.Reports.Commands.UpdateRepairStatus;
@@ -167,6 +171,11 @@ builder.Services.AddScoped<GetPaidChargesHandler>();
 builder.Services.AddScoped<GetPrimaryOwnersHandler>();
 builder.Services.AddScoped<GetCoMembersHandler>();
 builder.Services.AddScoped<GetUserUnitsHandler>();
+builder.Services.AddScoped<CreateBuildingExpenseHandler>();
+builder.Services.AddScoped<UpdateBuildingExpenseHandler>();
+builder.Services.AddScoped<DeleteBuildingExpenseHandler>();
+builder.Services.AddScoped<GetBuildingExpensesHandler>();
+builder.Services.AddScoped<GetMonthlyExpenseSummaryHandler>();
 
 var app = builder.Build();
 

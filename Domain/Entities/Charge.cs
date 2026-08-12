@@ -100,32 +100,41 @@ public class BuildingExpense
 {
     public Guid Id { get; private set; }
     public Guid BuildingId { get; private set; }
+    public Guid CreatedByUserId { get; private set; } // مدیر ثبت کننده
     public ExpenseCategory Category { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public decimal Amount { get; private set; }
+    
+    // فیلدهای قبلی برای حفظ ساختار دیتابیس
     public int Year { get; private set; }
     public int Month { get; private set; }
     public bool IsPaid { get; private set; }
+    
     public DateTime CreatedAt { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
 
     public Building Building { get; private set; } = null!;
+    public User CreatedByUser { get; private set; } = null!;
 
     private BuildingExpense() { }
 
     public static BuildingExpense Create(
-        Guid buildingId, ExpenseCategory category, string title, decimal amount, int year, int month)
+        Guid buildingId, Guid createdByUserId, ExpenseCategory category, string title, decimal amount)
     {
+        var now = DateTime.UtcNow;
         return new BuildingExpense
         {
             Id = Guid.NewGuid(),
             BuildingId = buildingId,
+            CreatedByUserId = createdByUserId,
             Category = category,
             Title = title,
             Amount = amount,
-            Year = year,
-            Month = month,
+            Year = now.Year,
+            Month = now.Month,
             IsPaid = false,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = now,
+            UpdatedAt = now
         };
     }
 
@@ -134,12 +143,6 @@ public class BuildingExpense
         Category = category;
         Title = title;
         Amount = amount;
+        UpdatedAt = DateTime.UtcNow;
     }
-
-    public void MarkAsPaid()
-    {
-        IsPaid = true;
-    }
-
-    public void Delete() { } // حذف از طریق Repository انجام می‌شود
 }

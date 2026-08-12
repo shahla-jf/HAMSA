@@ -53,6 +53,8 @@ public interface ITransactionRepository : IRepository<Transaction>
 
 public interface IBuildingExpenseRepository : IRepository<BuildingExpense>
 {
+    Task<IEnumerable<BuildingExpense>> GetByBuildingIdAsync(Guid buildingId);
+    Task<BuildingExpense?> GetByIdAsync(Guid id);
     Task<IEnumerable<BuildingExpense>> GetByBuildingAndMonthAsync(Guid buildingId, int year, int month);
     Task<decimal> GetTotalExpensesAsync(Guid buildingId, int year, int month);
     Task<(string Title, decimal Amount)> GetHighestExpenseAsync(Guid buildingId, int year, int month);

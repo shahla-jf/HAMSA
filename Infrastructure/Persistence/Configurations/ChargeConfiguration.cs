@@ -63,6 +63,8 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
     }
 }
 
+
+
 public class BuildingExpenseConfiguration : IEntityTypeConfiguration<BuildingExpense>
 {
     public void Configure(EntityTypeBuilder<BuildingExpense> builder)
@@ -86,5 +88,11 @@ public class BuildingExpenseConfiguration : IEntityTypeConfiguration<BuildingExp
             .WithMany()
             .HasForeignKey(e => e.BuildingId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // اضافه کردن رابطه با کاربر ثبت کننده
+        builder.HasOne(e => e.CreatedByUser)
+            .WithMany()
+            .HasForeignKey(e => e.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
