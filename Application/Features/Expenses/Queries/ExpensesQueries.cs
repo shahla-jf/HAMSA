@@ -75,13 +75,16 @@ public class GetMonthlyExpenseSummaryHandler
 {
     private readonly IBuildingExpenseRepository _expenseRepository;
     private readonly IBuildingMembershipRepository _membershipRepository;
+    private readonly IBuildingRepository _buildingRepository; // اضافه شد برای دسترسی به هزینه‌های ثابت
 
     public GetMonthlyExpenseSummaryHandler(
         IBuildingExpenseRepository expenseRepository,
-        IBuildingMembershipRepository membershipRepository)
+        IBuildingMembershipRepository membershipRepository,
+        IBuildingRepository buildingRepository)
     {
         _expenseRepository = expenseRepository;
         _membershipRepository = membershipRepository;
+        _buildingRepository = buildingRepository;
     }
 
     public async Task<MonthlyExpenseSummary> HandleAsync(GetMonthlyExpenseSummaryQuery query)
@@ -92,14 +95,48 @@ public class GetMonthlyExpenseSummaryHandler
         if (managerId != query.ManagerUserId)
             return new(false, "فقط مدیر ساختمان به گزارش مخارج دسترسی دارد.");
 
-        // استفاده از ماه و سال جاری در صورت عدم ارسال توسط کاربر
+        // استفاده از ماه و سال جاری
         var now = DateTime.UtcNow;
         var year = now.Year;
         var month = now.Month;
 
-        // فراخوانی متدهای موجود در Repository
-        var totalExpenses = await _expenseRepository.GetTotalExpensesAsync(query.BuildingId, year, month);
-        var (highestTitle, highestAmount) = await _expenseRepository.GetHighestExpenseAsync(query.BuildingId, year, month);
+        // ۱. دریافت هزینه‌های متفرقه ثبت شده توسط مدیر از جدول BuildingExpense
+        var dbTotalExpenses = await _expenseRepository.GetTotalExpensesAsync(query.BuildingId, year, month);
+        var dbExpenses = await _expenseRepository.GetByBuildingAndMonthAsync(query.BuildingId, year, month);
+
+        // ۲. دریافت هزینه‌های ثابت مشاعات از Entity Building
+        var building = await _buildingRepository.GetByIdAsync(query.BuildingId);
+        
+        if (building is null)
+            return new(false, "ساختمان یافت نشد.");
+
+        var sharedElectricity = building.SharedElectricityCost;
+        var sharedWater = building.SharedWaterCost;
+        var sharedCleaning = building.CleaningCost;
+        var sharedElevator = building.ElevatorCost;
+
+        // ۳. محاسبه مجموع کل هزینه‌ها
+        var totalExpenses = dbTotalExpenses + sharedElectricity + sharedWater + sharedCleaning + sharedElevator;
+
+        // ۴. پیدا کردن پرخرج‌ترین هزینه بین همه موارد
+        var allExpenses = new List<(string Title, decimal Amount)>
+        {
+            ("هزینه برق مشاعات", sharedElectricity),
+            ("هزینه آب مشاعات", sharedWater),
+            ("هزینه نظافت", sharedCleaning),
+            ("هزینه آسانسور", sharedElevator)
+        };
+
+        // اضافه کردن هزینه‌های دیتابیسی
+        allExpenses.AddRange(dbExpenses.Select(e => (e.Title, e.Amount)));
+
+        // پیدا کردن بیشترین مقدار
+        var highestExpense = allExpenses
+            .Where(x => x.Amount > 0) // هزینه‌های صفر را نادیده می‌گیریم
+            .OrderByDescending(x => x.Amount)
+            .FirstOrDefault();
+
+        var highestTitle = highestExpense.Title ?? "بدون هزینه";
 
         return new(
             true,
