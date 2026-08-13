@@ -135,9 +135,31 @@ public class LocalServiceRepository : Repository<LocalService>, ILocalServiceRep
                         (s.Title.Contains(keyword) || s.ProviderName.Contains(keyword)))
             .ToListAsync();
 
+    public async Task<LocalService?> GetByIdWithRatingsAsync(Guid id)
+        => await _dbSet
+            .Include(s => s.Ratings)
+            .Include(s => s.Building)
+            .Include(s => s.CreatedByUser)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+    public async Task<IEnumerable<LocalService>> GetByBuildingIdsAsync(IEnumerable<Guid> buildingIds)
+        => await _dbSet
+            .Where(s => buildingIds.Contains(s.BuildingId))
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+}
+
+public class LocalServiceRatingRepository : Repository<LocalServiceRating>, ILocalServiceRatingRepository
+{
+    public LocalServiceRatingRepository(AppDbContext context) : base(context) { }
+
+    public async Task<LocalServiceRating?> GetUserRatingAsync(Guid localServiceId, Guid userId)
+        => await _dbSet
+            .FirstOrDefaultAsync(r => r.LocalServiceId == localServiceId && r.UserId == userId);
+
     public async Task<double> GetAverageRatingAsync(Guid localServiceId)
     {
-        var ratings = await _context.LocalServiceRatings
+        var ratings = await _dbSet
             .Where(r => r.LocalServiceId == localServiceId)
             .Select(r => r.Score)
             .ToListAsync();
@@ -145,9 +167,9 @@ public class LocalServiceRepository : Repository<LocalService>, ILocalServiceRep
         return ratings.Count == 0 ? 0 : ratings.Average();
     }
 
-    public async Task<LocalServiceRating?> GetUserRatingAsync(Guid localServiceId, Guid userId)
-        => await _context.LocalServiceRatings
-            .FirstOrDefaultAsync(r => r.LocalServiceId == localServiceId && r.UserId == userId);
+    public async Task<int> GetRatingCountAsync(Guid localServiceId)
+        => await _dbSet
+            .CountAsync(r => r.LocalServiceId == localServiceId);
 }
 
 public class GroupBuyingRepository : Repository<GroupBuying>, IGroupBuyingRepository

@@ -29,6 +29,9 @@ using HAMSA.Application.Features.Expenses.Commands.CreateBuildingExpense;
 using HAMSA.Application.Features.Expenses.Commands.DeleteBuildingExpense;
 using HAMSA.Application.Features.Expenses.Commands.UpdateBuildingExpense;
 using HAMSA.Application.Features.Expenses.Queries;
+using HAMSA.Application.Features.LocalServices.Commands.CreateLocalService;
+using HAMSA.Application.Features.LocalServices.Commands.RateLocalService;
+using HAMSA.Application.Features.LocalServices.Queries;
 using HAMSA.Application.Features.Polls.Commands.VotePoll;
 using HAMSA.Application.Features.Reports.Commands.CreateRepairReport;
 using HAMSA.Application.Features.Reports.Commands.UpdateRepairStatus;
@@ -177,6 +180,10 @@ builder.Services.AddScoped<DeleteBuildingExpenseHandler>();
 builder.Services.AddScoped<GetBuildingExpensesHandler>();
 builder.Services.AddScoped<GetMonthlyExpenseSummaryHandler>();
 builder.Services.AddScoped<GetDashboardFinancialsHandler>();
+builder.Services.AddScoped<CreateLocalServiceHandler>();
+builder.Services.AddScoped<RateLocalServiceHandler>();
+builder.Services.AddScoped<GetLocalServicesHandler>();
+builder.Services.AddScoped<GetLocalServiceDetailsHandler>();
 
 var app = builder.Build();
 

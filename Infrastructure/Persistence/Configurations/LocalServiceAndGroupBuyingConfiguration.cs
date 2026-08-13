@@ -35,6 +35,13 @@ public class LocalServiceConfiguration : IEntityTypeConfiguration<LocalService>
             .HasMaxLength(100)
             .IsRequired();
 
+        builder.Property(s => s.AverageRating)
+            .HasColumnType("decimal(3,2)")
+            .HasDefaultValue(0);
+
+        builder.Property(s => s.RatingCount)
+            .HasDefaultValue(0);
+
         builder.HasIndex(s => new { s.BuildingId, s.Category });
 
         builder.HasOne(s => s.CreatedByUser)

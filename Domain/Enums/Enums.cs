@@ -76,14 +76,13 @@ public enum ListingType
 
 public enum LocalServiceCategory
 {
-    Repairs,        // تعمیرات
-    Cleaning,       // نظافت
-    Education,      // آموزش
-    Transportation, // حمل و نقل
-    Health,         // سلامت
-    Beauty,         // زیبایی
-    Legal,          // حقوقی
-    Renovation      // بازسازی
+    Cleaning,        // نظافت و خدمات منزل
+    Education,       // آموزش و کلاس‌ها
+    Transportation,  // حمل و نقل و رفاهی
+    Health,          // بهداشت و سلامت
+    Beauty,          // زیبایی و آرایشی
+    Legal,           // حقوقی و اداری
+    Construction     // ساختمانی و بازسازی
 }
 
 public enum EventCategory

@@ -14,6 +14,10 @@ public class LocalService
     public string ProviderName { get; private set; } = string.Empty;
     public string ContactPhone { get; private set; } = string.Empty;
     public string WorkingHours { get; private set; } = string.Empty;
+    
+    public double AverageRating { get; private set; }
+    public int RatingCount { get; private set; }
+    
     public DateTime CreatedAt { get; private set; }
 
     public Building Building { get; private set; } = null!;
@@ -40,8 +44,16 @@ public class LocalService
             ProviderName = providerName,
             ContactPhone = contactPhone,
             WorkingHours = workingHours,
+            AverageRating = 0,
+            RatingCount = 0,
             CreatedAt = DateTime.UtcNow
         };
+    }
+    
+    public void UpdateRating(double averageRating, int ratingCount)
+    {
+        AverageRating = averageRating;
+        RatingCount = ratingCount;
     }
 }
 
@@ -72,6 +84,13 @@ public class LocalServiceRating
             Score = score,
             CreatedAt = DateTime.UtcNow
         };
+    }
+
+    public void UpdateScore(int score)
+    {
+        if (score < 1 || score > 5)
+            throw new ArgumentOutOfRangeException(nameof(score), "Score must be between 1 and 5");
+        Score = score;
     }
 }
 

@@ -140,8 +140,15 @@ public interface ILocalServiceRepository : IRepository<LocalService>
     Task<IEnumerable<LocalService>> GetByBuildingIdAsync(Guid buildingId);
     Task<IEnumerable<LocalService>> GetByCategoryAsync(Guid buildingId, LocalServiceCategory category);
     Task<IEnumerable<LocalService>> SearchAsync(Guid buildingId, string keyword);
-    Task<double> GetAverageRatingAsync(Guid localServiceId);
+    Task<LocalService?> GetByIdWithRatingsAsync(Guid id);
+    Task<IEnumerable<LocalService>> GetByBuildingIdsAsync(IEnumerable<Guid> buildingIds);
+}
+
+public interface ILocalServiceRatingRepository : IRepository<LocalServiceRating>
+{
     Task<LocalServiceRating?> GetUserRatingAsync(Guid localServiceId, Guid userId);
+    Task<double> GetAverageRatingAsync(Guid localServiceId);
+    Task<int> GetRatingCountAsync(Guid localServiceId);
 }
 
 public interface IGroupBuyingRepository : IRepository<GroupBuying>
