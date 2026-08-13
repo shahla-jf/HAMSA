@@ -29,6 +29,13 @@ public class ChargeRepository : Repository<Charge>, IChargeRepository
             .Where(c => c.BuildingId == buildingId &&
                         c.Year == year && c.Month == month && c.IsPaid)
             .SumAsync(c => c.Amount + c.PenaltyAmount);
+    
+    public async Task<decimal> GetMonthlyIncomeAsync(Guid buildingId, int year, int month)
+    {
+        return await _dbSet
+            .Where(c => c.BuildingId == buildingId && c.Year == year && c.Month == month && c.IsPaid)
+            .SumAsync(c => (decimal?)(c.Amount + c.PenaltyAmount)) ?? 0;
+    }
 }
 
 public class TransactionRepository : Repository<Transaction>, ITransactionRepository
@@ -86,5 +93,27 @@ public class BuildingExpenseRepository : Repository<BuildingExpense>, IBuildingE
             .FirstOrDefaultAsync();
 
         return expense is null ? ("ندارد", 0) : (expense.Title, expense.Amount);
+    }
+    
+    public async Task<Dictionary<(int Year, int Month), decimal>> GetMonthlyExpensesForYearAsync(Guid buildingId, int year)
+    {
+        var expenses = await _dbSet
+            .Where(e => e.BuildingId == buildingId && e.Year == year)
+            .GroupBy(e => new { e.Year, e.Month })
+            .Select(g => new { g.Key.Year, g.Key.Month, Total = g.Sum(e => e.Amount) })
+            .ToListAsync();
+
+        return expenses.ToDictionary(x => (x.Year, x.Month), x => x.Total);
+    }
+
+    public async Task<Dictionary<int, decimal>> GetYearlyExpensesAsync(Guid buildingId)
+    {
+        var expenses = await _dbSet
+            .Where(e => e.BuildingId == buildingId)
+            .GroupBy(e => e.Year)
+            .Select(g => new { Year = g.Key, Total = g.Sum(e => e.Amount) })
+            .ToListAsync();
+
+        return expenses.ToDictionary(x => x.Year, x => x.Total);
     }
 }

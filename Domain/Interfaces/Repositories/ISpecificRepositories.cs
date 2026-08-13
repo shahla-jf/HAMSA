@@ -43,6 +43,7 @@ public interface IChargeRepository : IRepository<Charge>
     Task<Charge?> GetByUnitAndMonthAsync(Guid unitId, int year, int month);
     Task<IEnumerable<Charge>> GetPaidByBuildingAsync(Guid buildingId);
     Task<decimal> GetTotalIncomeAsync(Guid buildingId, int year, int month);
+    Task<decimal> GetMonthlyIncomeAsync(Guid buildingId, int year, int month);
 }
 
 public interface ITransactionRepository : IRepository<Transaction>
@@ -58,6 +59,8 @@ public interface IBuildingExpenseRepository : IRepository<BuildingExpense>
     Task<IEnumerable<BuildingExpense>> GetByBuildingAndMonthAsync(Guid buildingId, int year, int month);
     Task<decimal> GetTotalExpensesAsync(Guid buildingId, int year, int month);
     Task<(string Title, decimal Amount)> GetHighestExpenseAsync(Guid buildingId, int year, int month);
+    Task<Dictionary<(int Year, int Month), decimal>> GetMonthlyExpensesForYearAsync(Guid buildingId, int year);
+    Task<Dictionary<int, decimal>> GetYearlyExpensesAsync(Guid buildingId);
 }
 
 public interface IAnnouncementRepository : IRepository<Announcement>

@@ -32,6 +32,7 @@ public class ChargeController : ControllerBase
     private readonly UpdateBuildingExpenseHandler _updateBuildingExpenseHandler;
     private readonly GetBuildingExpensesHandler _getBuildingExpensesHandler;
     private readonly GetMonthlyExpenseSummaryHandler  _getMonthlyExpenseSummaryHandler;
+    private readonly GetDashboardFinancialsHandler _getDashboardFinancialsHandler;
 
     public ChargeController(
         SetMonthlyChargeAmountHandler setRateHandler,
@@ -46,7 +47,8 @@ public class ChargeController : ControllerBase
         DeleteBuildingExpenseHandler deleteBuildingExpenseHandler,
         UpdateBuildingExpenseHandler updateBuildingExpenseHandler,
         GetBuildingExpensesHandler getBuildingExpensesHandler,
-        GetMonthlyExpenseSummaryHandler getMonthlyExpenseSummaryHandler)
+        GetMonthlyExpenseSummaryHandler getMonthlyExpenseSummaryHandler,
+        GetDashboardFinancialsHandler getDashboardFinancialsHandler)
     {
         _setRateHandler = setRateHandler;
         _requestPaymentHandler = requestPaymentHandler;
@@ -61,6 +63,7 @@ public class ChargeController : ControllerBase
         _updateBuildingExpenseHandler = updateBuildingExpenseHandler;
         _getBuildingExpensesHandler = getBuildingExpensesHandler;
         _getMonthlyExpenseSummaryHandler = getMonthlyExpenseSummaryHandler;
+        _getDashboardFinancialsHandler = getDashboardFinancialsHandler;
     }
 
     /// <summary>
@@ -221,6 +224,17 @@ public class ChargeController : ControllerBase
         var result = await _getMonthlyExpenseSummaryHandler.HandleAsync(
             new GetMonthlyExpenseSummaryQuery(buildingId, userId));
         return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// لیست هزینه های ماهانه و سالانه برای نمودار
+    /// </summary>
+    [HttpGet("dashboard-financials")]
+    public async Task<IActionResult> GetDashboardFinancials(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getDashboardFinancialsHandler.HandleAsync(new GetDashboardFinancialsQuery(buildingId,  userId));
+        return result.Success? Ok(result) : BadRequest(result);
     }
     
 

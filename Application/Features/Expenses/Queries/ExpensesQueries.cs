@@ -145,3 +145,108 @@ public class GetMonthlyExpenseSummaryHandler
             highestTitle);
     }
 }
+
+
+
+/// <summary>
+/// نمودار ماهانه و سالانه
+/// </summary>
+
+// ------- Query -------
+public record GetDashboardFinancialsQuery(
+    Guid BuildingId,
+    Guid ManagerUserId);
+
+// ------- Result -------
+public record MonthlyDataPoint(int Month, string MonthName, decimal Expenses);
+public record YearlyDataPoint(int Year, decimal Expenses);
+
+public record DashboardFinancials(
+    bool Success,
+    string Message,
+    decimal CurrentMonthIncome = 0,
+    decimal CurrentMonthExpenses = 0,
+    List<MonthlyDataPoint>? MonthlyChartData = null,
+    List<YearlyDataPoint>? YearlyChartData = null);
+
+// ------- Handler -------
+public class GetDashboardFinancialsHandler
+{
+    private readonly IBuildingExpenseRepository _expenseRepository;
+    private readonly IChargeRepository _chargeRepository;
+    private readonly IBuildingMembershipRepository _membershipRepository;
+    private readonly IBuildingRepository _buildingRepository;
+
+    public GetDashboardFinancialsHandler(
+        IBuildingExpenseRepository expenseRepository,
+        IChargeRepository chargeRepository,
+        IBuildingMembershipRepository membershipRepository,
+        IBuildingRepository buildingRepository)
+    {
+        _expenseRepository = expenseRepository;
+        _chargeRepository = chargeRepository;
+        _membershipRepository = membershipRepository;
+        _buildingRepository = buildingRepository;
+    }
+
+    public async Task<DashboardFinancials> HandleAsync(GetDashboardFinancialsQuery query)
+    {
+        var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
+        if (managerId != query.ManagerUserId)
+            return new(false, "فقط مدیر ساختمان به داشبورد مالی دسترسی دارد.");
+
+        var now = DateTime.UtcNow;
+        var currentYear = now.Year;
+        var currentMonth = now.Month;
+
+        // ۱. محاسبه درآمد این ماه (از شارژهای پرداخت شده)
+        var currentMonthIncome = await _chargeRepository.GetMonthlyIncomeAsync(query.BuildingId, currentYear, currentMonth);
+
+        // ۲. محاسبه هزینه‌های این ماه (BuildingExpense + هزینه‌های ثابت Building)
+        var dbExpensesThisMonth = await _expenseRepository.GetTotalExpensesAsync(query.BuildingId, currentYear, currentMonth);
+        
+        var building = await _buildingRepository.GetByIdAsync(query.BuildingId);
+        var sharedCosts = building is null ? 0 : 
+            building.SharedElectricityCost + building.SharedWaterCost + building.CleaningCost + building.ElevatorCost;
+        
+        var currentMonthExpenses = dbExpensesThisMonth + sharedCosts;
+        //۳.
+        // ۴. داده‌های نمودار ماهانه (سال جاری)
+        var monthlyExpensesDict = await _expenseRepository.GetMonthlyExpensesForYearAsync(query.BuildingId, currentYear);
+        
+        var monthlyChartData = new List<MonthlyDataPoint>();
+        var monthNames = new[] { "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", 
+                                 "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند" };
+        
+        for (int month = 1; month <= 12; month++)
+        {
+            var expenses = monthlyExpensesDict.GetValueOrDefault((currentYear, month), 0);
+            
+            // اگر ماه جاری است، هزینه‌های ثابت Building هم اضافه شود
+            if (month == currentMonth)
+                expenses += sharedCosts;
+            
+            monthlyChartData.Add(new MonthlyDataPoint(
+                month, 
+                monthNames[month - 1], 
+                expenses));
+        }
+
+        // ۵. داده‌های نمودار سالانه
+        var yearlyExpensesDict = await _expenseRepository.GetYearlyExpensesAsync(query.BuildingId);
+        
+        var allYears = yearlyExpensesDict.Keys.OrderBy(y => y).ToList();
+        var yearlyChartData = allYears.Select(year => new YearlyDataPoint(
+            year,
+            yearlyExpensesDict.GetValueOrDefault(year, 0)
+        )).ToList();
+
+        return new(
+            true,
+            "اطلاعات مالی داشبورد با موفقیت دریافت شد.",
+            currentMonthIncome,
+            currentMonthExpenses,
+            monthlyChartData,
+            yearlyChartData);
+    }
+}

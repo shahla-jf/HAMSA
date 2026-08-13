@@ -176,6 +176,7 @@ builder.Services.AddScoped<UpdateBuildingExpenseHandler>();
 builder.Services.AddScoped<DeleteBuildingExpenseHandler>();
 builder.Services.AddScoped<GetBuildingExpensesHandler>();
 builder.Services.AddScoped<GetMonthlyExpenseSummaryHandler>();
+builder.Services.AddScoped<GetDashboardFinancialsHandler>();
 
 var app = builder.Build();
 
