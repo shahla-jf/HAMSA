@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using HAMSA.Domain.Enums;
 using HAMSA.Domain.Interfaces.Repositories;
 
@@ -100,7 +101,7 @@ public record GetPaidChargesQuery(Guid BuildingId, Guid RequestingManagerId);
 
 public record PaidChargeItem(
     Guid ChargeId, int Block, int Floor, int UnitNumber,
-    int Year, int Month, decimal Amount, decimal PenaltyAmount, DateTime DueDate);
+    int Year, int Month, decimal Amount);
 
 public class GetPaidChargesHandler
 {
@@ -125,7 +126,8 @@ public class GetPaidChargesHandler
 
         return charges.Select(c => new PaidChargeItem(
             c.Id, c.Unit.Block, c.Unit.Floor, c.Unit.UnitNumber,
-            c.Year, c.Month, c.Amount, c.PenaltyAmount, c.DueDate));
+            c.Year, c.Month, c.Amount))
+            .Where(c => c.Year == DateTime.Now.Year && c.Month == DateTime.Now.Month);
     }
 }
 
