@@ -19,10 +19,13 @@ public class ChargeRepository : Repository<Charge>, IChargeRepository
             c.UnitId == unitId && c.Year == year && c.Month == month);
 
     public async Task<IEnumerable<Charge>> GetPaidByBuildingAsync(Guid buildingId)
-        => await _dbSet
+    {
+        return await _dbSet
             .Include(c => c.Unit)
+            .Include(c => c.Transactions)
             .Where(c => c.BuildingId == buildingId && c.IsPaid)
             .ToListAsync();
+    }
 
     public async Task<decimal> GetTotalIncomeAsync(Guid buildingId, int year, int month)
         => await _dbSet

@@ -101,7 +101,7 @@ public record GetPaidChargesQuery(Guid BuildingId, Guid RequestingManagerId);
 
 public record PaidChargeItem(
     Guid ChargeId, int Block, int Floor, int UnitNumber,
-    int Year, int Month, decimal Amount);
+    int Year, int Month, decimal Amount, string? TrackingCode);
 
 public class GetPaidChargesHandler
 {
@@ -125,9 +125,17 @@ public class GetPaidChargesHandler
         var charges = await _chargeRepository.GetPaidByBuildingAsync(query.BuildingId);
 
         return charges.Select(c => new PaidChargeItem(
-            c.Id, c.Unit.Block, c.Unit.Floor, c.Unit.UnitNumber,
-            c.Year, c.Month, c.Amount))
-            .Where(c => c.Year == DateTime.Now.Year && c.Month == DateTime.Now.Month);
+                c.Id, 
+                c.Unit.Block, 
+                c.Unit.Floor, 
+                c.Unit.UnitNumber,
+                c.Year, 
+                c.Month, 
+                c.Amount,
+                c.Transactions.FirstOrDefault(t => t.Status == TransactionStatus.Paid)?.TrackingCode
+            ))
+            .Where(c => c.Year == DateTime.Now.Year && c.Month == DateTime.Now.Month)
+            .ToList();
     }
 }
 
