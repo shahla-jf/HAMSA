@@ -195,7 +195,9 @@ public class GetDashboardFinancialsHandler
             await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
 
         if (managerId != query.ManagerUserId)
-            return new(false, "فقط مدیر ساختمان به داشبورد مالی دسترسی دارد.");
+            return new DashboardFinancials(false,
+                $"شما مدیر ساختمان با آیدی {query.BuildingId} نیستید. آیدی شما:{query.ManagerUserId} آیدی مدیر:{managerId} "
+                );
 
         var now = DateTime.UtcNow;
         var currentYear = now.Year;
