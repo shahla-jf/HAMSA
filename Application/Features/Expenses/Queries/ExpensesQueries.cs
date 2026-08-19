@@ -191,7 +191,9 @@ public class GetDashboardFinancialsHandler
 
     public async Task<DashboardFinancials> HandleAsync(GetDashboardFinancialsQuery query)
     {
-        var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
+        var managerId =
+            await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
+
         if (managerId != query.ManagerUserId)
             return new(false, "فقط مدیر ساختمان به داشبورد مالی دسترسی دارد.");
 
