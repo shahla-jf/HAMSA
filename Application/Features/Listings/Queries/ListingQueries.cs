@@ -14,8 +14,7 @@ public record ListingSummaryDto(
     string Description,
     ListingType Type,
     decimal? Price,
-    DateTime CreatedAt,
-    bool IsSold);
+    DateTime CreatedAt);
 
 public class GetListingsHandler
 {
@@ -44,8 +43,7 @@ public class GetListingsHandler
             l.Description,
             l.Type,
             l.Price,
-            l.CreatedAt,
-            l.IsSold
+            l.CreatedAt
         ));
     }
 }
@@ -65,7 +63,6 @@ public record ListingDetailDto(
     decimal? Price,
     string ContactPhone,
     string? ImageUrl,
-    bool IsSold,
     bool IsMine);
 
 public class GetListingDetailsHandler
@@ -100,7 +97,6 @@ public class GetListingDetailsHandler
             listing.Price,
             listing.ContactPhone,
             listing.ImageUrl,
-            listing.IsSold,
             listing.CreatedByUserId == query.UserId
         );
     }
