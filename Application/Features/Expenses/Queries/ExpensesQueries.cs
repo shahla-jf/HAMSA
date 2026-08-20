@@ -195,9 +195,7 @@ public class GetDashboardFinancialsHandler
             await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
 
         if (managerId != query.ManagerUserId)
-            return new DashboardFinancials(false,
-                $"شما مدیر ساختمان با آیدی {query.BuildingId} نیستید. آیدی شما:{query.ManagerUserId} آیدی مدیر:{managerId} "
-                );
+            return new DashboardFinancials(false, "شما مدیر این ساختمان نیستید");
 
         var now = DateTime.UtcNow;
         var currentYear = now.Year;

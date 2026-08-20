@@ -229,7 +229,7 @@ public class ChargeController : ControllerBase
     /// <summary>
     /// لیست هزینه های ماهانه و سالانه برای نمودار
     /// </summary>
-    [HttpGet("dashboard-financials")]
+    [HttpGet("{buildingId}/dashboard-financials")]
     public async Task<IActionResult> GetDashboardFinancials(Guid buildingId)
     {
         var userId = GetUserId();
