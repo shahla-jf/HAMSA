@@ -1,8 +1,12 @@
 using System.Security.Claims;
+using HAMSA.Application.Features.Listings.Commands.CreateListing;
+using HAMSA.Application.Features.Listings.Commands.DeleteListing;
+using HAMSA.Application.Features.Listings.Queries;
 using HAMSA.Application.Features.LocalServices.Commands.CreateLocalService;
 using HAMSA.Application.Features.LocalServices.Commands.RateLocalService;
 using HAMSA.Application.Features.LocalServices.Queries;
 using HAMSA.Domain.Enums;
+using HAMSA.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,17 +21,32 @@ public class BuildingServicesController: ControllerBase
     private readonly RateLocalServiceHandler _rateLocalServiceHandler;
     private readonly GetLocalServicesHandler  _getLocalServicesHandler;
     private readonly GetLocalServiceDetailsHandler _getLocalServiceDetailsHandler;
-
+    private readonly IFileStorageService  _fileStorageService;
+    private readonly CreateListingHandler _createListingHandler;
+    private readonly GetListingsHandler _getListingsHandler;
+    private readonly GetListingDetailsHandler _getListingDetailsHandler;
+    private  readonly DeleteListingHandler _deleteListingHandler;
+    
     public BuildingServicesController(
         CreateLocalServiceHandler createLocalServiceHandler,
         RateLocalServiceHandler rateLocalServiceHandler,
         GetLocalServicesHandler getLocalServicesHandler,
-        GetLocalServiceDetailsHandler getLocalServiceDetailsHandler)
+        GetLocalServiceDetailsHandler getLocalServiceDetailsHandler,
+        IFileStorageService fileStorageService,
+        CreateListingHandler createListingHandler,
+        GetListingsHandler getListingsHandler,
+        GetListingDetailsHandler getListingDetailsHandler,
+        DeleteListingHandler deleteListingHandler)
     {
         _createLocalServiceHandler = createLocalServiceHandler;
         _rateLocalServiceHandler = rateLocalServiceHandler;
         _getLocalServicesHandler = getLocalServicesHandler;
         _getLocalServiceDetailsHandler = getLocalServiceDetailsHandler;
+        _fileStorageService = fileStorageService;
+        _createListingHandler = createListingHandler;
+        _getListingsHandler = getListingsHandler;
+        _getListingDetailsHandler = getListingDetailsHandler;
+        _deleteListingHandler = deleteListingHandler;
     }
 
     [HttpPost("create-local-service")]
@@ -63,6 +82,53 @@ public class BuildingServicesController: ControllerBase
         var result = await _getLocalServiceDetailsHandler.HandleAsync(new GetLocalServiceDetailsQuery(localServiseId, userId));
         return result.Success ? Ok(result) : BadRequest(result);
     }
+
+    [HttpPost("create-listing")]
+    public async Task<IActionResult> CreateListing([FromBody] CreateListingRequest request)
+    {
+        var userId = GetUserId();
+        
+        string? imageUrl = null;
+        if(request.Image is not null)
+        {
+            imageUrl = await _fileStorageService.UploadImageAsync(
+                request.Image.OpenReadStream(),
+                request.Image.FileName,
+                request.Image.ContentType);
+        }
+        
+        var result = await _createListingHandler.HandleAsync(new CreateListingCommand(
+            request.BuildingId, userId, request.Title, request.Description,
+            request.Type, request.Price, request.ContactPhone, imageUrl));
+        
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+
+    [HttpDelete("delete-listing")]
+    public async Task<IActionResult> DeleteListing(Guid listingId)
+    {
+        var userId = GetUserId();
+        var result = await _deleteListingHandler.HandleAsync(new DeleteListingCommand(listingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+
+    [HttpGet("get-listing-details")]
+    public async Task<IActionResult> GetListingDetails(Guid listingId)
+    {
+        var userId = GetUserId();
+        var result = await _getListingDetailsHandler.HandleAsync(new GetListingDetailsQuery(listingId, userId));
+        return Ok(result);
+    }
+
+    [HttpGet("{buildingId}/get-listing-list")]
+    public async Task<IActionResult> GetListingList(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getListingsHandler.HandleAsync(new GetListingsQuery(buildingId, userId));
+        return Ok(result);
+    }
     
     
     private Guid GetUserId()
@@ -85,3 +151,13 @@ public record  GetLocalServiceListRequest(
     Guid BuildingId,
     LocalServiceCategory? Category = null,
     string? SearchKeyword = null );
+    
+    
+public record CreateListingRequest(
+    Guid BuildingId,
+    string Title,
+    string Description,
+    ListingType Type,
+    decimal? Price,
+    string ContactPhone,
+    IFormFile? Image = null);

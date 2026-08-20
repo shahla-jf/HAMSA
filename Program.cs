@@ -29,6 +29,9 @@ using HAMSA.Application.Features.Expenses.Commands.CreateBuildingExpense;
 using HAMSA.Application.Features.Expenses.Commands.DeleteBuildingExpense;
 using HAMSA.Application.Features.Expenses.Commands.UpdateBuildingExpense;
 using HAMSA.Application.Features.Expenses.Queries;
+using HAMSA.Application.Features.Listings.Commands.CreateListing;
+using HAMSA.Application.Features.Listings.Commands.DeleteListing;
+using HAMSA.Application.Features.Listings.Queries;
 using HAMSA.Application.Features.LocalServices.Commands.CreateLocalService;
 using HAMSA.Application.Features.LocalServices.Commands.RateLocalService;
 using HAMSA.Application.Features.LocalServices.Queries;
@@ -184,6 +187,10 @@ builder.Services.AddScoped<CreateLocalServiceHandler>();
 builder.Services.AddScoped<RateLocalServiceHandler>();
 builder.Services.AddScoped<GetLocalServicesHandler>();
 builder.Services.AddScoped<GetLocalServiceDetailsHandler>();
+builder.Services.AddScoped<CreateListingHandler>();
+builder.Services.AddScoped<GetListingsHandler>();
+builder.Services.AddScoped<GetListingDetailsHandler>();
+builder.Services.AddScoped<DeleteListingHandler>();
 
 var app = builder.Build();
 
