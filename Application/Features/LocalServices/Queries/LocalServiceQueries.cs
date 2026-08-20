@@ -10,9 +10,7 @@ namespace HAMSA.Application.Features.LocalServices.Queries;
 //-------------Query--------------
 public record GetLocalServicesQuery(
     Guid BuildingId,
-    Guid UserId,
-    LocalServiceCategory? Category = null,
-    string? SearchKeyword = null);
+    Guid UserId);
 
 public record LocalServiceListItem(
     Guid Id,
@@ -64,18 +62,6 @@ public class GetLocalServicesHandler
 
         // دریافت خدمات ساختمان‌های نزدیک
         var services = await _serviceRepository.GetByBuildingIdsAsync(nearbyBuildingIds);
-
-        // اعمال فیلترها
-        if (query.Category.HasValue)
-            services = services.Where(s => s.Category == query.Category.Value);
-
-        if (!string.IsNullOrWhiteSpace(query.SearchKeyword))
-        {
-            var keyword = query.SearchKeyword.ToLower();
-            services = services.Where(s => 
-                s.Title.ToLower().Contains(keyword) || 
-                s.ProviderName.ToLower().Contains(keyword));
-        }
 
         return services.Select(s => new LocalServiceListItem(
             s.Id,

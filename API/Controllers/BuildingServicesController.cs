@@ -66,12 +66,12 @@ public class BuildingServicesController: ControllerBase
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
-    [HttpGet("get-local-service-list")]
-    public async Task<IActionResult> GetLocalServices([FromBody] GetLocalServiceListRequest request)
+    [HttpGet("{buildingId}/get-local-service-list")]
+    public async Task<IActionResult> GetLocalServices(Guid buildingId)
     {
         var userId = GetUserId();
         var result = await _getLocalServicesHandler.HandleAsync(
-            new GetLocalServicesQuery(request.BuildingId, userId, request.Category, request.SearchKeyword));
+            new GetLocalServicesQuery(buildingId, userId));
         return Ok(result);
     }
 
@@ -146,12 +146,6 @@ public record CreateLocalServiceRequest(
     string WorkingHours);
     
 public record RateLocalServiceRequest(Guid LocalServiceId, int Score);
-
-public record  GetLocalServiceListRequest(
-    Guid BuildingId,
-    LocalServiceCategory? Category = null,
-    string? SearchKeyword = null );
-    
     
 public record CreateListingRequest(
     Guid BuildingId,
