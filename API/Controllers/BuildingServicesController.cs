@@ -84,7 +84,7 @@ public class BuildingServicesController: ControllerBase
     }
 
     [HttpPost("create-listing")]
-    public async Task<IActionResult> CreateListing([FromBody] CreateListingRequest request)
+    public async Task<IActionResult> CreateListing([FromForm] CreateListingRequest request)
     {
         var userId = GetUserId();
         
