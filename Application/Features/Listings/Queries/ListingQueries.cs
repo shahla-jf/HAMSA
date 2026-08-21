@@ -12,8 +12,6 @@ public record ListingSummaryDto(
     Guid Id,
     string Title,
     string Description,
-    ListingType Type,
-    decimal? Price,
     DateTime CreatedAt);
 
 public class GetListingsHandler
@@ -41,8 +39,6 @@ public class GetListingsHandler
             l.Id,
             l.Title,
             l.Description,
-            l.Type,
-            l.Price,
             l.CreatedAt
         ));
     }
