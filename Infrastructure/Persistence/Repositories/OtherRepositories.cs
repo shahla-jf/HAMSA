@@ -189,20 +189,40 @@ public class GroupBuyingRepository : Repository<GroupBuying>, IGroupBuyingReposi
             .OrderBy(g => g.Deadline)
             .ToListAsync();
 
-    public async Task<IEnumerable<GroupBuying>> GetByCreatorAsync(Guid userId)
+    public async Task<IEnumerable<GroupBuying>> GetByCreatorInBuildingAsync(Guid userId, Guid buildingId)
         => await _dbSet
             .Include(g => g.Participants)
-            .Where(g => g.CreatedByUserId == userId)
+            .Where(g => g.CreatedByUserId == userId && g.BuildingId == buildingId)
             .OrderByDescending(g => g.CreatedAt)
             .ToListAsync();
 
-    public async Task<IEnumerable<GroupBuying>> GetJoinedByUserAsync(Guid userId)
+    public async Task<IEnumerable<GroupBuying>> GetJoinedByUserInBuildingAsync(Guid userId, Guid buildingId)
         => await _dbSet
-            .Where(g => g.Participants.Any(p => p.UserId == userId))
+            .Where(g => g.Participants.Any(p => p.UserId == userId && g.BuildingId == buildingId))
             .OrderByDescending(g => g.CreatedAt)
             .ToListAsync();
 
     public async Task<bool> IsParticipantAsync(Guid groupBuyingId, Guid userId)
         => await _context.GroupBuyingParticipants
             .AnyAsync(p => p.GroupBuyingId == groupBuyingId && p.UserId == userId);
+    
+    public async Task<GroupBuying?> GetByIdWithParticipantsAsync(Guid id)
+        => await _dbSet
+            .Include(g => g.Participants)
+            .ThenInclude(p => p.User)
+            .FirstOrDefaultAsync(g => g.Id == id);
+
+    public async Task AddParticipantAsync(GroupBuyingParticipant participant)
+    {
+        await _context.GroupBuyingParticipants.AddAsync(participant);
+    }
+
+    public async Task RemoveParticipantAsync(Guid groupBuyingId, Guid userId)
+    {
+        var participant = await _context.GroupBuyingParticipants
+            .FirstOrDefaultAsync(p => p.GroupBuyingId == groupBuyingId && p.UserId == userId);
+
+        if (participant is not null)
+            _context.GroupBuyingParticipants.Remove(participant);
+    }
 }

@@ -1,4 +1,9 @@
 using System.Security.Claims;
+using HAMSA.Application.Features.GroupBuying.Commands.CreateGroupBuying;
+using HAMSA.Application.Features.GroupBuying.Commands.DeleteGroupBuying;
+using HAMSA.Application.Features.GroupBuying.Queries;
+using HAMSA.Application.Features.GroupBuyings.Commands.JoinGroupBuying;
+using HAMSA.Application.Features.GroupBuyings.Commands.LeaveGroupBuying;
 using HAMSA.Application.Features.Listings.Commands.CreateListing;
 using HAMSA.Application.Features.Listings.Commands.DeleteListing;
 using HAMSA.Application.Features.Listings.Queries;
@@ -27,6 +32,13 @@ public class BuildingServicesController: ControllerBase
     private readonly GetListingDetailsHandler _getListingDetailsHandler;
     private  readonly DeleteListingHandler _deleteListingHandler;
     private readonly GetMyListingsHandler _getMyListingsHandler;
+    private readonly CreateGroupBuyingHandler _createGroupBuyingHandler;
+    private readonly DeleteGroupBuyingHandler _deleteGroupBuyingHandler;
+    private readonly JoinGroupBuyingHandler _joinGroupBuyingHandler;
+    private readonly LeaveGroupBuyingHandler _leaveGroupBuyingHandler;
+    private readonly GetMyGroupBuyingsHandler _getMyGroupBuyingsHandler;
+    private readonly GetBuildingGroupBuyingsHandler _getBuildingGroupBuyingsHandler;
+    private readonly GetJoinedGroupBuyingsHandler _getJoinedGroupBuyingsHandler;
     
     public BuildingServicesController(
         CreateLocalServiceHandler createLocalServiceHandler,
@@ -38,7 +50,14 @@ public class BuildingServicesController: ControllerBase
         GetListingsHandler getListingsHandler,
         GetListingDetailsHandler getListingDetailsHandler,
         DeleteListingHandler deleteListingHandler,
-        GetMyListingsHandler getMyListingsHandler)
+        GetMyListingsHandler getMyListingsHandler,
+        CreateGroupBuyingHandler createGroupBuyingHandler,
+        DeleteGroupBuyingHandler deleteGroupBuyingHandler,
+        JoinGroupBuyingHandler joinGroupBuyingHandler,
+        LeaveGroupBuyingHandler leaveGroupBuyingHandler,
+        GetMyGroupBuyingsHandler getMyGroupBuyingsHandler,
+        GetBuildingGroupBuyingsHandler getBuildingGroupBuyingsHandler,
+        GetJoinedGroupBuyingsHandler getJoinedGroupBuyingsHandler)
     {
         _createLocalServiceHandler = createLocalServiceHandler;
         _rateLocalServiceHandler = rateLocalServiceHandler;
@@ -50,6 +69,14 @@ public class BuildingServicesController: ControllerBase
         _getListingDetailsHandler = getListingDetailsHandler;
         _deleteListingHandler = deleteListingHandler;
         _getMyListingsHandler = getMyListingsHandler;
+        _createGroupBuyingHandler = createGroupBuyingHandler;
+        _deleteGroupBuyingHandler = deleteGroupBuyingHandler;
+        _joinGroupBuyingHandler = joinGroupBuyingHandler;
+        _leaveGroupBuyingHandler = leaveGroupBuyingHandler;
+        _getMyGroupBuyingsHandler = getMyGroupBuyingsHandler;
+        _getBuildingGroupBuyingsHandler = getBuildingGroupBuyingsHandler;
+        _getJoinedGroupBuyingsHandler = getJoinedGroupBuyingsHandler;
+
     }
 
     [HttpPost("create-local-service")]
@@ -142,6 +169,67 @@ public class BuildingServicesController: ControllerBase
     }
     
     
+    
+    [HttpPost("create-group-buying")]
+    public async Task<IActionResult> CreateGroupBuying([FromBody] CreateGroupBuyingRequest request)
+    {
+        var userId = GetUserId();
+        var result = await _createGroupBuyingHandler.HandleAsync(new CreateGroupBuyingCommand(
+            request.BuildingId, userId, request.OrganizerFullName, request.Title,
+            request.MinimumQuantity, request.Price, request.Deadline,
+            request.ImageUrl, request.Block, request.Floor, request.UnitNumber, request.ContactPhone));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpDelete("delete-group-buying/{groupBuyingId}")]
+    public async Task<IActionResult> DeleteGroupBuying(Guid groupBuyingId)
+    {
+        var userId = GetUserId();
+        var result = await _deleteGroupBuyingHandler.HandleAsync(new DeleteGroupBuyingCommand(groupBuyingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("join-group-buying/{groupBuyingId}")]
+    public async Task<IActionResult> JoinGroupBuying(Guid groupBuyingId)
+    {
+        var userId = GetUserId();
+        var result = await _joinGroupBuyingHandler.HandleAsync(new JoinGroupBuyingCommand(groupBuyingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("leave-group-buying/{groupBuyingId}")]
+    public async Task<IActionResult> LeaveGroupBuying(Guid groupBuyingId)
+    {
+        var userId = GetUserId();
+        var result = await _leaveGroupBuyingHandler.HandleAsync(new LeaveGroupBuyingCommand(groupBuyingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("{buildingId}/get-my-group-buyings")]
+    public async Task<IActionResult> GetMyGroupBuyings(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getMyGroupBuyingsHandler.HandleAsync(new GetMyGroupBuyingsQuery(userId, buildingId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("{buildingId}/get-building-group-buyings")]
+    public async Task<IActionResult> GetBuildingGroupBuyings(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getBuildingGroupBuyingsHandler.HandleAsync(new GetBuildingGroupBuyingsQuery(buildingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("{buildingId}/get-joined-group-buyings")]
+    public async Task<IActionResult> GetJoinedGroupBuyings(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getJoinedGroupBuyingsHandler.HandleAsync(new GetJoinedGroupBuyingsQuery(userId, buildingId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+    
+    
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
@@ -166,3 +254,16 @@ public record CreateListingRequest(
     decimal? Price,
     string ContactPhone,
     IFormFile? Image = null);
+    
+public record CreateGroupBuyingRequest(
+    Guid BuildingId,
+    string OrganizerFullName,
+    string Title,
+    int MinimumQuantity,
+    decimal Price,
+    DateTime Deadline,
+    string? ImageUrl,
+    int Block,
+    int Floor,
+    int UnitNumber,
+    string ContactPhone);

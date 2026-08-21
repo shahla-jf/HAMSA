@@ -32,4 +32,10 @@ public class Repository<T> : IRepository<T> where T : class
 
     public async Task<int> SaveChangesAsync()
         => await _context.SaveChangesAsync();
+    
+    public virtual async Task RemoveAsync(T entity)
+    {
+        _dbSet.Remove(entity);
+        await Task.CompletedTask;
+    }
 }

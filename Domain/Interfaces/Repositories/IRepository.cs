@@ -8,4 +8,5 @@ public interface IRepository<T> where T : class
     void Update(T entity);
     void Delete(T entity);
     Task<int> SaveChangesAsync();
+    Task RemoveAsync(T entity);
 }

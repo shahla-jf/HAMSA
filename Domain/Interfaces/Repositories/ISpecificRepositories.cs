@@ -155,7 +155,10 @@ public interface ILocalServiceRatingRepository : IRepository<LocalServiceRating>
 public interface IGroupBuyingRepository : IRepository<GroupBuying>
 {
     Task<IEnumerable<GroupBuying>> GetActiveByBuildingIdAsync(Guid buildingId);
-    Task<IEnumerable<GroupBuying>> GetByCreatorAsync(Guid userId);
-    Task<IEnumerable<GroupBuying>> GetJoinedByUserAsync(Guid userId);
+    Task<IEnumerable<GroupBuying>> GetByCreatorInBuildingAsync(Guid userId, Guid  buildingId);
+    Task<IEnumerable<GroupBuying>> GetJoinedByUserInBuildingAsync(Guid userId, Guid buildingId);
     Task<bool> IsParticipantAsync(Guid groupBuyingId, Guid userId);
+    Task<GroupBuying?> GetByIdWithParticipantsAsync(Guid id);
+    Task AddParticipantAsync(GroupBuyingParticipant participant);
+    Task RemoveParticipantAsync(Guid groupBuyingId, Guid userId);
 }

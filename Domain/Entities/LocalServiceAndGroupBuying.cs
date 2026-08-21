@@ -160,6 +160,27 @@ public class GroupBuying
         ContactPhone = contactPhone;
         UpdatedAt = DateTime.UtcNow;
     }
+    public void AddParticipant(Guid userId)
+    {
+        if (_participants.Any(p => p.UserId == userId))
+            throw new InvalidOperationException("شما قبلاً به این کمپین پیوسته‌اید.");
+
+        _participants.Add(GroupBuyingParticipant.Create(Id, userId));
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void RemoveParticipant(Guid userId)
+    {
+        var participant = _participants.FirstOrDefault(p => p.UserId == userId)
+                          ?? throw new InvalidOperationException("شما عضو این کمپین نیستید.");
+
+        _participants.Remove(participant);
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public bool IsDeadlineExpired => DateTime.UtcNow > Deadline;
+
+    public bool IsOwner(Guid userId) => CreatedByUserId == userId;
 }
 
 // شرکت‌کننده در خرید گروهی
