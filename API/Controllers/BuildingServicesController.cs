@@ -135,7 +135,7 @@ public class BuildingServicesController: ControllerBase
     }
 
 
-    [HttpDelete("delete-listing")]
+    [HttpDelete("{listingId}/delete-listing")]
     public async Task<IActionResult> DeleteListing(Guid listingId)
     {
         var userId = GetUserId();
@@ -144,7 +144,7 @@ public class BuildingServicesController: ControllerBase
     }
 
 
-    [HttpGet("get-listing-details")]
+    [HttpGet("{listingId}/get-listing-details")]
     public async Task<IActionResult> GetListingDetails(Guid listingId)
     {
         var userId = GetUserId();
