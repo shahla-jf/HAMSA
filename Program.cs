@@ -29,6 +29,11 @@ using HAMSA.Application.Features.Expenses.Commands.CreateBuildingExpense;
 using HAMSA.Application.Features.Expenses.Commands.DeleteBuildingExpense;
 using HAMSA.Application.Features.Expenses.Commands.UpdateBuildingExpense;
 using HAMSA.Application.Features.Expenses.Queries;
+using HAMSA.Application.Features.GroupBuying.Commands.CreateGroupBuying;
+using HAMSA.Application.Features.GroupBuying.Commands.DeleteGroupBuying;
+using HAMSA.Application.Features.GroupBuying.Queries;
+using HAMSA.Application.Features.GroupBuyings.Commands.JoinGroupBuying;
+using HAMSA.Application.Features.GroupBuyings.Commands.LeaveGroupBuying;
 using HAMSA.Application.Features.Listings.Commands.CreateListing;
 using HAMSA.Application.Features.Listings.Commands.DeleteListing;
 using HAMSA.Application.Features.Listings.Queries;
@@ -192,6 +197,13 @@ builder.Services.AddScoped<GetListingsHandler>();
 builder.Services.AddScoped<GetListingDetailsHandler>();
 builder.Services.AddScoped<DeleteListingHandler>();
 builder.Services.AddScoped<GetMyListingsHandler>();
+builder.Services.AddScoped<CreateGroupBuyingHandler>();
+builder.Services.AddScoped<DeleteGroupBuyingHandler>();
+builder.Services.AddScoped<JoinGroupBuyingHandler>();
+builder.Services.AddScoped<LeaveGroupBuyingHandler>();
+builder.Services.AddScoped<GetMyGroupBuyingsHandler>();
+builder.Services.AddScoped<GetBuildingGroupBuyingsHandler>();
+builder.Services.AddScoped<GetJoinedGroupBuyingsHandler>();
 
 var app = builder.Build();
 
