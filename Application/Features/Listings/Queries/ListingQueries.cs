@@ -10,8 +10,8 @@ public record GetListingsQuery(Guid BuildingId, Guid UserId);
 
 public record ListingSummaryDto(
     Guid Id,
+    ListingType Type,
     string Title,
-    string Description,
     DateTime CreatedAt);
 
 public class GetListingsHandler
@@ -37,8 +37,8 @@ public class GetListingsHandler
 
         return listings.Select(l => new ListingSummaryDto(
             l.Id,
+            l.Type,
             l.Title,
-            l.Description,
             l.CreatedAt
         ));
     }
@@ -128,8 +128,8 @@ public class GetMyListingsHandler
 
         return listings.Select(l => new ListingSummaryDto(
             l.Id,
+            l.Type,
             l.Title,
-            l.Description,
             l.CreatedAt
         ));
     }
