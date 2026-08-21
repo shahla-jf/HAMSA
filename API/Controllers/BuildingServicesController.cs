@@ -26,6 +26,7 @@ public class BuildingServicesController: ControllerBase
     private readonly GetListingsHandler _getListingsHandler;
     private readonly GetListingDetailsHandler _getListingDetailsHandler;
     private  readonly DeleteListingHandler _deleteListingHandler;
+    private readonly GetMyListingsHandler _getMyListingsHandler;
     
     public BuildingServicesController(
         CreateLocalServiceHandler createLocalServiceHandler,
@@ -36,7 +37,8 @@ public class BuildingServicesController: ControllerBase
         CreateListingHandler createListingHandler,
         GetListingsHandler getListingsHandler,
         GetListingDetailsHandler getListingDetailsHandler,
-        DeleteListingHandler deleteListingHandler)
+        DeleteListingHandler deleteListingHandler,
+        GetMyListingsHandler getMyListingsHandler)
     {
         _createLocalServiceHandler = createLocalServiceHandler;
         _rateLocalServiceHandler = rateLocalServiceHandler;
@@ -47,6 +49,7 @@ public class BuildingServicesController: ControllerBase
         _getListingsHandler = getListingsHandler;
         _getListingDetailsHandler = getListingDetailsHandler;
         _deleteListingHandler = deleteListingHandler;
+        _getMyListingsHandler = getMyListingsHandler;
     }
 
     [HttpPost("create-local-service")]
@@ -127,6 +130,14 @@ public class BuildingServicesController: ControllerBase
     {
         var userId = GetUserId();
         var result = await _getListingsHandler.HandleAsync(new GetListingsQuery(buildingId, userId));
+        return Ok(result);
+    }
+
+    [HttpGet("{buildingId}/get-my-listing")]
+    public async Task<IActionResult> GetMyListing(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getMyListingsHandler.HandleAsync(new GetMyListingsQuery(buildingId, userId));
         return Ok(result);
     }
     

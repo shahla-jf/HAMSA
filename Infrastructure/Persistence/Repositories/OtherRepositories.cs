@@ -65,15 +65,21 @@ public class ListingRepository : Repository<Listing>, IListingRepository
 {
     public ListingRepository(AppDbContext context) : base(context) { }
 
-    public async Task<IEnumerable<Listing>> GetByBuildingIdAsync(Guid buildingId, bool includeSold = false)
+    public async Task<IEnumerable<Listing>> GetByBuildingIdAsync(Guid buildingId)
         => await _dbSet
-            .Where(l => l.BuildingId == buildingId && (includeSold || !l.IsSold))
+            .Where(l => l.BuildingId == buildingId)
             .OrderByDescending(l => l.CreatedAt)
             .ToListAsync();
 
     public async Task<IEnumerable<Listing>> GetByUserIdAsync(Guid userId)
         => await _dbSet
             .Where(l => l.CreatedByUserId == userId)
+            .OrderByDescending(l => l.CreatedAt)
+            .ToListAsync();
+    
+    public async Task<IEnumerable<Listing>> GetByBuildingIdAndUserIdAsync(Guid buildingId, Guid userId)
+        => await _dbSet
+            .Where(l => l.BuildingId == buildingId && l.CreatedByUserId == userId)
             .OrderByDescending(l => l.CreatedAt)
             .ToListAsync();
 }

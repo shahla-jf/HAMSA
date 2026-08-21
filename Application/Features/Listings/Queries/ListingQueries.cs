@@ -97,3 +97,40 @@ public class GetListingDetailsHandler
         );
     }
 }
+
+
+
+/// <summary>
+/// آگهی های من
+/// </summary>
+public record GetMyListingsQuery(Guid BuildingId, Guid UserId);
+
+public class GetMyListingsHandler
+{
+    private readonly IListingRepository _listingRepository;
+    private readonly IBuildingMembershipRepository _membershipRepository;
+
+    public GetMyListingsHandler(
+        IListingRepository listingRepository,
+        IBuildingMembershipRepository membershipRepository)
+    {
+        _listingRepository = listingRepository;
+        _membershipRepository = membershipRepository;
+    }
+
+    public async Task<IEnumerable<ListingSummaryDto>> HandleAsync(GetMyListingsQuery query)
+    {
+        var membership = await _membershipRepository.GetActiveAsync(query.UserId, query.BuildingId);
+        if (membership is null)
+            return Enumerable.Empty<ListingSummaryDto>();
+
+        var listings = await _listingRepository.GetByBuildingIdAndUserIdAsync(query.BuildingId, query.UserId);
+
+        return listings.Select(l => new ListingSummaryDto(
+            l.Id,
+            l.Title,
+            l.Description,
+            l.CreatedAt
+        ));
+    }
+}

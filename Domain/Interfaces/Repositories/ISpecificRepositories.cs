@@ -122,8 +122,9 @@ public interface IChatMessageRepository : IRepository<ChatMessage>
 
 public interface IListingRepository : IRepository<Listing>
 {
-    Task<IEnumerable<Listing>> GetByBuildingIdAsync(Guid buildingId, bool includeSold = false);
+    Task<IEnumerable<Listing>> GetByBuildingIdAsync(Guid buildingId);
     Task<IEnumerable<Listing>> GetByUserIdAsync(Guid userId);
+    Task<IEnumerable<Listing>> GetByBuildingIdAndUserIdAsync(Guid buildingId, Guid userId);
 }
 
 public interface IResidentEventRepository : IRepository<ResidentEvent>

@@ -191,6 +191,7 @@ builder.Services.AddScoped<CreateListingHandler>();
 builder.Services.AddScoped<GetListingsHandler>();
 builder.Services.AddScoped<GetListingDetailsHandler>();
 builder.Services.AddScoped<DeleteListingHandler>();
+builder.Services.AddScoped<GetMyListingsHandler>();
 
 var app = builder.Build();
 
