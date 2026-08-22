@@ -8,8 +8,7 @@ public record CreateGroupBuyingCommand(
     string Title,
     int MinimumQuantity,
     decimal Price,
-    DateTime Deadline,
-    string ContactPhone);
+    DateTime Deadline);
 
 public record CreateGroupBuyingResult(bool Success, string Message, Guid? GroupBuyingId = null);
 
@@ -66,7 +65,7 @@ public class CreateGroupBuyingHandler
             unit.Unit.Block,
             unit.Unit.Floor,
             unit.Unit.UnitNumber,
-            command.ContactPhone);
+            user?.PhoneNumber ?? "نامشخص");
 
         await _groupBuyingRepository.AddAsync(groupBuying);
         await _groupBuyingRepository.SaveChangesAsync();

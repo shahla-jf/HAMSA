@@ -176,7 +176,7 @@ public class BuildingServicesController: ControllerBase
         var userId = GetUserId();
         var result = await _createGroupBuyingHandler.HandleAsync(new CreateGroupBuyingCommand(
             request.BuildingId, userId, request.Title,
-            request.MinimumQuantity, request.Price, request.Deadline, request.ContactPhone));
+            request.MinimumQuantity, request.Price, request.Deadline));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
@@ -259,5 +259,4 @@ public record CreateGroupBuyingRequest(
     string Title,
     int MinimumQuantity,
     decimal Price,
-    DateTime Deadline,
-    string ContactPhone);
+    DateTime Deadline);
