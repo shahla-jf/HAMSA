@@ -124,7 +124,7 @@ public class GroupBuying
     public static GroupBuying Create(
         Guid buildingId, Guid createdByUserId, string organizerFullName,
         string title, int minimumQuantity, decimal price, DateTime deadline,
-        string? imageUrl, int block, int floor, int unitNumber, string contactPhone)
+        int block, int floor, int unitNumber, string contactPhone)
     {
         return new GroupBuying
         {
@@ -136,7 +136,6 @@ public class GroupBuying
             MinimumQuantity = minimumQuantity,
             Price = price,
             Deadline = deadline,
-            ImageUrl = imageUrl,
             Block = block,
             Floor = floor,
             UnitNumber = unitNumber,

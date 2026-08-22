@@ -175,9 +175,8 @@ public class BuildingServicesController: ControllerBase
     {
         var userId = GetUserId();
         var result = await _createGroupBuyingHandler.HandleAsync(new CreateGroupBuyingCommand(
-            request.BuildingId, userId, request.OrganizerFullName, request.Title,
-            request.MinimumQuantity, request.Price, request.Deadline,
-            request.ImageUrl, request.Block, request.Floor, request.UnitNumber, request.ContactPhone));
+            request.BuildingId, userId, request.Title,
+            request.MinimumQuantity, request.Price, request.Deadline, request.ContactPhone));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
@@ -257,13 +256,8 @@ public record CreateListingRequest(
     
 public record CreateGroupBuyingRequest(
     Guid BuildingId,
-    string OrganizerFullName,
     string Title,
     int MinimumQuantity,
     decimal Price,
     DateTime Deadline,
-    string? ImageUrl,
-    int Block,
-    int Floor,
-    int UnitNumber,
     string ContactPhone);
