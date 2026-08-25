@@ -191,8 +191,7 @@ public class GetDashboardFinancialsHandler
 
     public async Task<DashboardFinancials> HandleAsync(GetDashboardFinancialsQuery query)
     {
-        var managerId =
-            await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
+        var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
 
         if (managerId != query.ManagerUserId)
             return new DashboardFinancials(false, "شما مدیر این ساختمان نیستید");
@@ -212,15 +211,16 @@ public class GetDashboardFinancialsHandler
             building.SharedElectricityCost + building.SharedWaterCost + building.CleaningCost + building.ElevatorCost;
         
         var currentMonthExpenses = dbExpensesThisMonth + sharedCosts;
-        //۳.
-        // ۴. داده‌های نمودار ماهانه (سال جاری)
+        
+        // ۳. داده‌های نمودار ماهانه (فقط تا ماه جاری، و حداکثر ۴ ماه اخیر)
         var monthlyExpensesDict = await _expenseRepository.GetMonthlyExpensesForYearAsync(query.BuildingId, currentYear);
         
         var monthlyChartData = new List<MonthlyDataPoint>();
         var monthNames = new[] { "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", 
                                  "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند" };
         
-        for (int month = 1; month <= 12; month++)
+        // حلقه فقط تا ماه جاری اجرا می‌شود تا از تولید داده‌های بی‌مورد برای ماه‌های آینده جلوگیری شود
+        for (int month = 1; month <= currentMonth; month++)
         {
             var expenses = monthlyExpensesDict.GetValueOrDefault((currentYear, month), 0);
             
@@ -234,14 +234,22 @@ public class GetDashboardFinancialsHandler
                 expenses));
         }
 
-        // ۵. داده‌های نمودار سالانه
+        // اگر تعداد ماه‌ها بیشتر از ۴ بود، فقط ۴ ماه اخیر را نگه دار
+        if (monthlyChartData.Count > 4)
+        {
+            monthlyChartData = monthlyChartData.TakeLast(4).ToList();
+        }
+
+        // ۴. داده‌های نمودار سالانه (حداکثر ۴ سال آخر)
         var yearlyExpensesDict = await _expenseRepository.GetYearlyExpensesAsync(query.BuildingId);
         
-        var allYears = yearlyExpensesDict.Keys.OrderBy(y => y).ToList();
-        var yearlyChartData = allYears.Select(year => new YearlyDataPoint(
-            year,
-            yearlyExpensesDict.GetValueOrDefault(year, 0)
-        )).ToList();
+        var yearlyChartData = yearlyExpensesDict.Keys
+            .OrderBy(y => y)
+            .TakeLast(4) // اگر بیشتر از ۴ سال بود، فقط ۴ سال آخر را برمی‌گرداند
+            .Select(year => new YearlyDataPoint(
+                year,
+                yearlyExpensesDict.GetValueOrDefault(year, 0)
+            )).ToList();
 
         return new(
             true,
