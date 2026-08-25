@@ -131,6 +131,52 @@ public class ResidentEvent
         RegistrationFee = registrationFee;
         UpdatedAt = DateTime.UtcNow;
     }
+    
+    public void AddSession(DateTime startTime, DateTime endTime)
+    {
+        if (endTime <= startTime)
+            throw new InvalidOperationException("زمان پایان باید بعد از زمان شروع باشد.");
+
+        _sessions.Add(EventSession.Create(Id, startTime, endTime));
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void RemoveSession(Guid sessionId)
+    {
+        var session = _sessions.FirstOrDefault(s => s.Id == sessionId);
+        if (session is not null)
+        {
+            _sessions.Remove(session);
+            UpdatedAt = DateTime.UtcNow;
+        }
+    }
+
+    public void ClearSessions()
+    {
+        _sessions.Clear();
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void AddRegistration(Guid userId)
+    {
+        if (_registrations.Any(r => r.UserId == userId))
+            throw new InvalidOperationException("شما قبلاً در این رویداد ثبت‌نام کرده‌اید.");
+
+        _registrations.Add(EventRegistration.Create(Id, userId));
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void RemoveRegistration(Guid userId)
+    {
+        var registration = _registrations.FirstOrDefault(r => r.UserId == userId);
+        if (registration is not null)
+        {
+            _registrations.Remove(registration);
+            UpdatedAt = DateTime.UtcNow;
+        }
+    }
+
+    public bool IsOrganizer(Guid userId) => CreatedByUserId == userId;
 }
 
 // زمان‌های برگزاری رویداد (چون می‌تواند چند جلسه داشته باشد)

@@ -46,6 +46,11 @@ using HAMSA.Application.Features.Reports.Commands.UpdateRepairStatus;
 using HAMSA.Application.Features.Reports.Queries;
 using HAMSA.Application.Features.Reservations.Commands.CreateReservation;
 using HAMSA.Application.Features.Reservations.Queries;
+using HAMSA.Application.Features.ResidentEvents.Commands.CreateResidentEvent;
+using HAMSA.Application.Features.ResidentEvents.Commands.DeleteResidentEvent;
+using HAMSA.Application.Features.ResidentEvents.Commands.RegisterForEvent;
+using HAMSA.Application.Features.ResidentEvents.Commands.UnregisterFromEvent;
+using HAMSA.Application.Features.ResidentEvents.Queries;
 using HAMSA.Application.Features.Units.Commands.AddOwner;
 using HAMSA.Application.Features.Units.Commands.AddTenant;
 using HAMSA.Application.Features.Units.Commands.RemoveOneOwner;
@@ -204,6 +209,14 @@ builder.Services.AddScoped<LeaveGroupBuyingHandler>();
 builder.Services.AddScoped<GetMyGroupBuyingsHandler>();
 builder.Services.AddScoped<GetBuildingGroupBuyingsHandler>();
 builder.Services.AddScoped<GetJoinedGroupBuyingsHandler>();
+builder.Services.AddScoped<CreateResidentEventHandler>();
+builder.Services.AddScoped<DeleteResidentEventHandler>();
+builder.Services.AddScoped<RegisterForEventHandler>();
+builder.Services.AddScoped<UnregisterFromEventHandler>();
+builder.Services.AddScoped<GetBuildingEventsHandler>();
+builder.Services.AddScoped<GetEventDetailsHandler>();
+builder.Services.AddScoped<GetMyEventsHandler>();
+builder.Services.AddScoped<GetJoinedEventsHandler>();
 
 var app = builder.Build();
 

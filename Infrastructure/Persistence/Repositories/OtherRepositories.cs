@@ -91,12 +91,15 @@ public class ResidentEventRepository : Repository<ResidentEvent>, IResidentEvent
     public async Task<IEnumerable<ResidentEvent>> GetByBuildingIdAsync(Guid buildingId)
         => await _dbSet
             .Include(e => e.Sessions)
+            .Include(e => e.CreatedByUser)
             .Where(e => e.BuildingId == buildingId)
             .OrderByDescending(e => e.CreatedAt)
             .ToListAsync();
 
     public async Task<IEnumerable<ResidentEvent>> GetByOrganizerAsync(Guid userId)
         => await _dbSet
+            .Include(e => e.Registrations)
+            .ThenInclude(r => r.User)
             .Include(e => e.Sessions)
             .Where(e => e.CreatedByUserId == userId)
             .OrderByDescending(e => e.CreatedAt)
@@ -104,14 +107,18 @@ public class ResidentEventRepository : Repository<ResidentEvent>, IResidentEvent
 
     public async Task<IEnumerable<ResidentEvent>> GetRegisteredByUserAsync(Guid userId)
         => await _dbSet
+            .Include(e => e.Registrations)
             .Include(e => e.Sessions)
+            .Include(e => e.CreatedByUser)
             .Where(e => e.Registrations.Any(r => r.UserId == userId))
+            .OrderByDescending(e => e.CreatedAt)
             .ToListAsync();
 
     public async Task<ResidentEvent?> GetWithSessionsAsync(Guid eventId)
         => await _dbSet
             .Include(e => e.Sessions)
-            .Include(e => e.Registrations).ThenInclude(r => r.User)
+            .Include(e => e.Registrations)
+            .Include(e => e.CreatedByUser)
             .FirstOrDefaultAsync(e => e.Id == eventId);
 
     public async Task<bool> IsRegisteredAsync(Guid eventId, Guid userId)

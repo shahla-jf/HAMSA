@@ -10,6 +10,11 @@ using HAMSA.Application.Features.Listings.Queries;
 using HAMSA.Application.Features.LocalServices.Commands.CreateLocalService;
 using HAMSA.Application.Features.LocalServices.Commands.RateLocalService;
 using HAMSA.Application.Features.LocalServices.Queries;
+using HAMSA.Application.Features.ResidentEvents.Commands.CreateResidentEvent;
+using HAMSA.Application.Features.ResidentEvents.Commands.DeleteResidentEvent;
+using HAMSA.Application.Features.ResidentEvents.Commands.RegisterForEvent;
+using HAMSA.Application.Features.ResidentEvents.Commands.UnregisterFromEvent;
+using HAMSA.Application.Features.ResidentEvents.Queries;
 using HAMSA.Domain.Enums;
 using HAMSA.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +44,14 @@ public class BuildingServicesController: ControllerBase
     private readonly GetMyGroupBuyingsHandler _getMyGroupBuyingsHandler;
     private readonly GetBuildingGroupBuyingsHandler _getBuildingGroupBuyingsHandler;
     private readonly GetJoinedGroupBuyingsHandler _getJoinedGroupBuyingsHandler;
+    private readonly CreateResidentEventHandler _createResidentEventHandler;
+    private readonly DeleteResidentEventHandler _deleteResidentEventHandler;
+    private readonly RegisterForEventHandler _registerForEventHandler;
+    private readonly UnregisterFromEventHandler _unregisterFromEventHandler;
+    private readonly GetBuildingEventsHandler _getBuildingEventsHandler;
+    private readonly GetEventDetailsHandler _getEventDetailsHandler;
+    private readonly GetMyEventsHandler _getMyEventsHandler;
+    private readonly GetJoinedEventsHandler _getJoinedEventsHandler;
     
     public BuildingServicesController(
         CreateLocalServiceHandler createLocalServiceHandler,
@@ -57,7 +70,15 @@ public class BuildingServicesController: ControllerBase
         LeaveGroupBuyingHandler leaveGroupBuyingHandler,
         GetMyGroupBuyingsHandler getMyGroupBuyingsHandler,
         GetBuildingGroupBuyingsHandler getBuildingGroupBuyingsHandler,
-        GetJoinedGroupBuyingsHandler getJoinedGroupBuyingsHandler)
+        GetJoinedGroupBuyingsHandler getJoinedGroupBuyingsHandler,
+        CreateResidentEventHandler createResidentEventHandler,
+        DeleteResidentEventHandler deleteResidentEventHandler,
+        RegisterForEventHandler registerForEventHandler,
+        UnregisterFromEventHandler unregisterFromEventHandler,
+        GetBuildingEventsHandler getBuildingEventsHandler,
+        GetEventDetailsHandler getEventDetailsHandler,
+        GetMyEventsHandler getMyEventsHandler,
+        GetJoinedEventsHandler getJoinedEventsHandler)
     {
         _createLocalServiceHandler = createLocalServiceHandler;
         _rateLocalServiceHandler = rateLocalServiceHandler;
@@ -76,6 +97,14 @@ public class BuildingServicesController: ControllerBase
         _getMyGroupBuyingsHandler = getMyGroupBuyingsHandler;
         _getBuildingGroupBuyingsHandler = getBuildingGroupBuyingsHandler;
         _getJoinedGroupBuyingsHandler = getJoinedGroupBuyingsHandler;
+        _createResidentEventHandler = createResidentEventHandler;
+        _deleteResidentEventHandler = deleteResidentEventHandler;
+        _registerForEventHandler = registerForEventHandler;
+        _unregisterFromEventHandler = unregisterFromEventHandler;
+        _getBuildingEventsHandler = getBuildingEventsHandler;
+        _getEventDetailsHandler = getEventDetailsHandler;
+        _getMyEventsHandler = getMyEventsHandler;
+        _getJoinedEventsHandler = getJoinedEventsHandler;
 
     }
 
@@ -229,6 +258,83 @@ public class BuildingServicesController: ControllerBase
     }
     
     
+    
+    
+    [HttpPost("create-resident-event")]
+    public async Task<IActionResult> CreateResidentEvent([FromBody] CreateResidentEventRequest request)
+    {
+        var userId = GetUserId();
+        
+        var sessionDtos = request.Sessions
+            .Select(s => new EventSessionDto(s.StartTime, s.EndTime))
+            .ToList();
+        
+        var result = await _createResidentEventHandler.HandleAsync(new CreateResidentEventCommand(
+            request.BuildingId, userId, request.Category,
+            request.Title, request.Description, request.RegistrationFee,
+            sessionDtos));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpDelete("delete-resident-event")]
+    public async Task<IActionResult> DeleteResidentEvent(Guid eventId)
+    {
+        var userId = GetUserId();
+        var result = await _deleteResidentEventHandler.HandleAsync(new DeleteResidentEventCommand(eventId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("register-for-event")]
+    public async Task<IActionResult> RegisterForEvent(Guid eventId)
+    {
+        var userId = GetUserId();
+        var result = await _registerForEventHandler.HandleAsync(new RegisterForEventCommand(eventId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpPost("unregister-from-event")]
+    public async Task<IActionResult> UnregisterFromEvent(Guid eventId)
+    {
+        var userId = GetUserId();
+        var result = await _unregisterFromEventHandler.HandleAsync(new UnregisterFromEventCommand(eventId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("{buildingId}/get-building-events")]
+    public async Task<IActionResult> GetBuildingEvents(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getBuildingEventsHandler.HandleAsync(new GetBuildingEventsQuery(buildingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("{eventId}/get-event-details")]
+    public async Task<IActionResult> GetEventDetails(Guid eventId)
+    {
+        var userId = GetUserId();
+        var result = await _getEventDetailsHandler.HandleAsync(new GetEventDetailsQuery(eventId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("get-my-events")]
+    public async Task<IActionResult> GetMyEvents()
+    {
+        var userId = GetUserId();
+        var result = await _getMyEventsHandler.HandleAsync(new GetMyEventsQuery(userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("get-joined-events")]
+    public async Task<IActionResult> GetJoinedEvents()
+    {
+        var userId = GetUserId();
+        var result = await _getJoinedEventsHandler.HandleAsync(new GetJoinedEventsQuery(userId));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    
+    
+    
     private Guid GetUserId()
         => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
@@ -260,3 +366,13 @@ public record CreateGroupBuyingRequest(
     int MinimumQuantity,
     decimal Price,
     DateTime Deadline);
+    
+public record CreateResidentEventRequest(
+    Guid BuildingId,
+    EventCategory Category,
+    string Title,
+    string Description,
+    decimal RegistrationFee,
+    List<EventSessionRequest> Sessions);
+
+public record EventSessionRequest(DateTime StartTime, DateTime EndTime);
