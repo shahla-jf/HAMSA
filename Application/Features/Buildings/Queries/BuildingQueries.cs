@@ -66,6 +66,39 @@ public class GetBuildingHandler
     }
 }
 
+/// <summary>
+/// GetBuildingImage
+/// </summary>
+public record GetBuildingImageQuery(Guid UserId, Guid BuildingId);
+
+public record GetBuildingImageResult(bool Success, string Message, string? ImageUrl);
+
+public class GetBuildingImageHandler
+{
+    private readonly IBuildingRepository _buildingRepository;
+    private readonly IBuildingMembershipRepository _buildingMembershipRepository;
+
+    public GetBuildingImageHandler(IBuildingRepository buildingRepository,
+        IBuildingMembershipRepository buildingMembershipRepository)
+    {
+        _buildingRepository = buildingRepository;
+        _buildingMembershipRepository = buildingMembershipRepository;
+    }
+
+    public async Task<GetBuildingImageResult> HandleAsync(GetBuildingImageQuery query)
+    {
+        var building = await _buildingRepository.GetByIdAsync(query.BuildingId);
+        if (building is null) return new(false, "ساختمان پیدا نشد", null);
+        
+        var membership = await _buildingMembershipRepository.GetActiveAsync(query.UserId, query.BuildingId);
+        if (membership is null) return new(false, "شما عضو این ساختمان نیستید", null);
+
+        if (string.IsNullOrEmpty(building.ImageUrl))
+            return new(false, "برای این ساختمان هنوز عکسی وجود ندارد", null);
+        return new(true, "عکس با موفقیت یافت شد", building.ImageUrl);
+    }
+}
+
 // ======================================================
 // GetUserBuildings
 // ======================================================

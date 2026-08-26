@@ -25,6 +25,7 @@ public class BuildingController : ControllerBase
     private readonly GetMyRoleInBuildingHandler _getMyRoleHandler;
     private readonly SelectCurrentBuildingHandler _selectCurrentBuildingHandler;
     private readonly GetLastSelectedBuildingHandler _getLastSelectedBuildingHandler;
+    private readonly GetBuildingImageHandler _getBuildingImageHandler;
 
     public BuildingController(
         CreateBuildingHandler createHandler,
@@ -35,7 +36,8 @@ public class BuildingController : ControllerBase
         IFileStorageService fileStorageService,
         GetMyRoleInBuildingHandler getMyRoleHandler,
         SelectCurrentBuildingHandler selectCurrentBuildingHandler,
-        GetLastSelectedBuildingHandler getLastSelectedBuildingHandler)
+        GetLastSelectedBuildingHandler getLastSelectedBuildingHandler,
+        GetBuildingImageHandler getBuildingImageHandler)
     {
         _createHandler = createHandler;
         _updateHandler = updateHandler;
@@ -46,6 +48,7 @@ public class BuildingController : ControllerBase
         _getMyRoleHandler = getMyRoleHandler;
         _selectCurrentBuildingHandler = selectCurrentBuildingHandler;
         _getLastSelectedBuildingHandler = getLastSelectedBuildingHandler;
+        _getBuildingImageHandler = getBuildingImageHandler;
     }
 
     /// <summary>
@@ -68,6 +71,17 @@ public class BuildingController : ControllerBase
         var userId = GetUserId();
         var result = await _getBuildingHandler.HandleAsync(new GetBuildingQuery(buildingId, userId));
         return result is null ? NotFound() : Ok(result);
+    }
+
+    ///
+    /// عکس یک ساختمان
+    ///
+    [HttpGet("{buildingId}/building-image")]
+    public async Task<IActionResult> GetBuildingImage(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getBuildingImageHandler.HandleAsync(new GetBuildingImageQuery(userId, buildingId));
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 
     /// <summary>
