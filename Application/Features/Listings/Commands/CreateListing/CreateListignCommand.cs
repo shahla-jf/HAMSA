@@ -11,7 +11,6 @@ public record CreateListingCommand(
     string Description,
     ListingType Type,
     decimal? Price,
-    string ContactPhone,
     string? ImageUrl);
 
 public record CreateListingResult(
@@ -23,13 +22,16 @@ public class CreateListingHandler
 {
     private readonly IListingRepository _listingRepository;
     private readonly IBuildingMembershipRepository _membershipRepository;
+    private readonly IUserRepository _userRepository;
 
     public CreateListingHandler(
         IListingRepository listingRepository,
-        IBuildingMembershipRepository membershipRepository)
+        IBuildingMembershipRepository membershipRepository,
+        IUserRepository userRepository)
     {
         _listingRepository = listingRepository;
         _membershipRepository = membershipRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<CreateListingResult> HandleAsync(CreateListingCommand command)
@@ -39,6 +41,8 @@ public class CreateListingHandler
         if (membership is null)
             return new(false, "شما عضو این ساختمان نیستید و نمی‌توانید آگهی ثبت کنید.");
 
+        var user = await _userRepository.GetByIdAsync(command.UserId);
+        
         // ایجاد آگهی
         var listing = Listing.Create(
             command.BuildingId,
@@ -47,7 +51,7 @@ public class CreateListingHandler
             command.Description,
             command.Type,
             command.Price,
-            command.ContactPhone,
+            user!.PhoneNumber,
             command.ImageUrl);
 
         await _listingRepository.AddAsync(listing);

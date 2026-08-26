@@ -158,7 +158,7 @@ public class BuildingServicesController: ControllerBase
         
         var result = await _createListingHandler.HandleAsync(new CreateListingCommand(
             request.BuildingId, userId, request.Title, request.Description,
-            request.Type, request.Price, request.ContactPhone, imageUrl));
+            request.Type, request.Price, imageUrl));
         
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -357,7 +357,6 @@ public record CreateListingRequest(
     string Description,
     ListingType Type,
     decimal? Price,
-    string ContactPhone,
     IFormFile? Image = null);
     
 public record CreateGroupBuyingRequest(
