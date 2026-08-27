@@ -123,7 +123,7 @@ public class GetBuildingGroupBuyingsHandler
             g.Price,
             g.Deadline,
             g.IsDeadlineExpired,
-            g.Participants.Any(p => p.UserId == query.UserId), 
+            g.CreatedByUser.Id ==  query.UserId,
             g.Participants.Any(p => p.UserId == query.UserId)
         )).ToList();
 
