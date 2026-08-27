@@ -140,7 +140,7 @@ builder.Services.AddScoped<VerifyOtpHandler>();
 builder.Services.AddScoped<UpdateProfileHandler>();
 builder.Services.AddScoped<GetProfileHandler>();
 builder.Services.AddScoped<CreateBuildingHandler>();
-builder.Services.AddScoped<GetBuildingImageQuery>();
+builder.Services.AddScoped<GetBuildingImageHandler>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<UpdateBuildingHandler>();
 builder.Services.AddScoped<TransferManagerHandler>();
