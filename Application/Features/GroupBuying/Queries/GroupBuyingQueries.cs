@@ -73,11 +73,16 @@ public record BuildingGroupBuyingDto(
     Guid Id,
     string Title,
     string OrganizerFullName,
-    int JoinedUnitsCount,
+    int Block,
+    int Floor,
+    int UnitNumber,
+    int MinimumQuantity,
+    int ParticipantCount,
     decimal Price,
     DateTime Deadline,
     bool IsDeadlineExpired,
-    bool HasJoined);
+    bool IsMine,
+    bool IsJoined);
 
 public record GetBuildingGroupBuyingsResult(
     bool Success,
@@ -110,10 +115,15 @@ public class GetBuildingGroupBuyingsHandler
             g.Id,
             g.Title,
             g.OrganizerFullName,
+            g.Block,
+            g.Floor,
+            g.UnitNumber,
+            g.MinimumQuantity,
             g.Participants.Count,
             g.Price,
             g.Deadline,
             g.IsDeadlineExpired,
+            g.Participants.Any(p => p.UserId == query.UserId), 
             g.Participants.Any(p => p.UserId == query.UserId)
         )).ToList();
 
