@@ -40,7 +40,6 @@ public class AppDbContext : DbContext
 
     public DbSet<Listing> Listings => Set<Listing>();
     public DbSet<ResidentEvent> ResidentEvents => Set<ResidentEvent>();
-    public DbSet<EventSession> EventSessions => Set<EventSession>();
     public DbSet<EventRegistration> EventRegistrations => Set<EventRegistration>();
 
     public DbSet<LocalService> LocalServices => Set<LocalService>();

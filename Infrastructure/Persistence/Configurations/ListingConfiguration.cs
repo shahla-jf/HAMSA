@@ -87,10 +87,9 @@ public class ResidentEventConfiguration : IEntityTypeConfiguration<ResidentEvent
             .HasForeignKey(e => e.BuildingId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(e => e.Sessions)
-            .WithOne(s => s.ResidentEvent)
-            .HasForeignKey(s => s.ResidentEventId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.Property(e => e.EventTime)
+            .HasMaxLength(2000)
+            .IsRequired();
 
         builder.HasMany(e => e.Registrations)
             .WithOne(r => r.ResidentEvent)
@@ -99,15 +98,6 @@ public class ResidentEventConfiguration : IEntityTypeConfiguration<ResidentEvent
     }
 }
 
-public class EventSessionConfiguration : IEntityTypeConfiguration<EventSession>
-{
-    public void Configure(EntityTypeBuilder<EventSession> builder)
-    {
-        builder.HasKey(s => s.Id);
-        builder.Property(s => s.StartTime).IsRequired();
-        builder.Property(s => s.EndTime).IsRequired();
-    }
-}
 
 public class EventRegistrationConfiguration : IEntityTypeConfiguration<EventRegistration>
 {

@@ -11,9 +11,7 @@ public record CreateResidentEventCommand(
     string Title,
     string Description,
     decimal RegistrationFee,
-    List<EventSessionDto> Sessions);
-
-public record EventSessionDto(DateTime StartTime, DateTime EndTime);
+    string EventTime);
 
 public record CreateResidentEventResult(bool Success, string Message, Guid? EventId = null);
 
@@ -50,13 +48,12 @@ public class CreateResidentEventHandler
         if (string.IsNullOrWhiteSpace(command.Title))
             return new(false, "عنوان رویداد نمی‌تواند خالی باشد.");
 
-        if (!command.Sessions.Any())
-            return new(false, "حداقل یک زمان برگزاری باید مشخص شود.");
 
         var residentEvent = ResidentEvent.Create(
             command.BuildingId,
             command.UserId,
             $"{user.FirstName} {user.LastName}",
+            command.EventTime,
             command.Category,
             command.Title,
             command.Description,
@@ -66,10 +63,6 @@ public class CreateResidentEventHandler
             unit.Unit.UnitNumber,
             command.RegistrationFee);
 
-        foreach (var session in command.Sessions)
-        {
-            residentEvent.AddSession(session.StartTime, session.EndTime);
-        }
 
         await _eventRepository.AddAsync(residentEvent);
         await _eventRepository.SaveChangesAsync();

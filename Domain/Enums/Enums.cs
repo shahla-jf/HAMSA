@@ -92,7 +92,8 @@ public enum EventCategory
     Beauty,         // زیبایی
     Technical,      // فنی
     Sports,         // ورزشی
-    BookReading     // کتابخوانی
+    BookReading,     // کتابخوانی
+    Parents         // والدین
 }
 
 public enum Gender

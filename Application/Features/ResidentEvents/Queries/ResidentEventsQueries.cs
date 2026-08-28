@@ -60,6 +60,7 @@ public class GetBuildingEventsHandler
         EventCategory.Technical => "فنی",
         EventCategory.Sports => "ورزشی",
         EventCategory.BookReading => "کتابخوانی",
+        EventCategory.Parents => "والدین",
         _ => "نامشخص"
     };
 }
@@ -71,8 +72,6 @@ public class GetBuildingEventsHandler
 /// </summary>
 public record GetEventDetailsQuery(Guid EventId, Guid UserId);
 
-public record EventSessionDetailDto(DateTime StartTime, DateTime EndTime);
-
 public record EventDetails(
     bool Success,
     string Message,
@@ -82,7 +81,7 @@ public record EventDetails(
     string CategoryName,
     string Title,
     string Description,
-    List<EventSessionDetailDto> Sessions,
+    string EventTime,
     string ContactPhone,
     string Location,
     decimal RegistrationFee,
@@ -106,11 +105,11 @@ public class GetEventDetailsHandler
         var residentEvent = await _eventRepository.GetWithSessionsAsync(query.EventId);
 
         if (residentEvent is null)
-            return new(false, "رویداد یافت نشد.", Guid.Empty, "", default, "", "", "", new(), "", "", 0, false);
+            return new(false, "رویداد یافت نشد.", Guid.Empty, "", default, "", "", "", "", "", "", 0, false);
 
         var membership = await _membershipRepository.GetActiveAsync(query.UserId, residentEvent.BuildingId);
         if (membership is null)
-            return new(false, "شما به این رویداد دسترسی ندارید.", Guid.Empty, "", default, "", "", "", new(), "", "", 0, false);
+            return new(false, "شما به این رویداد دسترسی ندارید.", Guid.Empty, "", default, "", "", "", "", "", "", 0, false);
 
         var isRegistered = await _eventRepository.IsRegisteredAsync(query.EventId, query.UserId);
 
@@ -125,7 +124,7 @@ public class GetEventDetailsHandler
             GetCategoryDisplayName(residentEvent.Category),
             residentEvent.Title,
             residentEvent.Description,
-            residentEvent.Sessions.Select(s => new EventSessionDetailDto(s.StartTime, s.EndTime)).ToList(),
+            residentEvent.EventTime,
             residentEvent.ContactPhone,
             location,
             residentEvent.RegistrationFee,
@@ -141,6 +140,7 @@ public class GetEventDetailsHandler
         EventCategory.Technical => "فنی",
         EventCategory.Sports => "ورزشی",
         EventCategory.BookReading => "کتابخوانی",
+        EventCategory.Parents => "والدین",
         _ => "نامشخص"
     };
 }
@@ -197,6 +197,7 @@ public class GetMyEventsHandler
         EventCategory.Technical => "فنی",
         EventCategory.Sports => "ورزشی",
         EventCategory.BookReading => "کتابخوانی",
+        EventCategory.Parents => "والدین",
         _ => "نامشخص"
     };
 }
@@ -213,7 +214,7 @@ public record JoinedEventDto(
     string OrganizerFullName,
     EventCategory Category,
     string CategoryName,
-    List<DateTime> SessionTimes,
+    string EventTime,
     string Location);
 
 public record GetJoinedEventsResult(bool Success, string Message, List<JoinedEventDto> Items);
@@ -236,7 +237,7 @@ public class GetJoinedEventsHandler
             e.OrganizerFullName,
             e.Category,
             GetCategoryDisplayName(e.Category),
-            e.Sessions.Select(s => s.StartTime).OrderBy(t => t).ToList(),
+            e.EventTime,
             $"بلوک {e.Block}، طبقه {e.Floor}، واحد {e.UnitNumber}"
         )).ToList();
 
@@ -251,6 +252,7 @@ public class GetJoinedEventsHandler
         EventCategory.Technical => "فنی",
         EventCategory.Sports => "ورزشی",
         EventCategory.BookReading => "کتابخوانی",
+        EventCategory.Parents => "والدین",
         _ => "نامشخص"
     };
 }

@@ -265,14 +265,9 @@ public class BuildingServicesController: ControllerBase
     {
         var userId = GetUserId();
         
-        var sessionDtos = request.Sessions
-            .Select(s => new EventSessionDto(s.StartTime, s.EndTime))
-            .ToList();
-        
         var result = await _createResidentEventHandler.HandleAsync(new CreateResidentEventCommand(
             request.BuildingId, userId, request.Category,
-            request.Title, request.Description, request.RegistrationFee,
-            sessionDtos));
+            request.Title, request.Description, request.RegistrationFee, request.EventTime));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
@@ -371,7 +366,5 @@ public record CreateResidentEventRequest(
     EventCategory Category,
     string Title,
     string Description,
-    decimal RegistrationFee,
-    List<EventSessionRequest> Sessions);
-
-public record EventSessionRequest(DateTime StartTime, DateTime EndTime);
+    string EventTime,
+    decimal RegistrationFee);

@@ -71,6 +71,7 @@ public class ResidentEvent
     public Guid BuildingId { get; private set; }
     public Guid CreatedByUserId { get; private set; }
     public string OrganizerFullName { get; private set; } = string.Empty;
+    public string EventTime { get; private set; }
     public EventCategory Category { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
@@ -85,8 +86,6 @@ public class ResidentEvent
     public Building Building { get; private set; } = null!;
     public User CreatedByUser { get; private set; } = null!;
 
-    public IReadOnlyCollection<EventSession> Sessions => _sessions.AsReadOnly();
-    private readonly List<EventSession> _sessions = new();
 
     public IReadOnlyCollection<EventRegistration> Registrations => _registrations.AsReadOnly();
     private readonly List<EventRegistration> _registrations = new();
@@ -94,7 +93,7 @@ public class ResidentEvent
     private ResidentEvent() { }
 
     public static ResidentEvent Create(
-        Guid buildingId, Guid createdByUserId, string organizerFullName,
+        Guid buildingId, Guid createdByUserId, string organizerFullName, string eventTime,
         EventCategory category, string title, string description,
         string contactPhone, int block, int floor, int unitNumber, decimal registrationFee)
     {
@@ -104,6 +103,7 @@ public class ResidentEvent
             BuildingId = buildingId,
             CreatedByUserId = createdByUserId,
             OrganizerFullName = organizerFullName,
+            EventTime = eventTime,
             Category = category,
             Title = title,
             Description = description,
@@ -112,49 +112,8 @@ public class ResidentEvent
             Floor = floor,
             UnitNumber = unitNumber,
             RegistrationFee = registrationFee,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow
         };
-    }
-
-    public void Update(string organizerFullName, EventCategory category, string title,
-        string description, string contactPhone, int block, int floor, int unitNumber, decimal registrationFee)
-    {
-        OrganizerFullName = organizerFullName;
-        Category = category;
-        Title = title;
-        Description = description;
-        ContactPhone = contactPhone;
-        Block = block;
-        Floor = floor;
-        UnitNumber = unitNumber;
-        RegistrationFee = registrationFee;
-        UpdatedAt = DateTime.UtcNow;
-    }
-    
-    public void AddSession(DateTime startTime, DateTime endTime)
-    {
-        if (endTime <= startTime)
-            throw new InvalidOperationException("زمان پایان باید بعد از زمان شروع باشد.");
-
-        _sessions.Add(EventSession.Create(Id, startTime, endTime));
-        UpdatedAt = DateTime.UtcNow;
-    }
-
-    public void RemoveSession(Guid sessionId)
-    {
-        var session = _sessions.FirstOrDefault(s => s.Id == sessionId);
-        if (session is not null)
-        {
-            _sessions.Remove(session);
-            UpdatedAt = DateTime.UtcNow;
-        }
-    }
-
-    public void ClearSessions()
-    {
-        _sessions.Clear();
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void AddRegistration(Guid userId)
@@ -177,30 +136,6 @@ public class ResidentEvent
     }
 
     public bool IsOrganizer(Guid userId) => CreatedByUserId == userId;
-}
-
-// زمان‌های برگزاری رویداد (چون می‌تواند چند جلسه داشته باشد)
-public class EventSession
-{
-    public Guid Id { get; private set; }
-    public Guid ResidentEventId { get; private set; }
-    public DateTime StartTime { get; private set; }
-    public DateTime EndTime { get; private set; }
-
-    public ResidentEvent ResidentEvent { get; private set; } = null!;
-
-    private EventSession() { }
-
-    public static EventSession Create(Guid residentEventId, DateTime startTime, DateTime endTime)
-    {
-        return new EventSession
-        {
-            Id = Guid.NewGuid(),
-            ResidentEventId = residentEventId,
-            StartTime = startTime,
-            EndTime = endTime
-        };
-    }
 }
 
 // ثبت‌نام در رویداد
