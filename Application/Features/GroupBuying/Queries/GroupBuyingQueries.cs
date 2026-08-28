@@ -119,12 +119,12 @@ public class GetBuildingGroupBuyingsHandler
             g.Floor,
             g.UnitNumber,
             g.MinimumQuantity,
-            g.Participants.Count,
+            g.Participants?.Count ?? 0,
             g.Price,
             g.Deadline,
             g.IsDeadlineExpired,
             g.CreatedByUser.Id ==  query.UserId,
-            g.Participants.Any(p => p.UserId == query.UserId)
+            g.Participants?.Any(p => p.UserId == query.UserId) ?? false
         )).ToList();
 
         return new(true, "لیست خریدهای گروهی ساختمان دریافت شد.", items);
