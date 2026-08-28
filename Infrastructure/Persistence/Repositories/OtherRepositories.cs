@@ -192,6 +192,7 @@ public class GroupBuyingRepository : Repository<GroupBuying>, IGroupBuyingReposi
     public async Task<IEnumerable<GroupBuying>> GetActiveByBuildingIdAsync(Guid buildingId)
         => await _dbSet
             .Include(g => g.Participants)
+            .Include(g => g.CreatedByUser)
             .Where(g => g.BuildingId == buildingId && g.Deadline >= DateTime.UtcNow)
             .OrderBy(g => g.Deadline)
             .ToListAsync();
