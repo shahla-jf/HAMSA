@@ -78,7 +78,7 @@ public class Transaction
             UserId = userId,
             ChargeId = chargeId,
             Amount = amount,
-            Status = TransactionStatus.Pending,
+            Status = TransactionStatus.PendingVerification,
             CreatedAt = DateTime.UtcNow
         };
     }
@@ -87,6 +87,12 @@ public class Transaction
     {
         Status = TransactionStatus.Paid;
         TrackingCode = trackingCode;
+    }
+    
+    public void SetAsPendingVerification(string trackingCode)
+    {
+        TrackingCode = trackingCode;
+        Status = TransactionStatus.PendingVerification;
     }
 
     public void MarkAsFailed()

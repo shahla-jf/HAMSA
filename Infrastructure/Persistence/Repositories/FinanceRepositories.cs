@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using HAMSA.Domain.Entities;
 using HAMSA.Domain.Interfaces.Repositories;
 using HAMSA.Infrastructure.Persistence;
@@ -58,6 +59,10 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
                         t.CreatedAt >= from && t.CreatedAt <= to)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
+    public async Task<bool> ExistsAsync(Expression<Func<Transaction, bool>> predicate)
+    {
+        return await _dbSet.AnyAsync(predicate);
+    }
 }
 
 public class BuildingExpenseRepository : Repository<BuildingExpense>, IBuildingExpenseRepository

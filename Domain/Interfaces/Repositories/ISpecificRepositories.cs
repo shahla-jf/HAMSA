@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using HAMSA.Domain.Entities;
 using HAMSA.Domain.Enums;
 using HAMSA.Domain.Interfaces.Repositories;
@@ -50,6 +51,7 @@ public interface ITransactionRepository : IRepository<Transaction>
 {
     Task<IEnumerable<Transaction>> GetByUserIdAsync(Guid userId);
     Task<IEnumerable<Transaction>> GetByUserIdAndDateRangeAsync(Guid userId, DateTime from, DateTime to);
+    Task<bool> ExistsAsync(Expression<Func<Transaction, bool>> predicate);
 }
 
 public interface IBuildingExpenseRepository : IRepository<BuildingExpense>

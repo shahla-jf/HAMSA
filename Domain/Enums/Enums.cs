@@ -63,7 +63,7 @@ public enum ExpenseCategory
 public enum TransactionStatus
 {
     Paid,
-    Pending,
+    PendingVerification,
     Failed
 }
 

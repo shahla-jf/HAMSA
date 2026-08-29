@@ -92,40 +92,38 @@ public class ChargeController : ControllerBase
     /// <summary>
     /// درخواست پرداخت آنلاین شارژ
     /// </summary>
-    [HttpPost("{chargeId}/pay")]
-    public async Task<IActionResult> RequestPayment(Guid chargeId)
+    [HttpPost("pay")]
+    public async Task<IActionResult> RequestPayment([FromBody] PayRequest request)
     {
         var userId = GetUserId();
-        var callbackBaseUrl = $"{Request.Scheme}://{Request.Host}";
         var result = await _requestPaymentHandler.HandleAsync(
-            new RequestPaymentCommand(chargeId, userId, callbackBaseUrl));
+            new RequestPaymentCommand(request.ChargeId, userId, request.TrackingCode));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
     /// <summary>
-    /// تایید پرداخت (callback درگاه)
+    /// ثبت کد پیگیری پرداخت کارت به کارت توسط کاربر
     /// </summary>
-    [HttpGet("verify-payment")]
-    [AllowAnonymous]
-    public async Task<IActionResult> VerifyPayment([FromQuery] Guid transactionId, [FromQuery] string authority)
-    {
-        var result = await _verifyPaymentHandler.HandleAsync(new VerifyPaymentCommand(transactionId, authority));
-        return result.Success ? Ok(result) : BadRequest(result);
-    }
-
-    /// <summary>
-    /// ویرایش هزینه‌های مشاعات (برق، آب، نظافت، آسانسور) - فقط مدیر
-    /// </summary>
-    [HttpPut("{buildingId}/shared-costs")]
-    public async Task<IActionResult> UpdateSharedCosts(Guid buildingId, [FromBody] UpdateSharedCostsRequest request)
+    [HttpPost("submit-manual-payment")]
+    public async Task<IActionResult> SubmitManualPayment([FromBody] PayRequest request)
     {
         var userId = GetUserId();
-        var result = await _updateSharedCostsHandler.HandleAsync(new UpdateSharedCostsCommand(
-            buildingId, userId,
-            request.Electricity, request.IsElectricityPaid,
-            request.Water, request.IsWaterPaid,
-            request.Cleaning, request.IsCleaningPaid,
-            request.Elevator, request.IsElevatorPaid));
+        var result = await _requestPaymentHandler.HandleAsync(
+            new RequestPaymentCommand(request.ChargeId, userId, request.TrackingCode));
+    
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    /// <summary>
+    /// تایید یا رد پرداخت دستی توسط مدیر ساختمان
+    /// </summary>
+    [HttpPost("verify-manual-payment")]
+    public async Task<IActionResult> VerifyManualPayment([FromBody] VerifyPaymentRequest request)
+    {
+        var userId = GetUserId();
+        var result = await _verifyPaymentHandler.HandleAsync(
+            new VerifyPaymentCommand(userId, request.TransactionId, request.IsApproved, request.RejectionReason));
+    
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
@@ -262,3 +260,10 @@ public record UpdateBuildingExpenseRequest(
     ExpenseCategory Category,
     string Title,
     decimal Amount);
+
+public record PayRequest(Guid ChargeId, string TrackingCode);
+
+public record VerifyPaymentRequest(
+        Guid TransactionId,
+        bool IsApproved,
+        string? RejectionReason);

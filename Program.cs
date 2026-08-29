@@ -176,7 +176,6 @@ builder.Services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
 builder.Services.AddScoped<LogoutHandler>();
 builder.Services.AddScoped<EditOwnerHandler>();
 builder.Services.AddScoped<EditTenantHandler>();
-builder.Services.AddScoped<IPaymentGateway, MockPaymentGateway>();
 builder.Services.AddScoped<SetMonthlyChargeAmountHandler>();
 builder.Services.AddScoped<GetChargeRatesHandler>();
 builder.Services.AddScoped<GetMyCurrentChargeHandler>();
