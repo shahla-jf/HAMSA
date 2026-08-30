@@ -85,7 +85,8 @@ public record EventDetails(
     string ContactPhone,
     string Location,
     decimal RegistrationFee,
-    bool IsRegistered);
+    bool IsRegistered,
+    bool IsMine);
 
 public class GetEventDetailsHandler
 {
@@ -105,11 +106,11 @@ public class GetEventDetailsHandler
         var residentEvent = await _eventRepository.GetWithSessionsAsync(query.EventId);
 
         if (residentEvent is null)
-            return new(false, "رویداد یافت نشد.", Guid.Empty, "", default, "", "", "", "", "", "", 0, false);
+            return new(false, "رویداد یافت نشد.", Guid.Empty, "", default, "", "", "", "", "", "", 0, false, false);
 
         var membership = await _membershipRepository.GetActiveAsync(query.UserId, residentEvent.BuildingId);
         if (membership is null)
-            return new(false, "شما به این رویداد دسترسی ندارید.", Guid.Empty, "", default, "", "", "", "", "", "", 0, false);
+            return new(false, "شما به این رویداد دسترسی ندارید.", Guid.Empty, "", default, "", "", "", "", "", "", 0, false, false);
 
         var isRegistered = await _eventRepository.IsRegisteredAsync(query.EventId, query.UserId);
 
@@ -128,7 +129,9 @@ public class GetEventDetailsHandler
             residentEvent.ContactPhone,
             location,
             residentEvent.RegistrationFee,
-            isRegistered
+            isRegistered,
+            residentEvent.CreatedByUserId == query.UserId
+            
         );
     }
 
