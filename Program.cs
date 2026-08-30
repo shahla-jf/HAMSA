@@ -34,6 +34,9 @@ using HAMSA.Application.Features.GroupBuying.Commands.DeleteGroupBuying;
 using HAMSA.Application.Features.GroupBuying.Queries;
 using HAMSA.Application.Features.GroupBuyings.Commands.JoinGroupBuying;
 using HAMSA.Application.Features.GroupBuyings.Commands.LeaveGroupBuying;
+using HAMSA.Application.Features.GroupChallenge.Commands.MarkChallengeCompleted;
+using HAMSA.Application.Features.GroupChallenge.Commands.RegisterForChallenge;
+using HAMSA.Application.Features.GroupChallenge.Queries;
 using HAMSA.Application.Features.Listings.Commands.CreateListing;
 using HAMSA.Application.Features.Listings.Commands.DeleteListing;
 using HAMSA.Application.Features.Listings.Queries;
@@ -217,6 +220,11 @@ builder.Services.AddScoped<GetBuildingEventsHandler>();
 builder.Services.AddScoped<GetEventDetailsHandler>();
 builder.Services.AddScoped<GetMyEventsHandler>();
 builder.Services.AddScoped<GetJoinedEventsHandler>();
+builder.Services.AddScoped<RegisterForChallengeHandler>();
+builder.Services.AddScoped<MarkChallengeCompletedHandler>();
+builder.Services.AddScoped<GetChallengeStatusHandler>();
+builder.Services.AddScoped<GetChallengeDetailsHandler>();
+builder.Services.AddScoped<IGroupChallengeAIService, GroupChallengeAiService>();
 
 var app = builder.Build();
 

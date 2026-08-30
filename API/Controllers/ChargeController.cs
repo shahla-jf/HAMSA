@@ -90,18 +90,6 @@ public class ChargeController : ControllerBase
     }
 
     /// <summary>
-    /// درخواست پرداخت آنلاین شارژ
-    /// </summary>
-    [HttpPost("pay")]
-    public async Task<IActionResult> RequestPayment([FromBody] PayRequest request)
-    {
-        var userId = GetUserId();
-        var result = await _requestPaymentHandler.HandleAsync(
-            new RequestPaymentCommand(request.ChargeId, userId, request.TrackingCode));
-        return result.Success ? Ok(result) : BadRequest(result);
-    }
-
-    /// <summary>
     /// ثبت کد پیگیری پرداخت کارت به کارت توسط کاربر
     /// </summary>
     [HttpPost("submit-manual-payment")]

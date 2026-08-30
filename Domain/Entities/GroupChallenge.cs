@@ -51,6 +51,14 @@ public class GroupChallenge
     {
         Status = GroupChallengeStatus.Completed;
     }
+    
+    public void AddParticipant(GroupChallengeParticipant participant)
+    {
+        if (_participants.Any(p => p.UserId == participant.UserId))
+            throw new InvalidOperationException("کاربر قبلا ثبت‌نام کرده است.");
+
+        _participants.Add(participant);
+    }
 }
 
 // شرکت‌کننده در چالش

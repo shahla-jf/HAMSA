@@ -108,6 +108,7 @@ public interface IGroupChallengeRepository : IRepository<GroupChallenge>
     Task<GroupChallenge?> GetCurrentAsync(Guid buildingId);
     Task<GroupChallenge?> GetWithParticipantsAsync(Guid challengeId);
     Task<bool> IsUserRegisteredAsync(Guid challengeId, Guid userId);
+    Task<GroupChallenge?> GetCurrentWithParticipantsAsync(Guid buildingId);
 }
 
 public interface IChatGroupRepository : IRepository<ChatGroup>

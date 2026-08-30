@@ -1,3 +1,5 @@
+using HAMSA.Domain.Enums;
+
 namespace HAMSA.Domain.Interfaces.Services;
 
 public interface ISmsService
@@ -19,3 +21,20 @@ public interface IFileStorageService
         string contentType,
         CancellationToken cancellationToken = default);
 }
+
+public interface IGroupChallengeAIService
+{
+    Task<AiChallengeResponse> GenerateChallengeAsync(
+        Guid buildingId,
+        List<ParticipantProfile> participants,
+        CancellationToken cancellationToken = default);
+}
+
+public record ParticipantProfile(
+    int Age,
+    Gender Gender,
+    string SportsBackground);
+
+public record AiChallengeResponse(
+    string Title,
+    string Description);

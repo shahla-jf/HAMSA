@@ -99,8 +99,7 @@ public enum EventCategory
 public enum Gender
 {
     Male,
-    Female,
-    Other
+    Female
 }
 
 public enum GroupChallengeStatus
@@ -108,4 +107,11 @@ public enum GroupChallengeStatus
     RegistrationOpen,   // شنبه تا دوشنبه - باز برای ثبت‌نام
     ChallengeActive,    // دوشنبه تا جمعه - چالش فعال
     Completed           // پایان یافته
+}
+
+public enum SportsBackground
+{
+    Beginner,     // مبتدی
+    Intermediate, // متوسط
+    Advanced      // حرفه‌ای
 }

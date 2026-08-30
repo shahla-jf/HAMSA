@@ -25,6 +25,14 @@ public class GroupChallengeRepository : Repository<GroupChallenge>, IGroupChalle
     public async Task<bool> IsUserRegisteredAsync(Guid challengeId, Guid userId)
         => await _context.GroupChallengeParticipants
             .AnyAsync(p => p.GroupChallengeId == challengeId && p.UserId == userId);
+    
+    public async Task<GroupChallenge?> GetCurrentWithParticipantsAsync(Guid buildingId)
+        => await _dbSet
+            .Include(c => c.Participants)
+            .ThenInclude(p => p.User)
+            .Where(c => c.BuildingId == buildingId && c.Status != GroupChallengeStatus.Completed)
+            .OrderByDescending(c => c.CreatedAt)
+            .FirstOrDefaultAsync();
 }
 
 public class ChatGroupRepository : Repository<ChatGroup>, IChatGroupRepository
