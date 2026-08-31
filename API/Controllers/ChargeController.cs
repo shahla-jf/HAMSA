@@ -33,6 +33,7 @@ public class ChargeController : ControllerBase
     private readonly GetBuildingExpensesHandler _getBuildingExpensesHandler;
     private readonly GetMonthlyExpenseSummaryHandler  _getMonthlyExpenseSummaryHandler;
     private readonly GetDashboardFinancialsHandler _getDashboardFinancialsHandler;
+    private readonly GetUnitPaymentStatusHandler _getUnitPaymentStatusHandler;
 
     public ChargeController(
         SetMonthlyChargeAmountHandler setRateHandler,
@@ -48,7 +49,8 @@ public class ChargeController : ControllerBase
         UpdateBuildingExpenseHandler updateBuildingExpenseHandler,
         GetBuildingExpensesHandler getBuildingExpensesHandler,
         GetMonthlyExpenseSummaryHandler getMonthlyExpenseSummaryHandler,
-        GetDashboardFinancialsHandler getDashboardFinancialsHandler)
+        GetDashboardFinancialsHandler getDashboardFinancialsHandler,
+        GetUnitPaymentStatusHandler getUnitPaymentStatusHandler)
     {
         _setRateHandler = setRateHandler;
         _requestPaymentHandler = requestPaymentHandler;
@@ -64,6 +66,7 @@ public class ChargeController : ControllerBase
         _getBuildingExpensesHandler = getBuildingExpensesHandler;
         _getMonthlyExpenseSummaryHandler = getMonthlyExpenseSummaryHandler;
         _getDashboardFinancialsHandler = getDashboardFinancialsHandler;
+        _getUnitPaymentStatusHandler = getUnitPaymentStatusHandler;
     }
 
     /// <summary>
@@ -112,6 +115,14 @@ public class ChargeController : ControllerBase
         var result = await _verifyPaymentHandler.HandleAsync(
             new VerifyPaymentCommand(userId, request.TransactionId, request.IsApproved));
     
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [HttpGet("{unitId}/unit-payment-status")]
+    public async Task<IActionResult> GetUnitPaymentStatus(Guid unitId)
+    {
+        var userId = GetUserId();
+        var result =  await _getUnitPaymentStatusHandler.HandleAsync(new GetUnitPaymentStatusQuery(unitId, userId));
         return result.Success ? Ok(result) : BadRequest(result);
     }
 

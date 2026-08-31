@@ -67,6 +67,13 @@ public enum TransactionStatus
     Failed
 }
 
+public enum PaymentStatusEnum
+{
+    NotPaid,              // پرداخت نکرده
+    PendingVerification,  // کد پیگیری زده و در انتظار تایید مدیر
+    Paid                  // پرداخت شده و تایید شده
+}
+
 public enum ListingType
 {
     Sale,           // فروش

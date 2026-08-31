@@ -60,9 +60,16 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
                         t.CreatedAt >= from && t.CreatedAt <= to)
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
+    
     public async Task<bool> ExistsAsync(Expression<Func<Transaction, bool>> predicate)
     {
         return await _dbSet.AnyAsync(predicate);
+    }
+    
+    public async Task<Transaction?> GetPendingByChargeIdAsync(Guid chargeId)
+    {
+        return await _dbSet
+            .FirstOrDefaultAsync(t => t.ChargeId == chargeId && t.Status == TransactionStatus.PendingVerification);
     }
 }
 

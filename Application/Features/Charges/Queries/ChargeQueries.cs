@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using HAMSA.Domain.Enums;
 using HAMSA.Domain.Interfaces.Repositories;
 
@@ -67,7 +66,7 @@ public record GetMyCurrentChargeQuery(Guid UnitId);
 
 public record MyChargeResult(
     Guid? ChargeId, int Year, int Month, decimal Amount,
-    decimal PenaltyAmount, bool IsPaid, DateTime DueDate);
+    bool IsPaid, DateTime DueDate);
 
 public class GetMyCurrentChargeHandler
 {
@@ -90,7 +89,7 @@ public class GetMyCurrentChargeHandler
 
         return new MyChargeResult(
             charge.Id, charge.Year, charge.Month, charge.Amount,
-            charge.PenaltyAmount, charge.IsPaid, charge.DueDate);
+            charge.IsPaid, charge.DueDate);
     }
 }
 
@@ -192,5 +191,98 @@ public class GetSharedCostsHandler
             building.IsCleaningPaid,
             building.ElevatorCost,
             building.IsElevatorPaid);
+    }
+}
+
+
+public record GetUnitPaymentStatusQuery(
+    Guid UnitId,
+    Guid ManagerUserId);
+
+public record GetUnitPaymentStatusResult(
+    bool Success,
+    string Message,
+    PaymentStatusEnum Status,
+    
+    // این فیلدها فقط وقتی پر می‌شوند که وضعیت PendingVerification باشد
+    Guid? TransactionId = null,
+    string? TrackingCode = null,
+    decimal? Amount = null,
+    DateTime? RequestDate = null);
+    
+    public class GetUnitPaymentStatusHandler
+{
+    private readonly IUnitRepository _unitRepository; 
+    private readonly IBuildingMembershipRepository _membershipRepository;
+    private readonly IChargeRepository _chargeRepository;
+    private readonly ITransactionRepository _transactionRepository;
+
+    public GetUnitPaymentStatusHandler(
+        IUnitRepository unitRepository,
+        IBuildingMembershipRepository membershipRepository,
+        IChargeRepository chargeRepository,
+        ITransactionRepository transactionRepository)
+    {
+        _unitRepository = unitRepository;
+        _membershipRepository = membershipRepository;
+        _chargeRepository = chargeRepository;
+        _transactionRepository = transactionRepository;
+    }
+
+    public async Task<GetUnitPaymentStatusResult> HandleAsync(GetUnitPaymentStatusQuery query)
+    {
+        // ۱. دریافت واحد برای پیدا کردن BuildingId
+        var unit = await _unitRepository.GetByIdAsync(query.UnitId);
+        if (unit is null)
+            return new GetUnitPaymentStatusResult(false, "واحد مورد نظر یافت نشد", PaymentStatusEnum.NotPaid);
+
+        // ۲. بررسی دسترسی مدیر ساختمان
+        var currentManagerId = await _membershipRepository.GetCurrentManagerIdAsync(unit.BuildingId);
+        if (currentManagerId != query.ManagerUserId)
+            return new GetUnitPaymentStatusResult(false, "شما دسترسی مدیریت این ساختمان را ندارید", PaymentStatusEnum.NotPaid);
+
+        // ۳. دریافت لیست شارژهای واحد (که توسط ریپازیتوری شما از قبل بر اساس سال و ماه مرتب شده است)
+        var charges = await _chargeRepository.GetByUnitIdAsync(query.UnitId);
+        
+        // استفاده از FirstOrDefault استاندارد LINQ روی IEnumerable (کاملاً امن و بهینه)
+        var latestCharge = charges.FirstOrDefault();
+
+        if (latestCharge is null)
+            return new GetUnitPaymentStatusResult(true, "هیچ صورتحسابی برای این واحد ثبت نشده است", PaymentStatusEnum.NotPaid);
+
+        // ۴. اگر شارژ قبلاً پرداخت شده باشد
+        if (latestCharge.IsPaid)
+        {
+            return new GetUnitPaymentStatusResult(
+                true,
+                "این شارژ قبلاً پرداخت و تسویه شده است",
+                PaymentStatusEnum.Paid,
+                Amount: latestCharge.Amount
+            );
+        }
+
+        // ۵. بررسی وجود تراکنش در انتظار تایید برای این شارژ خاص
+        var pendingTransaction = await _transactionRepository.GetPendingByChargeIdAsync(latestCharge.Id);
+
+        if (pendingTransaction is not null)
+        {
+            // وضعیت: در انتظار تایید (فرانت‌اند TransactionId را برای دکمه تایید/رد استفاده می‌کند)
+            return new GetUnitPaymentStatusResult(
+                true,
+                "درخواست پرداخت با کد پیگیری ثبت شده و در انتظار تایید شماست",
+                PaymentStatusEnum.PendingVerification,
+                TransactionId: pendingTransaction.Id,
+                TrackingCode: pendingTransaction.TrackingCode,
+                Amount: pendingTransaction.Amount,
+                RequestDate: pendingTransaction.CreatedAt
+            );
+        }
+
+        // ۶. اگر نه پرداخت شده و نه تراکنش در انتظاری دارد
+        return new GetUnitPaymentStatusResult(
+            true,
+            "هنوز پرداختی برای این صورتحساب ثبت نشده است",
+            PaymentStatusEnum.NotPaid
+        );
     }
 }

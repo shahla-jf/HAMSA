@@ -187,6 +187,7 @@ builder.Services.AddScoped<VerifyPaymentHandler>();
 builder.Services.AddScoped<UpdateSharedCostsHandler>();
 builder.Services.AddScoped<GetSharedCostsHandler>();
 builder.Services.AddScoped<GetPaidChargesHandler>();
+builder.Services.AddScoped<GetUnitPaymentStatusHandler>();
 builder.Services.AddScoped<GetPrimaryOwnersHandler>();
 builder.Services.AddScoped<GetCoMembersHandler>();
 builder.Services.AddScoped<GetUserUnitsHandler>();
