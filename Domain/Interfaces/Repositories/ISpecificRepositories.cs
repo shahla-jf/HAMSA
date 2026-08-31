@@ -36,7 +36,6 @@ public interface IBuildingMembershipRepository : IRepository<BuildingMembership>
     Task<IEnumerable<BuildingMembership>> GetPrimaryOwnersByBuildingAsync(Guid buildingId);
     Task<IEnumerable<BuildingMembership>> GetCoMembersByUserInBuildingAsync(Guid userId, Guid buildingId);
     Task<IEnumerable<BuildingMembership>> GetUserUnitsInBuildingAsync(Guid userId, Guid buildingId);
-    Task<IEnumerable<BuildingMembership>> GetByUnitIdsAsync(IEnumerable<Guid> unitIds);
 }
 
 public interface IChargeRepository : IRepository<Charge>
@@ -46,7 +45,6 @@ public interface IChargeRepository : IRepository<Charge>
     Task<IEnumerable<Charge>> GetPaidByBuildingAsync(Guid buildingId);
     Task<decimal> GetTotalIncomeAsync(Guid buildingId, int year, int month);
     Task<decimal> GetMonthlyIncomeAsync(Guid buildingId, int year, int month);
-    Task<IEnumerable<Charge>> GetByUnitIdsAndMonthAsync(IEnumerable<Guid> unitIds, int year, int month);
 }
 
 public interface ITransactionRepository : IRepository<Transaction>
@@ -54,7 +52,6 @@ public interface ITransactionRepository : IRepository<Transaction>
     Task<IEnumerable<Transaction>> GetByUserIdAsync(Guid userId);
     Task<IEnumerable<Transaction>> GetByUserIdAndDateRangeAsync(Guid userId, DateTime from, DateTime to);
     Task<bool> ExistsAsync(Expression<Func<Transaction, bool>> predicate);
-    Task<IEnumerable<Transaction>> GetPendingByChargeIdsAsync(IEnumerable<Guid> chargeIds);
 }
 
 public interface IBuildingExpenseRepository : IRepository<BuildingExpense>

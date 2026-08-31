@@ -1,4 +1,3 @@
-using HAMSA.Domain.Entities;
 using HAMSA.Domain.Enums;
 using HAMSA.Domain.Interfaces.Repositories;
 
@@ -9,36 +8,13 @@ namespace HAMSA.Application.Features.Units.Queries;
 // ======================================================
 public record GetUnitsByBuildingQuery(Guid BuildingId, Guid RequestingManagerId);
 
-public record UnitMemberInfo(
-    string FullName, 
-    string PhoneNumber, 
-    UserRole Role, 
-    bool IsActive, 
-    DateTime StartDate, 
-    DateTime? EndDate);
+public record UnitMemberInfo(string FullName, string PhoneNumber, UserRole Role, bool IsActive, DateTime StartDate, DateTime? EndDate);
+public record UnitDetail(Guid UnitId, int Block, int Floor, int UnitNumber, IEnumerable<UnitMemberInfo> Members);
 
-// رکورد جدید برای وضعیت شارژ و پرداخت
-public record UnitChargeStatus(
-    int Year,
-    int Month,
-    decimal Amount,
-    bool IsPaid,
-    string? PendingTrackingCode,    // کد پیگیری اگر پرداخت در انتظار تایید باشد
-    decimal? PendingAmount);        // مبلغ در انتظار تایید
-
-public record UnitDetail(
-    Guid UnitId, 
-    int Block, 
-    int Floor, 
-    int UnitNumber, 
-    IEnumerable<UnitMemberInfo> Members,
-    UnitChargeStatus? CurrentChargeStatus);  // وضعیت شارژ ماه جاری
-
+// استفاده از Primary Constructor برای کلاس‌های Handler
 public class GetUnitsByBuildingHandler(
     IBuildingMembershipRepository membershipRepository,
-    IUnitRepository unitRepository,
-    IChargeRepository chargeRepository,
-    ITransactionRepository transactionRepository)
+    IUnitRepository unitRepository)
 {
     public async Task<IEnumerable<UnitDetail>> HandleAsync(GetUnitsByBuildingQuery query)
     {
@@ -46,67 +22,23 @@ public class GetUnitsByBuildingHandler(
         if (managerId != query.RequestingManagerId)
             return Enumerable.Empty<UnitDetail>();
 
-        // ۱. دریافت همه واحدهای ساختمان
         var units = await unitRepository.GetByBuildingIdAsync(query.BuildingId);
-        if (!units.Any())
-            return Enumerable.Empty<UnitDetail>();
-
-        var unitIds = units.Select(u => u.Id).ToList();
-
-        // ۲. دریافت همه اعضای واحدها (یکجا برای جلوگیری از N+1)
-        var allMemberships = await membershipRepository.GetByUnitIdsAsync(unitIds);
-
-        // ۳. دریافت شارژهای ماه جاری برای همه واحدها
-        var currentYear = DateTime.UtcNow.Year;
-        var currentMonth = DateTime.UtcNow.Month;
-        var charges = await chargeRepository.GetByUnitIdsAndMonthAsync(unitIds, currentYear, currentMonth);
-
-        // ۴. دریافت تراکنش‌های در انتظار تایید برای این شارژها
-        var chargeIds = charges.Select(c => c.Id).ToList();
-        var pendingTransactions = await transactionRepository.GetPendingByChargeIdsAsync(chargeIds);
-
-        // ۵. ساخت نتیجه
         var result = new List<UnitDetail>();
 
         foreach (var unit in units)
         {
-            // اعضای این واحد
-            var unitMembers = allMemberships
-                .Where(m => m.UnitId == unit.Id)
-                .Select(m => new UnitMemberInfo(
-                    $"{m.User.FirstName} {m.User.LastName}",
-                    m.User.PhoneNumber ?? string.Empty,
-                    m.Role,
-                    m.IsActive,
-                    m.StartDate,
-                    m.EndDate
-                )).ToList();
-
-            // شارژ ماه جاری این واحد
-            var charge = charges.FirstOrDefault(c => c.UnitId == unit.Id);
+            var memberships = await membershipRepository.GetAllByUnitIdAsync(unit.Id);
+            // تبدیل به List برای جلوگیری از Multiple Enumeration در زمان سریالایز شدن
+            var members = memberships.Select(m => new UnitMemberInfo(
+                $"{m.User.FirstName} {m.User.LastName}",
+                m.User.PhoneNumber ?? string.Empty, 
+                m.Role,
+                m.IsActive,
+                m.StartDate,
+                m.EndDate
+            )).ToList(); 
             
-            UnitChargeStatus? chargeStatus = null;
-            if (charge is not null)
-            {
-                // تراکنش در انتظار تایید برای این شارژ
-                var pendingTx = pendingTransactions.FirstOrDefault(t => t.ChargeId == charge.Id);
-                
-                chargeStatus = new UnitChargeStatus(
-                    charge.Year,
-                    charge.Month,
-                    charge.Amount,
-                    charge.IsPaid,
-                    pendingTx?.TrackingCode,
-                    pendingTx?.Amount);
-            }
-
-            result.Add(new UnitDetail(
-                unit.Id,
-                unit.Block,
-                unit.Floor,
-                unit.UnitNumber,
-                unitMembers,
-                chargeStatus));
+            result.Add(new UnitDetail(unit.Id, unit.Block, unit.Floor, unit.UnitNumber, members));
         }
 
         return result;

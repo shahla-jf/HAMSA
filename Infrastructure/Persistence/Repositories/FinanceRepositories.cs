@@ -41,11 +41,6 @@ public class ChargeRepository : Repository<Charge>, IChargeRepository
             .Where(c => c.BuildingId == buildingId && c.Year == year && c.Month == month && c.IsPaid)
             .SumAsync(c => (decimal?)(c.Amount + c.PenaltyAmount)) ?? 0;
     }
-    
-    public async Task<IEnumerable<Charge>> GetByUnitIdsAndMonthAsync(IEnumerable<Guid> unitIds, int year, int month)
-        => await _dbSet
-            .Where(c => unitIds.Contains(c.UnitId) && c.Year == year && c.Month == month)
-            .ToListAsync();
 }
 
 public class TransactionRepository : Repository<Transaction>, ITransactionRepository
@@ -69,11 +64,6 @@ public class TransactionRepository : Repository<Transaction>, ITransactionReposi
     {
         return await _dbSet.AnyAsync(predicate);
     }
-    
-    public async Task<IEnumerable<Transaction>> GetPendingByChargeIdsAsync(IEnumerable<Guid> chargeIds)
-        => await _dbSet
-            .Where(t => chargeIds.Contains(t.ChargeId) && t.Status == TransactionStatus.PendingVerification)
-            .ToListAsync();
 }
 
 public class BuildingExpenseRepository : Repository<BuildingExpense>, IBuildingExpenseRepository

@@ -157,14 +157,4 @@ public class BuildingMembershipRepository : Repository<BuildingMembership>, IBui
                         m.IsActive && m.Unit != null)
             .ToListAsync();
     }
-    
-    public async Task<IEnumerable<BuildingMembership>> GetByUnitIdsAsync(IEnumerable<Guid> unitIds)
-    {
-        var unitIdList = unitIds.ToList();
-    
-        return await _dbSet
-            .Include(m => m.User)
-            .Where(m => m.UnitId.HasValue && unitIdList.Contains(m.UnitId.Value))
-            .ToListAsync();
-    }
 }
