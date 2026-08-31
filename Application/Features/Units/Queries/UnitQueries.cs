@@ -22,7 +22,6 @@ public record UnitChargeStatus(
     int Year,
     int Month,
     decimal Amount,
-    decimal PenaltyAmount,
     bool IsPaid,
     string? PendingTrackingCode,    // کد پیگیری اگر پرداخت در انتظار تایید باشد
     decimal? PendingAmount);        // مبلغ در انتظار تایید
