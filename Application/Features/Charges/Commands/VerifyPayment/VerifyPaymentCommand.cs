@@ -6,8 +6,7 @@ namespace HAMSA.Application.Features.Charges.Commands.VerifyPayment;
 public record VerifyPaymentCommand(
     Guid UserId,
     Guid TransactionId, 
-    bool IsApproved,
-    string? RejectionReason = null);
+    bool IsApproved);
 
 public record VerifyPaymentResult(bool Success, string Message);
 

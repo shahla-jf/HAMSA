@@ -110,7 +110,7 @@ public class ChargeController : ControllerBase
     {
         var userId = GetUserId();
         var result = await _verifyPaymentHandler.HandleAsync(
-            new VerifyPaymentCommand(userId, request.TransactionId, request.IsApproved, request.RejectionReason));
+            new VerifyPaymentCommand(userId, request.TransactionId, request.IsApproved));
     
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -253,5 +253,4 @@ public record PayRequest(Guid ChargeId, string TrackingCode);
 
 public record VerifyPaymentRequest(
         Guid TransactionId,
-        bool IsApproved,
-        string? RejectionReason);
+        bool IsApproved);
