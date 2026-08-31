@@ -45,7 +45,7 @@ public class ChallengeController : ControllerBase
     {
         var userId = GetUserId();
         var result = await _registerForChallengeHandler.HandleAsync(new RegisterForChallengeCommand(
-            request.BuildingId, userId, request.FullName,
+            request.BuildingId, userId,
             request.Age, request.Gender, request.SportsBackground));
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -76,7 +76,6 @@ public class ChallengeController : ControllerBase
 // --- Request Models ---
 public record RegisterForChallengeRequest(
     Guid BuildingId,
-    string? FullName,
     int Age,
     Gender Gender,
     SportsBackground SportsBackground);

@@ -7,7 +7,6 @@ namespace HAMSA.Application.Features.GroupChallenge.Commands.RegisterForChalleng
 public record RegisterForChallengeCommand(
     Guid BuildingId,
     Guid UserId,
-    string? FullName,
     int Age,
     Gender Gender,
     SportsBackground SportsBackground);
@@ -60,13 +59,8 @@ public class RegisterForChallengeHandler
         if (isRegistered)
             return new(false, "شما قبلاً در این چالش ثبت‌نام کرده‌اید.");
 
-        // اگر نام خالی بود، از دیتابیس بخوان
-        var fullName = command.FullName?.Trim();
-        if (string.IsNullOrWhiteSpace(fullName))
-        {
-            var user = await _userRepository.GetByIdAsync(command.UserId);
-            fullName = user is null ? "کاربر ناشناس" : $"{user.FirstName} {user.LastName}";
-        }
+        var user = await _userRepository.GetByIdAsync(command.UserId); 
+        var fullName = user is null ? "کاربر ناشناس" : $"{user.FirstName} {user.LastName}";
 
         var participant = GroupChallengeParticipant.Create(
             challenge.Id,
