@@ -95,7 +95,6 @@ public class GetUnitsByBuildingHandler(
                     charge.Year,
                     charge.Month,
                     charge.Amount,
-                    charge.PenaltyAmount,
                     charge.IsPaid,
                     pendingTx?.TrackingCode,
                     pendingTx?.Amount);
