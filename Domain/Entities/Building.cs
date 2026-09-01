@@ -15,9 +15,6 @@ public class Building
     public bool HasPool { get; private set; }
     public bool HasMeetingHall { get; private set; }
     public bool HasRoofGarden { get; private set; }
-    public string FacilitiesPhone { get; private set; } = string.Empty;
-    public string ManagementPhone { get; private set; } = string.Empty;
-    public string LobbyPhone { get; private set; } = string.Empty;
     public string? ImageUrl { get; private set; }
 
     // هزینه‌های مشاعات ماهانه
@@ -61,7 +58,6 @@ public class Building
         string name, int blockCount, int floorCount, int unitCount,
         string postalCode, string address, double latitude, double longitude,
         bool hasGym, bool hasPool, bool hasMeetingHall, bool hasRoofGarden,
-        string facilitiesPhone, string managementPhone, string lobbyPhone,
         string? imageUrl = null)
     {
         return new Building
@@ -79,9 +75,6 @@ public class Building
             HasPool = hasPool,
             HasMeetingHall = hasMeetingHall,
             HasRoofGarden = hasRoofGarden,
-            FacilitiesPhone = facilitiesPhone,
-            ManagementPhone = managementPhone,
-            LobbyPhone = lobbyPhone,
             ImageUrl = imageUrl,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -92,7 +85,6 @@ public class Building
         string name, int blockCount, int floorCount, int unitCount,
         string postalCode, string address, double latitude, double longitude,
         bool hasGym, bool hasPool, bool hasMeetingHall, bool hasRoofGarden,
-        string facilitiesPhone, string managementPhone, string lobbyPhone,
         string? imageUrl = null)
     {
         Name = name;
@@ -107,9 +99,6 @@ public class Building
         HasPool = hasPool;
         HasMeetingHall = hasMeetingHall;
         HasRoofGarden = hasRoofGarden;
-        FacilitiesPhone = facilitiesPhone;
-        ManagementPhone = managementPhone;
-        LobbyPhone = lobbyPhone;
         ImageUrl = imageUrl;
         UpdatedAt = DateTime.UtcNow;
     }

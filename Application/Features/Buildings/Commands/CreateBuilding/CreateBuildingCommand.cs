@@ -19,9 +19,6 @@ public record CreateBuildingCommand(
     bool HasPool,
     bool HasMeetingHall,
     bool HasRoofGarden,
-    string FacilitiesPhone,
-    string ManagementPhone,
-    string LobbyPhone,
     string? ImageUrl = null
 );
 
@@ -51,8 +48,7 @@ public class CreateBuildingHandler
         var building = Building.Create(
             command.Name, command.BlockCount, command.FloorCount, command.UnitCount,
             command.PostalCode, command.Address, command.Latitude, command.Longitude,
-            command.HasGym, command.HasPool, command.HasMeetingHall, command.HasRoofGarden,
-            command.FacilitiesPhone, command.ManagementPhone, command.LobbyPhone, command.ImageUrl
+            command.HasGym, command.HasPool, command.HasMeetingHall, command.HasRoofGarden,command.ImageUrl
         );
         await _buildingRepository.AddAsync(building);
         

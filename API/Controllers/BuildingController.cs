@@ -91,7 +91,7 @@ public class BuildingController : ControllerBase
     public async Task<IActionResult> CreateBuilding([FromForm] CreateBuildingRequest request)
     {
         var userId = GetUserId();
-        string? imageUrl = null;
+        string? imageUrl = "https://ham3a.s3.ir-thr-at1.arvanstorage.ir/%D8%B9%DA%A9%D8%B3-%D8%A2%D9%BE%D8%A7%D8%B1%D8%AA%D9%85%D8%A7%D9%86-886x1200.webp?versionId=";
         if(request.Image is not null)
         {
             imageUrl = await _fileStorageService.UploadImageAsync(
@@ -99,14 +99,10 @@ public class BuildingController : ControllerBase
                 request.Image.FileName,
                 request.Image.ContentType);
         }
-        var facilitiesPhone = "11111111111";
-        var managementPhone = "22222222222";
-        var lobbyPhone =  "33333333333";
         var result = await _createHandler.HandleAsync(new CreateBuildingCommand(
             userId, request.Name, request.BlockCount, request.FloorCount, request.UnitCount,
             request.PostalCode, request.Address, request.Latitude, request.Longitude,
-            request.HasGym, request.HasPool, request.HasMeetingHall, request.HasRoofGarden,
-            facilitiesPhone, managementPhone, lobbyPhone, imageUrl
+            request.HasGym, request.HasPool, request.HasMeetingHall, request.HasRoofGarden, imageUrl
         ));
         return result.Success ? Ok(result) : BadRequest(result);
     }
@@ -127,17 +123,11 @@ public class BuildingController : ControllerBase
                 request.Image.ContentType);
         }
         
-        var facilitiesPhone = "11111111111";
-        var managementPhone = "22222222222";
-        var lobbyPhone =  "33333333333";
-        
         var result = await _updateHandler.HandleAsync(new UpdateBuildingCommand(
             buildingId, userId, request.Name, request.BlockCount, request.FloorCount,
             request.UnitCount, request.PostalCode, request.Address, request.Latitude,
             request.Longitude, request.HasGym, request.HasPool, request.HasMeetingHall,
-            request.HasRoofGarden,
-            facilitiesPhone, managementPhone, lobbyPhone,
-            imageUrl
+            request.HasRoofGarden, imageUrl
         ));
         return result.Success ? Ok(result) : BadRequest(result);
     }

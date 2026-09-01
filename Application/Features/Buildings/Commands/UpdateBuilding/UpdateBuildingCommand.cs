@@ -18,9 +18,6 @@ public record UpdateBuildingCommand(
     bool HasPool,
     bool HasMeetingHall,
     bool HasRoofGarden,
-    string FacilitiesPhone,
-    string ManagementPhone,
-    string LobbyPhone,
     string ImageUrl = ""
 );
 
@@ -55,8 +52,7 @@ public class UpdateBuildingHandler
         building.Update(
             command.Name, command.BlockCount, command.FloorCount, command.UnitCount,
             command.PostalCode, command.Address, command.Latitude, command.Longitude,
-            command.HasGym, command.HasPool, command.HasMeetingHall, command.HasRoofGarden,
-            command.FacilitiesPhone, command.ManagementPhone, command.LobbyPhone, command.ImageUrl
+            command.HasGym, command.HasPool, command.HasMeetingHall, command.HasRoofGarden,command.ImageUrl
         );
 
         _buildingRepository.Update(building);

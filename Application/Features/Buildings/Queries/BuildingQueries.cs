@@ -22,9 +22,6 @@ public record GetBuildingResult(
     bool HasPool,
     bool HasMeetingHall,
     bool HasRoofGarden,
-    string FacilitiesPhone,
-    string ManagementPhone,
-    string LobbyPhone,
     string? ImageUrl,
     decimal SharedElectricityCost,
     decimal SharedWaterCost,
@@ -59,7 +56,6 @@ public class GetBuildingHandler
             building.UnitCount, building.PostalCode, building.Address,
             building.Latitude, building.Longitude,
             building.HasGym, building.HasPool, building.HasMeetingHall, building.HasRoofGarden,
-            building.FacilitiesPhone, building.ManagementPhone, building.LobbyPhone,
             building.ImageUrl, building.SharedElectricityCost, building.SharedWaterCost,
             building.CleaningCost, building.ElevatorCost, isManager
         );

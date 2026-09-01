@@ -22,18 +22,6 @@ public class BuildingConfiguration : IEntityTypeConfiguration<Building>
             .HasMaxLength(500)
             .IsRequired();
 
-        builder.Property(b => b.FacilitiesPhone)
-            .HasMaxLength(15)
-            .IsRequired();
-
-        builder.Property(b => b.ManagementPhone)
-            .HasMaxLength(15)
-            .IsRequired();
-
-        builder.Property(b => b.LobbyPhone)
-            .HasMaxLength(15)
-            .IsRequired();
-
         builder.Property(b => b.ImageUrl)
             .HasMaxLength(500);
 
