@@ -226,6 +226,8 @@ builder.Services.AddScoped<MarkChallengeCompletedHandler>();
 builder.Services.AddScoped<GetChallengeStatusHandler>();
 builder.Services.AddScoped<GetChallengeDetailsHandler>();
 builder.Services.AddScoped<IGroupChallengeAIService, GroupChallengeAiService>();
+builder.Services.AddScoped<GetExpensePredictionHandler>();
+builder.Services.AddScoped<IExpensePredictionAIService, ExpensePredictionAIService>();
 
 var app = builder.Build();
 

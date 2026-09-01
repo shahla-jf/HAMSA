@@ -34,6 +34,7 @@ public class ChargeController : ControllerBase
     private readonly GetMonthlyExpenseSummaryHandler  _getMonthlyExpenseSummaryHandler;
     private readonly GetDashboardFinancialsHandler _getDashboardFinancialsHandler;
     private readonly GetUnitPaymentStatusHandler _getUnitPaymentStatusHandler;
+    private readonly GetExpensePredictionHandler _getExpensePredictionHandler;
 
     public ChargeController(
         SetMonthlyChargeAmountHandler setRateHandler,
@@ -50,7 +51,8 @@ public class ChargeController : ControllerBase
         GetBuildingExpensesHandler getBuildingExpensesHandler,
         GetMonthlyExpenseSummaryHandler getMonthlyExpenseSummaryHandler,
         GetDashboardFinancialsHandler getDashboardFinancialsHandler,
-        GetUnitPaymentStatusHandler getUnitPaymentStatusHandler)
+        GetUnitPaymentStatusHandler getUnitPaymentStatusHandler,
+        GetExpensePredictionHandler getExpensePredictionHandler)
     {
         _setRateHandler = setRateHandler;
         _requestPaymentHandler = requestPaymentHandler;
@@ -67,6 +69,7 @@ public class ChargeController : ControllerBase
         _getMonthlyExpenseSummaryHandler = getMonthlyExpenseSummaryHandler;
         _getDashboardFinancialsHandler = getDashboardFinancialsHandler;
         _getUnitPaymentStatusHandler = getUnitPaymentStatusHandler;
+        _getExpensePredictionHandler = getExpensePredictionHandler;
     }
 
     /// <summary>
@@ -232,6 +235,16 @@ public class ChargeController : ControllerBase
         var userId = GetUserId();
         var result = await _getDashboardFinancialsHandler.HandleAsync(new GetDashboardFinancialsQuery(buildingId,  userId));
         return result.Success? Ok(result) : BadRequest(result);
+    }
+    
+    
+    [HttpGet("{buildingId}/predict-expenses")]
+    public async Task<IActionResult> PredictExpenses(Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _getExpensePredictionHandler.HandleAsync(
+            new GetExpensePredictionQuery(buildingId, userId));
+        return result.Success ? Ok(result) : BadRequest(result);
     }
     
 

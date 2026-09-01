@@ -38,3 +38,34 @@ public record ParticipantProfile(
 public record AiChallengeResponse(
     string Title,
     string Description);
+    
+    
+    
+    
+public record HistoricalMonthData(
+    int Year,
+    int Month,
+    string MonthName,
+    decimal FixedCosts,     // آب + برق + نظافت + آسانسور
+    decimal VariableCosts,  // هزینه‌های ثبت شده توسط مدیر
+    decimal TotalCosts);
+
+public record ExpensePredictionRequest(
+    Guid BuildingId,
+    string BuildingName,
+    int TotalUnits,
+    List<HistoricalMonthData> HistoricalData);
+
+public record ExpensePredictionResponse(
+    decimal PredictedNextMonth,
+    decimal ConfidenceScore,    // درصد اطمینان (0-100)
+    string TrendDirection,      // "increasing", "decreasing", "stable"
+    string Analysis,            // تحلیل متنی Gemini
+    List<string> Recommendations);
+
+public interface IExpensePredictionAIService
+{
+    Task<ExpensePredictionResponse> PredictNextMonthAsync(
+        ExpensePredictionRequest request,
+        CancellationToken cancellationToken = default);
+}
