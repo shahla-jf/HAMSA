@@ -242,8 +242,7 @@ public class ChargeController : ControllerBase
     public async Task<IActionResult> PredictExpenses(Guid buildingId)
     {
         var userId = GetUserId();
-        var result = await _getExpensePredictionHandler.HandleAsync(
-            new GetExpensePredictionQuery(buildingId, userId));
+        var result = await _getExpensePredictionHandler.HandleAsync(new GetExpensePredictionQuery(buildingId, userId));
         return result.Success ? Ok(result) : BadRequest(result);
     }
     
