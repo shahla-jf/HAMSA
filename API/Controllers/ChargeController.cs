@@ -139,6 +139,21 @@ public class ChargeController : ControllerBase
         var result = await _getSharedCostsHandler.HandleAsync(new GetBuildingSharedCostsQuery(buildingId, userId));
         return result.Success ? Ok(result) : BadRequest(result);
     }
+
+
+    ///
+    /// ویرایش هزینه
+    ///
+    [HttpPut("{buildingId}/shared-costs")]
+    public async Task<IActionResult> PutSharedCosts([FromBody] UpdateSharedCostsRequest request, Guid buildingId)
+    {
+        var userId = GetUserId();
+        var result = await _updateSharedCostsHandler.HandleAsync(new UpdateSharedCostsCommand(buildingId,
+            userId, request.Electricity,
+            request.IsElectricityPaid, request.Water, request.IsWaterPaid, request.Cleaning, request.IsCleaningPaid,
+            request.Elevator, request.IsElevatorPaid));
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
     
     
     /// <summary>

@@ -42,8 +42,8 @@ public class SmsService : ISmsService
             client.DefaultRequestHeaders.Authorization = 
                 new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
-            // var response = await client.PostAsJsonAsync(_webhookUrl, request);
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
+            var response = await client.PostAsJsonAsync(_webhookUrl, request);
+            // var response = new HttpResponseMessage(HttpStatusCode.OK);
             
             if (!response.IsSuccessStatusCode)
             {
