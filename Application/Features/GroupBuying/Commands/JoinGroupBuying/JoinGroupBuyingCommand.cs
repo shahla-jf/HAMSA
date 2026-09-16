@@ -43,7 +43,6 @@ public class JoinGroupBuyingHandler
         if (isAlreadyParticipant)
             return new(false, "شما قبلاً به این کمپین پیوسته‌اید.");
 
-        // بررسی اینکه خود ایجادکننده نباشد (اختیاری)
         if (groupBuying.IsOwner(command.UserId))
             return new(false, "شما ایجادکننده این کمپین هستید و نیازی به پیوستن نیست.");
 

@@ -241,16 +241,15 @@ public record GetUnitPaymentStatusResult(
         if (currentManagerId != query.ManagerUserId)
             return new GetUnitPaymentStatusResult(false, "شما دسترسی مدیریت این ساختمان را ندارید", PaymentStatusEnum.NotPaid);
 
-        // ۳. دریافت لیست شارژهای واحد (که توسط ریپازیتوری شما از قبل بر اساس سال و ماه مرتب شده است)
+        // ۳. دریافت لیست شارژهای واحد
         var charges = await _chargeRepository.GetByUnitIdAsync(query.UnitId);
         
-        // استفاده از FirstOrDefault استاندارد LINQ روی IEnumerable (کاملاً امن و بهینه)
         var latestCharge = charges.FirstOrDefault();
 
         if (latestCharge is null)
             return new GetUnitPaymentStatusResult(true, "هیچ صورتحسابی برای این واحد ثبت نشده است", PaymentStatusEnum.NotPaid);
 
-        // ۴. اگر شارژ قبلاً پرداخت شده باشد
+        // ۴. اگر شارژ قبلا پرداخت شده باشد
         if (latestCharge.IsPaid)
         {
             return new GetUnitPaymentStatusResult(
@@ -266,7 +265,7 @@ public record GetUnitPaymentStatusResult(
 
         if (pendingTransaction is not null)
         {
-            // وضعیت: در انتظار تایید (فرانت‌اند TransactionId را برای دکمه تایید/رد استفاده می‌کند)
+            // وضعیت: در انتظار تایید
             return new GetUnitPaymentStatusResult(
                 true,
                 "درخواست پرداخت با کد پیگیری ثبت شده و در انتظار تایید شماست",

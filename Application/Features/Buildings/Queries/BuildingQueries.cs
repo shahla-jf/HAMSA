@@ -143,7 +143,7 @@ public record GetMyRoleInBuildingResult(
     bool Success,
     string Message,
     bool IsManager,
-    UserRole? Role   // نقش عضویتی (Owner/Tenant) - مستقل از IsManager
+    UserRole? Role
 );
 
 // ------- Handler -------

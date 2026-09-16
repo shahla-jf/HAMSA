@@ -44,7 +44,7 @@ public class CreateBuildingHandler
 
     public async Task<CreateBuildingResult> HandleAsync(CreateBuildingCommand command)
     {
-        // 1. ساختمان را بساز
+        // 1. ساختن ساختمان
         var building = Building.Create(
             command.Name, command.BlockCount, command.FloorCount, command.UnitCount,
             command.PostalCode, command.Address, command.Latitude, command.Longitude,
@@ -52,18 +52,18 @@ public class CreateBuildingHandler
         );
         await _buildingRepository.AddAsync(building);
         
-        // 2. سازنده را به عنوان مدیر ثبت کن
+        // 2. ثبت سازنده به عنوان مدیر
         var managerHistory = BuildingManagerHistory.Create(building.Id, command.ManagerUserId);
         await _managerHistoryRepository.AddAsync(managerHistory);
         
-        // 3. سازنده را به عنوان عضو ساختمان (با نقش Manager) اضافه کن
+        // 3. اضافه کردن سازنده به عنوان عضو ساختمان (با نقش Manager)
         var membership = BuildingMembership.Create(
             command.ManagerUserId, building.Id,
             null,  // مدیر لزوماً واحد خاصی نداره
             UserRole.Manager, DateTime.UtcNow, true, null
         );
 
-        // ساختمان را به عنوان آخرین ساختمان انتخاب‌شده علامت‌گذاری کن
+        // علامت‌زدن ساختمان به عنوان آخرین ساختمان انتخاب‌شده
         membership.MarkAsLastSelected();
 
         await _membershipRepository.AddAsync(membership);

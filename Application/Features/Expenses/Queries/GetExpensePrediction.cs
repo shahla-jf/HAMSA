@@ -51,7 +51,7 @@ public class GetExpensePredictionHandler
         if (building is null)
             return new(false, "ساختمان یافت نشد.");
 
-        // هزینه‌های ثابت ماهانه (از Building)
+        // هزینه‌های ثابت ماهانه
         var fixedMonthlyCosts = building.SharedElectricityCost
                               + building.SharedWaterCost
                               + building.CleaningCost

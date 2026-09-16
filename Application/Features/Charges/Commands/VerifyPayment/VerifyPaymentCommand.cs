@@ -33,12 +33,12 @@ public class VerifyPaymentHandler
         if (transaction is null)
             return new VerifyPaymentResult(false, "تراکنش یافت نشد");
 
-        // ۲. دریافت شارژ مرتبط (برای جلوگیری از خطای Null Reference و دسترسی به BuildingId)
+        // ۲. دریافت شارژ مرتبط
         var charge = await _chargeRepository.GetByIdAsync(transaction.ChargeId);
         if (charge is null)
             return new VerifyPaymentResult(false, "شارژ مرتبط یافت نشد");
 
-        // ۳. بررسی دسترسی مدیر (حالا charge لود شده و BuildingId در دسترس است)
+        // ۳. بررسی دسترسی مدیر
         var managerId = await _membershipRepository.GetCurrentManagerIdAsync(charge.BuildingId);
         if (managerId != command.UserId)
             return new VerifyPaymentResult(false, "فقط مدیر ساختمان می‌تواند این پرداخت را تایید کند");

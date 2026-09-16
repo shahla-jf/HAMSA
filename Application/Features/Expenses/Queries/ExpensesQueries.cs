@@ -4,7 +4,7 @@ using HAMSA.Domain.Interfaces.Repositories;
 namespace HAMSA.Application.Features.Expenses.Queries;
 
 /// <summary>
-/// دریافت لیست خریدهای وارد شده نوسط مدیر
+/// دریافت لیست خریدهای وارد شده توسط مدیر
 /// </summary>
 public record GetBuildingExpensesQuery(
     Guid BuildingId,
@@ -35,7 +35,6 @@ public class GetBuildingExpensesHandler
     {
         var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
         
-        // فقط مدیر ساختمان می‌تواند لیست هزینه‌ها را ببیند
         if (managerId != query.ManagerUserId)
             return Enumerable.Empty<BuildingExpenseItem>();
 
@@ -55,7 +54,7 @@ public class GetBuildingExpensesHandler
 
 
 /// <summary>
-/// کل هزینه های این ماه و پرخرج ترین هزینه
+/// کل هزینه‌های این ماه و پرخرج‌ترین هزینه
 /// </summary>
 
 // ------- Query -------
@@ -75,7 +74,7 @@ public class GetMonthlyExpenseSummaryHandler
 {
     private readonly IBuildingExpenseRepository _expenseRepository;
     private readonly IBuildingMembershipRepository _membershipRepository;
-    private readonly IBuildingRepository _buildingRepository; // اضافه شد برای دسترسی به هزینه‌های ثابت
+    private readonly IBuildingRepository _buildingRepository;
 
     public GetMonthlyExpenseSummaryHandler(
         IBuildingExpenseRepository expenseRepository,
@@ -90,12 +89,10 @@ public class GetMonthlyExpenseSummaryHandler
     public async Task<MonthlyExpenseSummary> HandleAsync(GetMonthlyExpenseSummaryQuery query)
     {
         var managerId = await _membershipRepository.GetCurrentManagerIdAsync(query.BuildingId);
-
-        // احراز هویت: فقط مدیر ساختمان دسترسی دارد
         if (managerId != query.ManagerUserId)
             return new(false, "فقط مدیر ساختمان به گزارش مخارج دسترسی دارد.");
 
-        // استفاده از ماه و سال جاری
+        
         var now = DateTime.UtcNow;
         var year = now.Year;
         var month = now.Month;
@@ -132,7 +129,7 @@ public class GetMonthlyExpenseSummaryHandler
 
         // پیدا کردن بیشترین مقدار
         var highestExpense = allExpenses
-            .Where(x => x.Amount > 0) // هزینه‌های صفر را نادیده می‌گیریم
+            .Where(x => x.Amount > 0) // نادیده گرفتن هزینه‌های صفر
             .OrderByDescending(x => x.Amount)
             .FirstOrDefault();
 
