@@ -93,7 +93,7 @@ public class ExpensePredictionAIService : IExpensePredictionAIService
             avg,
             50,
             "stable",
-            "سرویس هوش مصنوعی در دسترس نیست. این پیش‌بینی بر اساس میانگین ساده ۳ ماه اخیر است.",
+            "این پیش‌بینی بر اساس میانگین ساده ۳ ماه اخیر است.",
             new List<string> { "ثبت منظم هزینه‌ها برای پیش‌بینی دقیق‌تر ضروری است." });
     }
 }
