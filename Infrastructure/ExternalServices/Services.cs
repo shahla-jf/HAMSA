@@ -34,30 +34,34 @@ public class SmsService : ISmsService
     {
         try
         {
+            _logger.LogInformation(">>> Starting SendOtpAsync for {Phone}", phoneNumber);
+            _logger.LogInformation("Webhook URL: {Url}", _webhookUrl);
+
             var client = _httpClientFactory.CreateClient();
-            
+
             var request = new { phoneNumber, code = otpcode };
 
             var byteArray = Encoding.ASCII.GetBytes($"{_username}:{_password}");
-            client.DefaultRequestHeaders.Authorization = 
+            client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
+            _logger.LogInformation("Sending request to n8n...");
+
             var response = await client.PostAsJsonAsync(_webhookUrl, request);
-            // var response = new HttpResponseMessage(HttpStatusCode.OK);
-            
-            
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            _logger.LogInformation(
+                "n8n response: Status={StatusCode}, Body={Body}",
+                response.StatusCode,
+                responseBody);
+
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadAsStringAsync();
-
-                _logger.LogWarning(
-                    "n8n returned {StatusCode}: {Error}",
-                    response.StatusCode,
-                    error);
-
                 throw new HttpRequestException(
-                    $"n8n returned {(int)response.StatusCode}");
+                    $"n8n returned {(int)response.StatusCode}: {responseBody}");
             }
+
             _logger.LogInformation("OTP sent successfully to {Phone}", phoneNumber);
         }
         catch (Exception ex)
