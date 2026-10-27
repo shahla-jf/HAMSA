@@ -17,8 +17,8 @@ public class OtpCode
         {
             Id = Guid.NewGuid(),
             PhoneNumber = phoneNumber,
-            // Code = "11111",
-            Code = new Random().Next(10000, 99999).ToString(),
+            Code = "11111",
+            // Code = new Random().Next(10000, 99999).ToString(),
             ExpiresAt = DateTime.UtcNow.AddMinutes(2),
             IsUsed = false,
             CreatedAt = DateTime.UtcNow

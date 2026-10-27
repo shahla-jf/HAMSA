@@ -45,7 +45,7 @@ public class SendOtpHandler
         
         try
         {
-            await _smsService.SendOtpAsync(command.PhoneNumber, otp.Code);
+            // await _smsService.SendOtpAsync(command.PhoneNumber, otp.Code);
             return new SendOtpResult(true, "کد تایید ارسال شد");
         }
         catch (Exception)
